@@ -1,0 +1,21 @@
+{
+  "name": "Spark Preset Editor",
+  "short_name": "SparkEditor",
+  "description": "Gestore preset pedali chitarra",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/121212/d4af37?text=SPARK",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/121212/d4af37?text=SPARK",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
