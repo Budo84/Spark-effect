@@ -3,69 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spark Preset Editor Pro</title>
+    <title>Spark Preset Editor</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
     <style>
-        :root { --bg-dark: #121212; --bg-card: #1e1e1e; --text-main: #f0f0f0; --text-muted: #aaaaaa; --spark-gold: #d4af37; --spark-red: #c0392b; --pedal-bg: #2a2a2a; --input-bg: #333333; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; padding-bottom: 90px; }
-        .header-bar { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--spark-gold); }
+        /* Tema Scuro stile Spark App */
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #f0f0f0;
+            --text-muted: #aaaaaa;
+            --spark-gold: #d4af37;
+            --spark-red: #c0392b;
+            --pedal-bg: #2a2a2a;
+            --input-bg: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            padding-bottom: 90px;
+        }
+
+        .header-bar {
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--spark-gold);
+        }
+
         h1 { color: var(--spark-gold); margin: 0; font-size: 1.5em; font-weight: 800; letter-spacing: 1px; text-align: center; }
+
         .header-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
-        .btn { background-color: var(--spark-gold); color: #000; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: center; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .btn:active { opacity: 0.8; transform: translateY(2px); }
+
+        .btn {
+            background-color: var(--spark-gold); color: #000; border: none;
+            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
+            display: inline-block; text-align: center; font-size: 0.9em;
+        }
+        .btn:active { opacity: 0.8; }
         .btn-secondary { background-color: #444; color: white; }
-        .btn-dropbox { background-color: #0061FE; color: white; border: 1px solid #fff; font-size: 1em; padding: 12px 20px; width: 100%; max-width: 400px; margin-bottom: 10px;}
-        
-        .preset-card { background-color: var(--bg-card); border: 1px solid #333; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative; }
-        .song-title-input { width: 85%; background: transparent; border: none; color: var(--spark-gold); font-size: 1.5em; font-weight: bold; margin-bottom: 15px; outline: none; border-bottom: 1px dashed #555; padding-bottom: 5px; }
-        .delete-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--spark-red); font-size: 1.5em; cursor: pointer; }
-        
-        .mode-switch { display: flex; gap: 0; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid var(--spark-gold); }
-        .mode-btn { flex: 1; padding: 10px; background: #111; color: var(--text-muted); border: none; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.3s; }
+
+        .preset-card {
+            background-color: var(--bg-card); border: 1px solid #333; border-radius: 12px;
+            padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative;
+        }
+
+        .song-title-input {
+            width: 85%; background: transparent; border: none; color: var(--spark-gold); 
+            font-size: 1.5em; font-weight: bold; margin-bottom: 15px; outline: none; 
+            border-bottom: 1px dashed #555; padding-bottom: 5px;
+        }
+
+        .delete-btn {
+            position: absolute; top: 15px; right: 15px; background: none; border: none; 
+            color: var(--spark-red); font-size: 1.5em; cursor: pointer;
+        }
+
+        /* --- STILE INTERRUTTORE MODALITA' (Cuffie / Input) --- */
+        .mode-switch {
+            display: flex; gap: 0; margin-bottom: 15px; border-radius: 8px; 
+            overflow: hidden; border: 1px solid var(--spark-gold);
+        }
+        .mode-btn {
+            flex: 1; padding: 10px; background: #111; color: var(--text-muted); 
+            border: none; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.3s;
+        }
         .mode-btn.active { background: var(--spark-gold); color: #000; }
-        
-        .tabs-container { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #333; overflow-x: auto; scrollbar-width: none; }
+
+        /* --- STILE TABS PER LE PARTI DEL BRANO --- */
+        .tabs-container {
+            display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #333; 
+            padding-bottom: 0px; overflow-x: auto; scrollbar-width: none;
+        }
         .tabs-container::-webkit-scrollbar { display: none; }
-        .tab { padding: 10px 15px; background: #222; border-radius: 8px 8px 0 0; color: var(--text-muted); cursor: pointer; font-size: 0.9em; font-weight: bold; white-space: nowrap; border: 1px solid #333; border-bottom: none; }
+
+        .tab {
+            padding: 10px 15px; background: #222; border-radius: 8px 8px 0 0; color: var(--text-muted); 
+            cursor: pointer; font-size: 0.9em; font-weight: bold; white-space: nowrap; 
+            border: 1px solid #333; border-bottom: none; transition: background 0.3s;
+        }
         .tab.active { background: var(--text-main); color: #000; border-color: var(--text-main); }
-        .tab.add-tab { background: transparent; color: var(--spark-gold); border: 1px dashed var(--spark-gold); }
-        
+        .tab.add-tab { background: transparent; color: var(--spark-gold); border: 1px dashed var(--spark-gold); border-bottom: none; }
+
         .part-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
-        .song-part-select { flex-grow: 1; background-color: var(--input-bg); border: 1px solid #555; color: var(--text-main); outline: none; border-radius: 6px; padding: 6px; font-weight: bold; }
-        .btn-delete-part { background: rgba(192, 57, 43, 0.2); color: var(--spark-red); border: 1px solid var(--spark-red); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        
+
+        .song-part-select {
+            flex-grow: 1; background-color: var(--input-bg); border: 1px solid #555;
+            color: var(--text-main); font-size: 0.9em; outline: none; border-radius: 6px; padding: 6px; font-weight: bold;
+        }
+
+        .btn-delete-part {
+            background: rgba(192, 57, 43, 0.2); color: var(--spark-red); border: 1px solid var(--spark-red);
+            padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: bold;
+        }
+
+        /* --- CATENA EFFETTI --- */
         .chain-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; scroll-snap-type: x mandatory; }
         .chain-container::-webkit-scrollbar { height: 8px; }
         .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-        .pedal-slot { flex: 0 0 135px; background-color: var(--pedal-bg); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; align-items: center; border: 1px solid #444; scroll-snap-align: start; }
-        .pedal-category { font-size: 0.7em; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
-        .pedal-image { width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; border-radius: 6px; background-color: #111; padding: 5px; transition: 0.3s; }
-        .pedal-image.off { filter: grayscale(100%) brightness(0.4); opacity: 0.7; }
+
+        .pedal-slot {
+            flex: 0 0 135px; background-color: var(--pedal-bg); border-radius: 10px; padding: 12px; 
+            display: flex; flex-direction: column; align-items: center; border: 1px solid #444; scroll-snap-align: start;
+        }
+
+        .pedal-category { font-size: 0.7em; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; }
         
-        .status-indicator { width: 14px; height: 14px; border-radius: 50%; background-color: #555; margin-bottom: 10px; cursor: pointer; border: 2px solid #111; transition: 0.2s; }
+        .pedal-image { 
+            width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; 
+            border-radius: 6px; background-color: #111; padding: 5px; transition: all 0.3s ease;
+        }
+        .pedal-image.off { filter: grayscale(100%) brightness(0.4); opacity: 0.7; }
+
+        .status-indicator {
+            width: 14px; height: 14px; border-radius: 50%; background-color: #555; margin-bottom: 10px;
+            cursor: pointer; border: 2px solid #111; transition: all 0.2s;
+        }
         .status-indicator.on { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
         .status-indicator.off { background-color: #e74c3c; box-shadow: 0 0 10px #e74c3c; }
         .status-indicator.empty { visibility: hidden; } 
         
-        .pedal-select { width: 100%; background-color: var(--input-bg); color: white; border: 1px solid #555; border-radius: 6px; font-size: 0.75em; padding: 6px; margin-bottom: 10px; outline: none; }
+        .pedal-select {
+            width: 100%; background-color: var(--input-bg); color: white; border: 1px solid #555; 
+            border-radius: 6px; font-size: 0.75em; padding: 6px; margin-bottom: 10px; outline: none;
+        }
+
         .params-container { width: 100%; display: flex; flex-direction: column; gap: 5px; }
         .param-row { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; padding: 3px 6px; border-radius: 4px; border: 1px solid #444; }
         .param-label { font-size: 0.7em; color: var(--spark-gold); font-weight: bold; }
-        .param-val { background-color: #333; color: white; border: 1px solid #555; border-radius: 4px; font-size: 0.75em; padding: 2px 4px; outline: none; cursor: pointer; font-weight: bold; }
+        .param-val { background-color: #333; color: white; border: 1px solid #555; border-radius: 4px; font-size: 0.75em; padding: 2px 4px; outline: none; cursor: pointer; text-align: center; font-weight: bold; }
+
+        @media (min-width: 768px) {
+            .header-bar { flex-direction: row; }
+            .header-controls { justify-content: flex-end; width: auto; }
+            .pedal-slot { flex: 1; min-width: 0; } 
+            .chain-container { overflow-x: visible; justify-content: space-between; }
+        }
     </style>
 </head>
 <body>
 
     <div class="header-bar">
         <h1>SPARK PRESET MANAGER</h1>
-        <button class="btn btn-dropbox" onclick="exportDropboxZip()">📦 Esporta TUTTO per Dropbox (ZIP)</button>
         <div class="header-controls">
-            <button class="btn btn-secondary" onclick="exportData()">💾 Backup Editor</button>
+            <button class="btn btn-secondary" onclick="exportData()">💾 Esporta</button>
             <label class="btn btn-secondary" style="margin: 0;">
-                📂 Importa Editor
+                📂 Importa
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
             </label>
             <button class="btn" onclick="addSong()">+ Nuovo Brano</button>
@@ -75,114 +159,153 @@
     <div id="preset-list"></div>
 
     <script>
-        // DIZIONARIO DI TRADUZIONE PER IL SISTEMA SPARK
-        const sparkDict = {
-            "Gate": { "01 NoisGate": "bias.noisegate", "default": "bias.noisegate" },
-            "Comp": { "01 LA Comp": "LAComp", "02 Sustain": "Sustainer", "03 Red Comp": "RedComp", "04 Bass Comp": "BassComp", "05 Optical": "BlueComp", "default": "LAComp" },
-            "Drive": { "01 Booster": "Booster", "02 Clone Drv": "CloneDrive", "03 Tube Drv": "TubeDrive", "04 Over Drv": "OverDrive", "09 Fuzz Face": "Fuzz", "10 Black Op": "BlackOp", "11 Bass Muff": "BassMuff", "12 Guitar Muff": "GuitarMuff", "13 Bassmaster": "Bassmaster", "14 SAB Driver": "SABDriver", "default": "Booster" },
-            "Amp": { "01 Silver 120": "RolandJC120", "02 Black Duo": "TwinReverb", "03 AD Clean": "ADClean", "04 Match Dc": "MatchDC", "05 OSD 50": "OSD50", "08 Blues Boy": "BluesJunior", "09 Tweed Bass": "TweedBass", "10 Ac Boost": "ACBoost", "11 Checkmate": "Checkmate", "12 Two Stone": "TwoStoneSP50", "15 Am. Dlx": "AmericanDeluxe", "16 Plexiglas": "Plexi", "17 JM45": "JTM45", "18 Lux Verb": "LuxVerb", "21 RB 101": "Bogner", "22 British 30": "AC30", "23 Am. H.Gain": "AmericanHighGain", "24 SLO 100": "SLO100", "25 YJM100": "YJM100", "26 Treadplate": "Treadplate", "27 Insane": "Insane", "28 Insane 6508": "Insane6508", "29 SwitchAxe": "SwitchAxe", "30 Rocker V": "RockerV", "31 BE 101": "BE101", "32 Acoustic": "Acoustic", "33 Fishboy": "Fishboy", "34 Jumbo": "Jumbo", "35 Flat Ac.": "FlatAcoustic", "36 RB 800": "RB800", "37 Sunny 3000": "Sunny3000", "38 W600": "W600", "39 Hammer 500": "Hammer500", "default": "Plexi" },
-            "Mod": { "01 Tremolo": "Tremolo", "02 Chorus": "Chorus", "03 Flanger": "Flanger", "04 Phaser": "Phaser", "05 Vibrato": "Vibrato", "06 UniVibe": "MiniVibe", "08 Cloner": "ClonerChorus", "09 Classic Vibe": "ClassicVibe", "10 Tremolator": "Tremolator", "11 Trem. Square": "TremoloSquare", "12 Guitar EQ": "GuitarEQ", "13 Bass EQ": "BassEQ", "default": "Chorus" },
-            "Delay": { "01 Digital": "DelayDigital", "02 Echo Fit": "DelayEcho", "03 Vintage": "DelayVintage", "04 Reverse": "DelayReverse", "05 Multi Head": "DelayMultiHead", "06 Echo Tape": "DelayEchoTape", "default": "DelayDigital" },
-            "Reverb": { "01 Room A": "bias.reverb", "02 Chamber": "bias.reverb", "03 Hall Nat.": "bias.reverb", "04 Plate Short": "bias.reverb", "05 Hall Amb.": "bias.reverb", "06 Plate Rich": "bias.reverb", "07 Hall Med.": "bias.reverb", "08 Plate Long": "bias.reverb", "09 Room B": "bias.reverb", "default": "bias.reverb" }
-        };
-
+        // IL CATALOGO EFFETTI (Invariato)
         const catalog = {
-            "Gate": [ { name: "Nessun Pedale", img: "", params: [] }, { name: "01 NoisGate", img: "database/1-noisegate/NoiseGate-01-NoisGate.jpg", params: ["Threshold"] } ],
-            "Comp": [ { name: "Nessun Pedale", img: "", params: [] }, { name: "01 LA Comp", img: "database/2-COMP-WAH/COMP-WAH-01-LA-Comp.jpg", params: ["Sustain", "Level"] }, { name: "02 Sustain", img: "database/2-COMP-WAH/COMP-WAH-02-Sustain-Comp.jpg", params: ["Sustain", "Level"] }, { name: "03 Red Comp", img: "database/2-COMP-WAH/COMP-WAH-03-Red-Comp.jpg", params: ["Sustain", "Level"] }, { name: "04 Bass Comp", img: "database/2-COMP-WAH/COMP-WAH-04-Bass-Comp.jpg", params: ["Comp", "Level"] }, { name: "05 Optical", img: "database/2-COMP-WAH/COMP-WAH-05-Optical-Comp.jpg", params: ["Comp", "Level"] } ],
-            "Drive": [ { name: "Nessun Pedale", img: "", params: [] }, { name: "01 Booster", img: "database/3-Drive/Drive-01-Booster.jpg", params: ["Gain", "Vol"] }, { name: "02 Clone Drv", img: "database/3-Drive/Drive-02-Clone-Drive.jpg", params: ["Gain", "Tone"] }, { name: "03 Tube Drv", img: "database/3-Drive/Drive-03-Tube-Drive.jpg", params: ["Gain", "Tone"] }, { name: "04 Over Drv", img: "database/3-Drive/Drive-04-Over-Drive.jpg", params: ["Gain", "Tone"] }, { name: "09 Fuzz Face", img: "database/3-Drive/Drive-09-Fuzz-Face.jpg", params: ["Fuzz", "Vol"] }, { name: "10 Black Op", img: "database/3-Drive/Drive-10-Black-Op.jpg", params: ["Gain", "Tone"] }, { name: "11 Bass Muff", img: "database/3-Drive/Drive-11-Bass-Muff.jpg", params: ["Sustain", "Tone"] }, { name: "12 Guitar Muff", img: "database/3-Drive/Drive-12-Guitar-Muff.jpg", params: ["Sustain", "Tone"] }, { name: "13 Bassmaster", img: "database/3-Drive/Drive-13-Bassmaster.jpg", params: ["Vol", "Tone"] }, { name: "14 SAB Driver", img: "database/3-Drive/Drive-14-SAB-driver.jpg", params: ["Gain", "Tone"] } ],
-            "Amp": [ { name: "Nessun Pedale", img: "", params: [] }, { name: "01 Silver 120", img: "database/4-AMP/Amp-01-Silver-120.jpg", params: ["Gain", "Master"] }, { name: "02 Black Duo", img: "database/4-AMP/Amp-02-Black-Duo.jpg", params: ["Gain", "Master"] }, { name: "03 AD Clean", img: "database/4-AMP/Amp-03-AD-Clean.jpg", params: ["Gain", "Master"] }, { name: "04 Match Dc", img: "database/4-AMP/Amp-04-Match-Dc.jpg", params: ["Gain", "Master"] }, { name: "05 OSD 50", img: "database/4-AMP/Amp-05-OSD-50.jpg", params: ["Gain", "Master"] }, { name: "08 Blues Boy", img: "database/4-AMP/Amp-08-Blues-Boy.jpg", params: ["Gain", "Master"] }, { name: "09 Tweed Bass", img: "database/4-AMP/Amp-09-Tweed-Bass.jpg", params: ["Gain", "Master"] }, { name: "10 Ac Boost", img: "database/4-AMP/Amp-10-Ac-Boost.jpg", params: ["Gain", "Master"] }, { name: "11 Checkmate", img: "database/4-AMP/Amp-11-Checkmate.jpg", params: ["Gain", "Master"] }, { name: "12 Two Stone", img: "database/4-AMP/Amp-12-Two-Stone-SP50.jpg", params: ["Gain", "Master"] }, { name: "15 Am. Dlx", img: "database/4-AMP/Amp-15-American-Deluxe.jpg", params: ["Gain", "Master"] }, { name: "16 Plexiglas", img: "database/4-AMP/Amp-16-Plexiglas.jpg", params: ["Gain", "Master"] }, { name: "17 JM45", img: "database/4-AMP/Amp-17-JM45.jpg", params: ["Gain", "Master"] }, { name: "18 Lux Verb", img: "database/4-AMP/AMP-18-Lux-Verb.jpg", params: ["Gain", "Master"] }, { name: "21 RB 101", img: "database/4-AMP/AMP-21-RB-101.jpg", params: ["Gain", "Master"] }, { name: "22 British 30", img: "database/4-AMP/AMP-22-British-30.jpg", params: ["Gain", "Master"] }, { name: "23 Am. H.Gain", img: "database/4-AMP/AMP-23-American-High-Gain.jpg", params: ["Gain", "Master"] }, { name: "24 SLO 100", img: "database/4-AMP/AMP-24-SLO-100.jpg", params: ["Gain", "Master"] }, { name: "25 YJM100", img: "database/4-AMP/AMP-25-YJM100.jpg", params: ["Gain", "Master"] }, { name: "26 Treadplate", img: "database/4-AMP/AMP-26-Treadplate.jpg", params: ["Gain", "Master"] }, { name: "27 Insane", img: "database/4-AMP/AMP-27-Insane.jpg", params: ["Gain", "Master"] }, { name: "28 Insane 6508", img: "database/4-AMP/AMP-28-Insane-6508.jpg", params: ["Gain", "Master"] }, { name: "29 SwitchAxe", img: "database/4-AMP/AMP-29-SwitchAxe.jpg", params: ["Gain", "Master"] }, { name: "30 Rocker V", img: "database/4-AMP/AMP-30-Rocker-V.jpg", params: ["Gain", "Master"] }, { name: "31 BE 101", img: "database/4-AMP/AMP-31-BE-101.jpg", params: ["Gain", "Master"] }, { name: "32 Acoustic", img: "database/4-AMP/AMP-32-Pure-Acoustic.jpg", params: ["Gain", "Master"] }, { name: "33 Fishboy", img: "database/4-AMP/AMP-33-Fishboy.jpg", params: ["Gain", "Master"] }, { name: "34 Jumbo", img: "database/4-AMP/AMP-34-Jumbo.jpg", params: ["Gain", "Master"] }, { name: "35 Flat Ac.", img: "database/4-AMP/AMP-35-Flat-Acoustic.jpg", params: ["Gain", "Master"] }, { name: "36 RB 800", img: "database/4-AMP/AMP-36-RB-800.jpg", params: ["Gain", "Master"] }, { name: "37 Sunny 3000", img: "database/4-AMP/AMP-37-Sunny-3000.jpg", params: ["Gain", "Master"] }, { name: "38 W600", img: "database/4-AMP/AMP-38-W600.jpg", params: ["Gain", "Master"] }, { name: "39 Hammer 500", img: "database/4-AMP/AMP-39-Hammer-500.jpg", params: ["Gain", "Master"] } ],
-            "Mod": [ { name: "Nessun Pedale", img: "", params: [] }, { name: "01 Tremolo", img: "database/5-MOD-EQ/MOD-EQ-01-Tremolo.jpg", params: ["Speed", "Depth"] }, { name: "02 Chorus", img: "database/5-MOD-EQ/MOD-EQ-02-Chorus.jpg", params: ["Rate", "Depth"] }, { name: "03 Flanger", img: "database/5-MOD-EQ/MOD-EQ-03-Flanger.jpg", params: ["Rate", "Depth"] }, { name: "04 Phaser", img: "database/5-MOD-EQ/MOD-EQ-04-Phaser.jpg", params: ["Speed", "Depth"] }, { name: "05 Vibrato", img: "database/5-MOD-EQ/MOD-EQ-05-Vibrato.jpg", params: ["Rate", "Depth"] }, { name: "06 UniVibe", img: "database/5-MOD-EQ/MOD-EQ-06-UniVibe.jpg", params: ["Rate", "Depth"] }, { name: "08 Cloner", img: "database/5-MOD-EQ/MOD-EQ-08-Cloner-Chorus.jpg", params: ["Rate", "Depth"] }, { name: "09 Classic Vibe", img: "database/5-MOD-EQ/MOD-EQ-09-Classic-Vibe.jpg", params: ["Speed", "Depth"] }, { name: "10 Tremolator", img: "database/5-MOD-EQ/MOD-EQ-10-Tremolator.jpg", params: ["Speed", "Depth"] }, { name: "11 Trem. Square", img: "database/5-MOD-EQ/MOD-EQ-11-Tremolo-Square.jpg", params: ["Speed", "Depth"] }, { name: "12 Guitar EQ", img: "database/5-MOD-EQ/MOD-EQ-12-Guitar-EQ.jpg", params: ["Bass", "Mid", "Treb"] }, { name: "13 Bass EQ", img: "database/5-MOD-EQ/MOD-EQ-13-Bass-EQ.jpg", params: ["Bass", "Mid", "Treb"] } ],
-            "Delay": [ { name: "Nessun Pedale", img: "", params: [] }, { name: "01 Digital", img: "database/6-Delay/Delay-01-Digital-Delay.jpg", params: ["Time", "Feed"] }, { name: "02 Echo Fit", img: "database/6-Delay/Delay-02-Echo-Fit.jpg", params: ["Time", "Feed"] }, { name: "03 Vintage", img: "database/6-Delay/Delay-03-Vintage-Delay.jpg", params: ["Time", "Feed"] }, { name: "04 Reverse", img: "database/6-Delay/Delay-04-Reverse-Delay.jpg", params: ["Time", "Mix"] }, { name: "05 Multi Head", img: "database/6-Delay/Delay-05-Multi-Head.jpg", params: ["Time", "Feed"] }, { name: "06 Echo Tape", img: "database/6-Delay/Delay-06-Echo-Tape.ipg.jpg", params: ["Time", "Feed"] } ],
-            "Reverb": [ { name: "Nessun Pedale", img: "", params: [] }, { name: "01 Room A", img: "database/7-Reverb/Reverb-01-Room-Studio-A.jpg", params: ["Level", "Time"] }, { name: "02 Chamber", img: "database/7-Reverb/Reverb-02-Chamber.jpg", params: ["Level", "Time"] }, { name: "03 Hall Nat.", img: "database/7-Reverb/Reverb-03-Hall-Natural.jpg", params: ["Level", "Time"] }, { name: "04 Plate Short", img: "database/7-Reverb/Reverb-04-Plate-Short.jpg", params: ["Level", "Time"] }, { name: "05 Hall Amb.", img: "database/7-Reverb/Reverb-05-Hall-Ambient.jpg", params: ["Level", "Time"] }, { name: "06 Plate Rich", img: "database/7-Reverb/Reverb-06-Plate-Rich.jpg", params: ["Level", "Time"] }, { name: "07 Hall Med.", img: "database/7-Reverb/Reverb-07-Hall-Medium.jpg", params: ["Level", "Time"] }, { name: "08 Plate Long", img: "database/7-Reverb/Reverb-08-Plate-Long.jpg", params: ["Level", "Time"] }, { name: "09 Room B", img: "database/7-Reverb/Reverb-09-Room-Studio-B.jpg", params: ["Level", "Time"] } ]
+            "Gate": [
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 NoisGate", img: "database/1-noisegate/NoiseGate-01-NoisGate.jpg", params: ["Threshold"] }
+            ],
+            "Comp": [
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 LA Comp", img: "database/2-COMP-WAH/COMP-WAH-01-LA-Comp.jpg", params: ["Sustain", "Level"] },
+                { name: "02 Sustain", img: "database/2-COMP-WAH/COMP-WAH-02-Sustain-Comp.jpg", params: ["Sustain", "Level"] },
+                { name: "03 Red Comp", img: "database/2-COMP-WAH/COMP-WAH-03-Red-Comp.jpg", params: ["Sustain", "Level"] },
+                { name: "04 Bass Comp", img: "database/2-COMP-WAH/COMP-WAH-04-Bass-Comp.jpg", params: ["Comp", "Level"] },
+                { name: "05 Optical", img: "database/2-COMP-WAH/COMP-WAH-05-Optical-Comp.jpg", params: ["Comp", "Level"] }
+            ],
+            "Drive": [
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Booster", img: "database/3-Drive/Drive-01-Booster.jpg", params: ["Gain", "Vol"] },
+                { name: "02 Clone Drv", img: "database/3-Drive/Drive-02-Clone-Drive.jpg", params: ["Gain", "Tone"] },
+                { name: "03 Tube Drv", img: "database/3-Drive/Drive-03-Tube-Drive.jpg", params: ["Gain", "Tone"] },
+                { name: "04 Over Drv", img: "database/3-Drive/Drive-04-Over-Drive.jpg", params: ["Gain", "Tone"] },
+                { name: "09 Fuzz Face", img: "database/3-Drive/Drive-09-Fuzz-Face.jpg", params: ["Fuzz", "Vol"] },
+                { name: "10 Black Op", img: "database/3-Drive/Drive-10-Black-Op.jpg", params: ["Gain", "Tone"] },
+                { name: "11 Bass Muff", img: "database/3-Drive/Drive-11-Bass-Muff.jpg", params: ["Sustain", "Tone"] },
+                { name: "12 Guitar Muff", img: "database/3-Drive/Drive-12-Guitar-Muff.jpg", params: ["Sustain", "Tone"] },
+                { name: "13 Bassmaster", img: "database/3-Drive/Drive-13-Bassmaster.jpg", params: ["Vol", "Tone"] },
+                { name: "14 SAB Driver", img: "database/3-Drive/Drive-14-SAB-driver.jpg", params: ["Gain", "Tone"] }
+            ],
+            "Amp": [
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Silver 120", img: "database/4-AMP/Amp-01-Silver-120.jpg", params: ["Gain", "Master"] },
+                { name: "02 Black Duo", img: "database/4-AMP/Amp-02-Black-Duo.jpg", params: ["Gain", "Master"] },
+                { name: "03 AD Clean", img: "database/4-AMP/Amp-03-AD-Clean.jpg", params: ["Gain", "Master"] },
+                { name: "04 Match Dc", img: "database/4-AMP/Amp-04-Match-Dc.jpg", params: ["Gain", "Master"] },
+                { name: "05 OSD 50", img: "database/4-AMP/Amp-05-OSD-50.jpg", params: ["Gain", "Master"] },
+                { name: "08 Blues Boy", img: "database/4-AMP/Amp-08-Blues-Boy.jpg", params: ["Gain", "Master"] },
+                { name: "09 Tweed Bass", img: "database/4-AMP/Amp-09-Tweed-Bass.jpg", params: ["Gain", "Master"] },
+                { name: "10 Ac Boost", img: "database/4-AMP/Amp-10-Ac-Boost.jpg", params: ["Gain", "Master"] },
+                { name: "11 Checkmate", img: "database/4-AMP/Amp-11-Checkmate.jpg", params: ["Gain", "Master"] },
+                { name: "12 Two Stone", img: "database/4-AMP/Amp-12-Two-Stone-SP50.jpg", params: ["Gain", "Master"] },
+                { name: "15 Am. Dlx", img: "database/4-AMP/Amp-15-American-Deluxe.jpg", params: ["Gain", "Master"] },
+                { name: "16 Plexiglas", img: "database/4-AMP/Amp-16-Plexiglas.jpg", params: ["Gain", "Master"] },
+                { name: "17 JM45", img: "database/4-AMP/Amp-17-JM45.jpg", params: ["Gain", "Master"] },
+                { name: "18 Lux Verb", img: "database/4-AMP/AMP-18-Lux-Verb.jpg", params: ["Gain", "Master"] },
+                { name: "21 RB 101", img: "database/4-AMP/AMP-21-RB-101.jpg", params: ["Gain", "Master"] },
+                { name: "22 British 30", img: "database/4-AMP/AMP-22-British-30.jpg", params: ["Gain", "Master"] },
+                { name: "23 Am. H.Gain", img: "database/4-AMP/AMP-23-American-High-Gain.jpg", params: ["Gain", "Master"] },
+                { name: "24 SLO 100", img: "database/4-AMP/AMP-24-SLO-100.jpg", params: ["Gain", "Master"] },
+                { name: "25 YJM100", img: "database/4-AMP/AMP-25-YJM100.jpg", params: ["Gain", "Master"] },
+                { name: "26 Treadplate", img: "database/4-AMP/AMP-26-Treadplate.jpg", params: ["Gain", "Master"] },
+                { name: "27 Insane", img: "database/4-AMP/AMP-27-Insane.jpg", params: ["Gain", "Master"] },
+                { name: "28 Insane 6508", img: "database/4-AMP/AMP-28-Insane-6508.jpg", params: ["Gain", "Master"] },
+                { name: "29 SwitchAxe", img: "database/4-AMP/AMP-29-SwitchAxe.jpg", params: ["Gain", "Master"] },
+                { name: "30 Rocker V", img: "database/4-AMP/AMP-30-Rocker-V.jpg", params: ["Gain", "Master"] },
+                { name: "31 BE 101", img: "database/4-AMP/AMP-31-BE-101.jpg", params: ["Gain", "Master"] },
+                { name: "32 Acoustic", img: "database/4-AMP/AMP-32-Pure-Acoustic.jpg", params: ["Gain", "Master"] },
+                { name: "33 Fishboy", img: "database/4-AMP/AMP-33-Fishboy.jpg", params: ["Gain", "Master"] },
+                { name: "34 Jumbo", img: "database/4-AMP/AMP-34-Jumbo.jpg", params: ["Gain", "Master"] },
+                { name: "35 Flat Ac.", img: "database/4-AMP/AMP-35-Flat-Acoustic.jpg", params: ["Gain", "Master"] },
+                { name: "36 RB 800", img: "database/4-AMP/AMP-36-RB-800.jpg", params: ["Gain", "Master"] },
+                { name: "37 Sunny 3000", img: "database/4-AMP/AMP-37-Sunny-3000.jpg", params: ["Gain", "Master"] },
+                { name: "38 W600", img: "database/4-AMP/AMP-38-W600.jpg", params: ["Gain", "Master"] },
+                { name: "39 Hammer 500", img: "database/4-AMP/AMP-39-Hammer-500.jpg", params: ["Gain", "Master"] }
+            ],
+            "Mod": [
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Tremolo", img: "database/5-MOD-EQ/MOD-EQ-01-Tremolo.jpg", params: ["Speed", "Depth"] },
+                { name: "02 Chorus", img: "database/5-MOD-EQ/MOD-EQ-02-Chorus.jpg", params: ["Rate", "Depth"] },
+                { name: "03 Flanger", img: "database/5-MOD-EQ/MOD-EQ-03-Flanger.jpg", params: ["Rate", "Depth"] },
+                { name: "04 Phaser", img: "database/5-MOD-EQ/MOD-EQ-04-Phaser.jpg", params: ["Speed", "Depth"] },
+                { name: "05 Vibrato", img: "database/5-MOD-EQ/MOD-EQ-05-Vibrato.jpg", params: ["Rate", "Depth"] },
+                { name: "06 UniVibe", img: "database/5-MOD-EQ/MOD-EQ-06-UniVibe.jpg", params: ["Rate", "Depth"] },
+                { name: "08 Cloner", img: "database/5-MOD-EQ/MOD-EQ-08-Cloner-Chorus.jpg", params: ["Rate", "Depth"] },
+                { name: "09 Classic Vibe", img: "database/5-MOD-EQ/MOD-EQ-09-Classic-Vibe.jpg", params: ["Speed", "Depth"] },
+                { name: "10 Tremolator", img: "database/5-MOD-EQ/MOD-EQ-10-Tremolator.jpg", params: ["Speed", "Depth"] },
+                { name: "11 Trem. Square", img: "database/5-MOD-EQ/MOD-EQ-11-Tremolo-Square.jpg", params: ["Speed", "Depth"] },
+                { name: "12 Guitar EQ", img: "database/5-MOD-EQ/MOD-EQ-12-Guitar-EQ.jpg", params: ["Bass", "Mid", "Treb"] },
+                { name: "13 Bass EQ", img: "database/5-MOD-EQ/MOD-EQ-13-Bass-EQ.jpg", params: ["Bass", "Mid", "Treb"] }
+            ],
+            "Delay": [
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Digital", img: "database/6-Delay/Delay-01-Digital-Delay.jpg", params: ["Time", "Feed"] },
+                { name: "02 Echo Fit", img: "database/6-Delay/Delay-02-Echo-Fit.jpg", params: ["Time", "Feed"] },
+                { name: "03 Vintage", img: "database/6-Delay/Delay-03-Vintage-Delay.jpg", params: ["Time", "Feed"] },
+                { name: "04 Reverse", img: "database/6-Delay/Delay-04-Reverse-Delay.jpg", params: ["Time", "Mix"] },
+                { name: "05 Multi Head", img: "database/6-Delay/Delay-05-Multi-Head.jpg", params: ["Time", "Feed"] },
+                { name: "06 Echo Tape", img: "database/6-Delay/Delay-06-Echo-Tape.ipg.jpg", params: ["Time", "Feed"] }
+            ],
+            "Reverb": [
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Room A", img: "database/7-Reverb/Reverb-01-Room-Studio-A.jpg", params: ["Level", "Time"] },
+                { name: "02 Chamber", img: "database/7-Reverb/Reverb-02-Chamber.jpg", params: ["Level", "Time"] },
+                { name: "03 Hall Nat.", img: "database/7-Reverb/Reverb-03-Hall-Natural.jpg", params: ["Level", "Time"] },
+                { name: "04 Plate Short", img: "database/7-Reverb/Reverb-04-Plate-Short.jpg", params: ["Level", "Time"] },
+                { name: "05 Hall Amb.", img: "database/7-Reverb/Reverb-05-Hall-Ambient.jpg", params: ["Level", "Time"] },
+                { name: "06 Plate Rich", img: "database/7-Reverb/Reverb-06-Plate-Rich.jpg", params: ["Level", "Time"] },
+                { name: "07 Hall Med.", img: "database/7-Reverb/Reverb-07-Hall-Medium.jpg", params: ["Level", "Time"] },
+                { name: "08 Plate Long", img: "database/7-Reverb/Reverb-08-Plate-Long.jpg", params: ["Level", "Time"] },
+                { name: "09 Room B", img: "database/7-Reverb/Reverb-09-Room-Studio-B.jpg", params: ["Level", "Time"] }
+            ]
         };
 
         const defaultChain = [
-            { category: "Gate", name: "Nessun Pedale", img: "", status: "off", paramValues: [] },
-            { category: "Comp", name: "Nessun Pedale", img: "", status: "off", paramValues: [] },
-            { category: "Drive", name: "Nessun Pedale", img: "", status: "off", paramValues: [] },
-            { category: "Amp", name: "Nessun Pedale", img: "", status: "off", paramValues: [] },
-            { category: "Mod", name: "Nessun Pedale", img: "", status: "off", paramValues: [] },
-            { category: "Delay", name: "Nessun Pedale", img: "", status: "off", paramValues: [] },
-            { category: "Reverb", name: "Nessun Pedale", img: "", status: "off", paramValues: [] }
+            { category: "Gate", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+            { category: "Comp", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+            { category: "Drive", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+            { category: "Amp", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+            { category: "Mod", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+            { category: "Delay", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+            { category: "Reverb", name: "Nessun Pedale", img: "", status: "on", paramValues: [] }
         ];
 
-        let songs = JSON.parse(localStorage.getItem('sparkPresetsV8')) || [];
+        // FUNZIONE DI MIGRAZIONE INTELLIGENTE PER CREARE I MODI (Cuffie/Input)
+        function migrateToModes(songList) {
+            return songList.map(s => {
+                // Se ha già i modes (è aggiornato), passa oltre
+                if (s.parts && s.parts[0] && s.parts[0].modes) return s;
 
-        // Generatore di UUID veri per lo Spark
-        function uuidv4() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16).toUpperCase();
-            });
-        }
-
-        // --- IL MOTORE DI ESPORTAZIONE ZIP (SPARK DROPBOX) ---
-        function exportDropboxZip() {
-            if (songs.length === 0) { alert("Nessuna canzone da esportare!"); return; }
-            
-            var zip = new JSZip();
-            var categoryId = uuidv4();
-            
-            // Crea il metadata della Categoria per Dropbox
-            var categoryMeta = {
-                "meta": {
-                    "name": "Spark Editor Live",
-                    "id": categoryId,
-                    "description": "Scaletta esportata da Spark Editor Web"
-                },
-                "presets": []
-            };
-
-            // Loop su tutte le canzoni e le loro parti
-            songs.forEach(song => {
-                song.parts.forEach(part => {
-                    let presetId = uuidv4();
-                    let presetName = `${song.title} (${part.name})`;
-                    
-                    // Aggiunge la voce nel file category.json
-                    categoryMeta.presets.push({
-                        "name": presetName,
-                        "description": "Auto-generated by Web Editor",
-                        "icon": "icon.png",
-                        "version": "0.7",
-                        "id": presetId
-                    });
-
-                    // Traduce la catena (usando la modalità "cuffie" come master per l'app Spark)
-                    let sigpath = part.modes["cuffie"].map(slot => {
-                        let dspId = sparkDict[slot.category][slot.name] || sparkDict[slot.category]["default"];
-                        let isActive = slot.name !== "Nessun Pedale" && slot.status === "on";
-                        
-                        let sparkParams = slot.paramValues.map((val, index) => {
-                            return { "index": index, "value": (parseInt(val) / 10) };
-                        });
-                        if (sparkParams.length === 0) sparkParams = [{ "index": 0, "value": 0.5 }];
-
-                        return { "type": "speaker_fx", "params": sparkParams, "dspId": dspId, "active": isActive };
-                    });
-
-                    let presetJson = {
-                        "sigpath": sigpath,
-                        "meta": { "description": "Auto-generated", "icon": "icon.png", "id": presetId, "version": "0.7", "name": presetName },
-                        "bpm": 120, "type": "jamup_speaker", "loudness": -30.0, "extraGain": 0.5
+                // Estrae le vecchie parti e crea i due "modes" identici per non perdere nulla
+                let oldParts = s.parts || [ { name: "Accompagnamento", chain: s.chain } ];
+                
+                let newParts = oldParts.map(p => {
+                    return {
+                        name: p.name || "Accompagnamento",
+                        modes: {
+                            cuffie: JSON.parse(JSON.stringify(p.chain || defaultChain)),
+                            input: JSON.parse(JSON.stringify(p.chain || defaultChain))
+                        }
                     };
-
-                    // Crea la sottocartella UUID e ci infila il preset.json
-                    zip.folder(presetId).file("preset.json", JSON.stringify(presetJson, null, 2));
                 });
-            });
 
-            // Aggiunge il file master category.json nella root del file zip
-            zip.file("category.json", JSON.stringify(categoryMeta, null, 2));
-
-            // Genera il file .zip e fa partire il download
-            zip.generateAsync({type:"blob"}).then(function(content) {
-                saveAs(content, "Spark_Editor_Live_Setlist.zip");
-                alert("File ZIP generato con successo! 🎉\n\nEstrai la cartella contenuta nel file ZIP e incollala dentro la cartella dei tuoi preset Tones su Dropbox.");
+                return {
+                    title: s.title,
+                    activePartIndex: s.activePartIndex || 0,
+                    activeMode: s.activeMode || 'cuffie', // Default iniziale su Cuffie
+                    parts: newParts
+                };
             });
         }
 
-        // -- MOTORE GRAFICO --
+        // CARICAMENTO E MIGRAZIONE
+        let rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV7'));
+        if (!rawSongs) {
+            // Se non trova V7, prova a recuperare V6 o V5 e li converte!
+            rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV6')) || JSON.parse(localStorage.getItem('sparkPresetsV5')) || [];
+        }
+        let songs = migrateToModes(rawSongs);
+
         function renderApp() {
             const container = document.getElementById('preset-list');
             container.innerHTML = '';
@@ -191,6 +314,7 @@
                 const card = document.createElement('div');
                 card.className = 'preset-card';
 
+                // Selettore Cuffie/Input
                 let modeSwitchHTML = `
                     <div class="mode-switch">
                         <button class="mode-btn ${song.activeMode === 'cuffie' ? 'active' : ''}" onclick="switchMode(${songIndex}, 'cuffie')">🎧 Setup Cuffie / Mixer</button>
@@ -198,6 +322,7 @@
                     </div>
                 `;
 
+                // Tabs delle Parti
                 let tabsHTML = '<div class="tabs-container">';
                 song.parts.forEach((part, pIndex) => {
                     let activeClass = song.activePartIndex === pIndex ? 'active' : '';
@@ -206,11 +331,15 @@
                 tabsHTML += `<div class="tab add-tab" onclick="addPart(${songIndex})" title="Aggiungi Parte">+ Parte</div></div>`;
 
                 let activePart = song.parts[song.activePartIndex];
-                let currentChain = activePart.modes[song.activeMode];
+                let currentChain = activePart.modes[song.activeMode]; // Prende la catena della modalità attiva!
                 
                 let chainHTML = '';
+                
                 currentChain.forEach((slot, slotIndex) => {
-                    let optionsHTML = catalog[slot.category].map(pedal => `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`).join('');
+                    let optionsHTML = catalog[slot.category].map(pedal => 
+                        `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`
+                    ).join('');
+
                     let isEmpty = (slot.name === "Nessun Pedale");
                     let dotClass = isEmpty ? "empty" : (slot.status === "on" ? "on" : "off");
                     let imgClass = slot.status === "on" ? "" : "off";
@@ -224,8 +353,17 @@
                         pedalData.params.forEach((paramName, pIndex) => {
                             let val = slot.paramValues[pIndex] !== undefined ? slot.paramValues[pIndex] : "5";
                             let valOptions = "";
-                            for(let i=0; i<=10; i++) { valOptions += `<option value="${i}" ${val == i ? 'selected' : ''}>${i}</option>`; }
-                            paramsHTML += `<div class="param-row"><span class="param-label">${paramName}</span><select class="param-val" onchange="updateParamValue(${songIndex}, ${slotIndex}, ${pIndex}, this.value)">${valOptions}</select></div>`;
+                            for(let i=0; i<=10; i++) {
+                                valOptions += `<option value="${i}" ${val == i ? 'selected' : ''}>${i}</option>`;
+                            }
+                            paramsHTML += `
+                                <div class="param-row">
+                                    <span class="param-label">${paramName}</span>
+                                    <select class="param-val" onchange="updateParamValue(${songIndex}, ${slotIndex}, ${pIndex}, this.value)">
+                                        ${valOptions}
+                                    </select>
+                                </div>
+                            `;
                         });
                         paramsHTML += '</div>';
                     }
@@ -244,10 +382,12 @@
                 });
 
                 card.innerHTML = `
-                    <button class="delete-btn" onclick="deleteSong(${songIndex})">✖</button>
-                    <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo">
+                    <button class="delete-btn" onclick="deleteSong(${songIndex})" title="Elimina Brano Intero">✖</button>
+                    <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
+                    
                     ${modeSwitchHTML}
                     ${tabsHTML}
+
                     <div class="part-controls">
                         <select class="song-part-select" onchange="updatePartName(${songIndex}, this.value)">
                             <option value="Accompagnamento" ${activePart.name === 'Accompagnamento' ? 'selected' : ''}>Accompagnamento</option>
@@ -257,6 +397,7 @@
                         </select>
                         ${song.parts.length > 1 ? `<button class="btn-delete-part" onclick="deletePart(${songIndex})">Elimina Parte</button>` : ''}
                     </div>
+
                     <div class="chain-container">
                         ${chainHTML}
                     </div>
@@ -264,68 +405,146 @@
                 container.appendChild(card);
             });
 
-            localStorage.setItem('sparkPresetsV8', JSON.stringify(songs));
+            localStorage.setItem('sparkPresetsV7', JSON.stringify(songs));
         }
 
-        // Funzioni base UI
-        function switchMode(songIndex, mode) { songs[songIndex].activeMode = mode; renderApp(); }
-        function switchPart(songIndex, partIndex) { songs[songIndex].activePartIndex = partIndex; renderApp(); }
-        function addPart(songIndex) {
-            songs[songIndex].parts.push({ name: "Assolo", modes: { cuffie: JSON.parse(JSON.stringify(defaultChain)), input: JSON.parse(JSON.stringify(defaultChain)) } });
-            songs[songIndex].activePartIndex = songs[songIndex].parts.length - 1; renderApp();
+        // --- GESTIONE MODALITA' E PARTI ---
+        function switchMode(songIndex, mode) {
+            songs[songIndex].activeMode = mode;
+            renderApp();
         }
+
+        function switchPart(songIndex, partIndex) {
+            songs[songIndex].activePartIndex = partIndex;
+            renderApp();
+        }
+
+        function addPart(songIndex) {
+            songs[songIndex].parts.push({
+                name: "Assolo",
+                modes: {
+                    cuffie: JSON.parse(JSON.stringify(defaultChain)),
+                    input: JSON.parse(JSON.stringify(defaultChain))
+                }
+            });
+            songs[songIndex].activePartIndex = songs[songIndex].parts.length - 1;
+            renderApp();
+        }
+
         function deletePart(songIndex) {
-            if(confirm("Eliminare questa parte?")) {
-                let s = songs[songIndex]; s.parts.splice(s.activePartIndex, 1); s.activePartIndex = 0; renderApp();
+            if(confirm("Eliminare questa singola parte?")) {
+                let s = songs[songIndex];
+                s.parts.splice(s.activePartIndex, 1);
+                s.activePartIndex = 0; 
+                renderApp();
             }
         }
-        function updatePartName(songIndex, newName) { songs[songIndex].parts[songs[songIndex].activePartIndex].name = newName; renderApp(); }
-        function updateSongTitle(songIndex, value) { songs[songIndex].title = value; renderApp(); }
-        
+
+        function updatePartName(songIndex, newName) {
+            songs[songIndex].parts[songs[songIndex].activePartIndex].name = newName;
+            renderApp();
+        }
+
+        function updateSongTitle(songIndex, value) { 
+            songs[songIndex].title = value; 
+            renderApp(); 
+        }
+
+        // --- GESTIONE PEDALI ---
         function togglePedal(songIndex, slotIndex) {
-            let s = songs[songIndex]; let slot = s.parts[s.activePartIndex].modes[s.activeMode][slotIndex];
-            if (slot.name !== "Nessun Pedale") { slot.status = slot.status === "on" ? "off" : "on"; renderApp(); }
+            let s = songs[songIndex];
+            let slot = s.parts[s.activePartIndex].modes[s.activeMode][slotIndex];
+            if (slot.name !== "Nessun Pedale") {
+                slot.status = slot.status === "on" ? "off" : "on";
+                renderApp();
+            }
         }
         
         function updatePedal(songIndex, slotIndex, newPedalName) {
-            let s = songs[songIndex]; let slot = s.parts[s.activePartIndex].modes[s.activeMode][slotIndex];
+            let s = songs[songIndex];
+            let slot = s.parts[s.activePartIndex].modes[s.activeMode][slotIndex];
             const pedalData = catalog[slot.category].find(p => p.name === newPedalName);
-            if (pedalData) { slot.name = pedalData.name; slot.img = pedalData.img; slot.status = "on"; slot.paramValues = pedalData.params ? pedalData.params.map(() => "5") : []; }
+            
+            if (pedalData) {
+                slot.name = pedalData.name;
+                slot.img = pedalData.img;
+                slot.status = "on"; 
+                slot.paramValues = pedalData.params ? pedalData.params.map(() => "5") : [];
+            }
             renderApp();
         }
 
         function updateParamValue(songIndex, slotIndex, paramIndex, value) {
-            songs[songIndex].parts[songs[songIndex].activePartIndex].modes[songs[songIndex].activeMode][slotIndex].paramValues[paramIndex] = value; renderApp();
+            let s = songs[songIndex];
+            s.parts[s.activePartIndex].modes[s.activeMode][slotIndex].paramValues[paramIndex] = value;
+            renderApp();
         }
 
         function addSong() { 
-            songs.unshift({ title: "Nuovo Brano", activePartIndex: 0, activeMode: "cuffie", parts: [ { name: "Accompagnamento", modes: { cuffie: JSON.parse(JSON.stringify(defaultChain)), input: JSON.parse(JSON.stringify(defaultChain)) } } ] }); 
-            renderApp(); window.scrollTo({ top: 0, behavior: 'smooth' });
+            songs.unshift({
+                title: "Nuovo Brano",
+                activePartIndex: 0,
+                activeMode: "cuffie",
+                parts: [ 
+                    { 
+                        name: "Accompagnamento", 
+                        modes: {
+                            cuffie: JSON.parse(JSON.stringify(defaultChain)),
+                            input: JSON.parse(JSON.stringify(defaultChain))
+                        }
+                    } 
+                ]
+            }); 
+            renderApp(); 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function deleteSong(index) { if(confirm("Vuoi eliminare l'intero brano?")) { songs.splice(index, 1); renderApp(); } }
+        function deleteSong(index) { 
+            if(confirm("Vuoi eliminare l'intero brano e tutte le sue parti?")) { 
+                songs.splice(index, 1); 
+                renderApp(); 
+            } 
+        }
 
+        // --- EXPORT / IMPORT ---
         function exportData() {
+            if (songs.length === 0) { alert("Nessun brano da esportare!"); return; }
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(songs, null, 2));
-            const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "spark_editor_backup.json");
-            document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove();
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "spark_presets_pro.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
         }
 
         function importData(event) {
-            const file = event.target.files[0]; if (!file) return;
+            const file = event.target.files[0];
+            if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const importedSongs = JSON.parse(e.target.result);
-                    if (Array.isArray(importedSongs)) { songs = importedSongs; renderApp(); alert("Backup importato! 🎸"); } 
-                    else { alert("Formato file non valido."); }
-                } catch (error) { alert("Errore lettura file."); }
+                    if (Array.isArray(importedSongs)) {
+                        songs = migrateToModes(importedSongs); 
+                        renderApp();
+                        alert("Preset importati con successo! 🎸");
+                    } else {
+                        alert("Formato file non valido.");
+                    }
+                } catch (error) {
+                    alert("Errore durante la lettura del file.");
+                }
             };
-            reader.readAsText(file); event.target.value = '';
+            reader.readAsText(file);
+            event.target.value = '';
         }
 
-        window.onload = function() { if(songs.length === 0) addSong(); else renderApp(); };
+        window.onload = function() {
+            if(songs.length === 0) addSong();
+            else renderApp();
+        };
     </script>
 </body>
 </html>
