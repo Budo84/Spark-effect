@@ -111,6 +111,7 @@
             padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: bold;
         }
 
+        /* --- CATENA EFFETTI --- */
         .chain-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; scroll-snap-type: x mandatory; }
         .chain-container::-webkit-scrollbar { height: 8px; }
         .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
@@ -124,9 +125,17 @@
         
         .pedal-image { 
             width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; 
-            border-radius: 6px; background-color: #111; padding: 5px; transition: all 0.3s ease;
+            border-radius: 6px; background-color: #111; padding: 5px; transition: all 0.3s ease; box-sizing: border-box;
         }
         .pedal-image.off { filter: grayscale(100%) brightness(0.4); opacity: 0.7; }
+
+        /* NUOVA CLASSE PER PEDALI VUOTI SENZA INTERNET */
+        .pedal-empty-box {
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; height: 110px; margin-bottom: 8px; border-radius: 6px;
+            background-color: #111; border: 1px dashed #444; color: #555;
+            font-size: 0.8em; font-weight: bold; box-sizing: border-box;
+        }
 
         .status-indicator {
             width: 14px; height: 14px; border-radius: 50%; background-color: #555; margin-bottom: 10px;
@@ -287,8 +296,23 @@
             { category: "Reverb", name: "Nessun Pedale", img: "", status: "on", paramValues: [] }
         ];
 
-        // DATABASE ESTESO (Prime 40, l'app imparerà le altre dai tuoi salvataggi)
+        // DATABASE ESTESO (Top 100)
         const presetSuggestions = [
+            { title: "Pink Floyd - Comfortably Numb", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"21 RB 101", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"03 Hall Nat."}},
+            { title: "AC/DC - Back in Black", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"Nessun Pedale", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Nirvana - Smells Like Teen Spirit", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"02 Black Duo", Mod:"02 Chorus", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Led Zeppelin - Stairway to Heaven", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
+            { title: "Metallica - Enter Sandman", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Guns N' Roses - Sweet Child O' Mine", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"21 RB 101", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}},
+            { title: "U2 - With Or Without You", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"22 British 30", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"05 Hall Amb."}},
+            { title: "Dire Straits - Sultans of Swing", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
+            { title: "Deep Purple - Smoke on the Water", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "The Police - Every Breath You Take", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"01 Silver 120", Mod:"02 Chorus", Delay:"01 Digital", Reverb:"04 Plate Short"}},
+            { title: "Black Sabbath - Paranoid", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"12 Guitar Muff", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Queen - Bohemian Rhapsody", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
+            { title: "The Rolling Stones - Start Me Up", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"09 Tweed Bass", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Van Halen - Eruption", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"04 Phaser", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
+            { title: "RHCP - Under The Bridge", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
             // --- ROCK CLASSICO & HARD ROCK ---
             { title: "Pink Floyd - Comfortably Numb", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"21 RB 101", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"03 Hall Nat."}},
             { title: "AC/DC - Back in Black", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"Nessun Pedale", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
@@ -419,7 +443,14 @@
                 let isEmpty = (slot.name === "Nessun Pedale");
                 let dotClass = isEmpty ? "empty" : (slot.status === "on" ? "on" : "off");
                 let imgClass = slot.status === "on" ? "" : "off";
-                let imgSrc = slot.img ? slot.img : `https://via.placeholder.com/130x150/111/444?text=VUOTO`;
+                
+                // SISTEMAZIONE IMMAGINE VUOTA OFFLINE
+                let imageHTML = "";
+                if (isEmpty || !slot.img) {
+                    imageHTML = `<div class="pedal-empty-box">VUOTO</div>`;
+                } else {
+                    imageHTML = `<img src="${slot.img}" class="pedal-image ${imgClass}" alt="${slot.name}" onerror="this.style.opacity='0'">`;
+                }
 
                 let paramsHTML = '';
                 let pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
@@ -447,7 +478,7 @@
                 return `
                     <div class="pedal-slot">
                         <span class="pedal-category">${slot.category}</span>
-                        <img src="${imgSrc}" class="pedal-image ${imgClass}" onerror="this.src='https://via.placeholder.com/130x150/111/c0392b?text=NO+FOTO'">
+                        ${imageHTML}
                         <div class="status-indicator ${dotClass}" onclick="togglePedal(${songIndex}, ${slotIndex})"></div>
                         <select class="pedal-select" onchange="updatePedal(${songIndex}, ${slotIndex}, this.value)">
                             ${optionsHTML}
@@ -541,7 +572,7 @@
             learn();
             const blob = new Blob([JSON.stringify(songs, null, 2)], {type: "application/json"});
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = "spark_intelligence.json"; a.click();
+            const a = document.createElement('a'); a.href = url; a.download = "spark_presets_pro.json"; a.click();
         }
 
         function importData(e) {
