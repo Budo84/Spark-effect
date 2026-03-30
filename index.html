@@ -44,7 +44,6 @@
         }
         .btn:active { opacity: 0.8; }
 
-        /* Stile delle Card dei Brani */
         .preset-card {
             background-color: var(--bg-card);
             border: 1px solid #333;
@@ -62,11 +61,11 @@
             padding-bottom: 5px;
         }
 
-        .song-part-input {
-            width: 85%; background: transparent; border: none;
-            color: var(--text-main); font-size: 1em; outline: none;
-            border-bottom: 1px dashed #555; margin-bottom: 20px;
-            padding-bottom: 5px;
+        /* Nuovo stile per il menù a tendina Accompagnamento/Assolo */
+        .song-part-select {
+            width: 85%; background-color: var(--input-bg); border: 1px solid #555;
+            color: var(--text-main); font-size: 0.9em; outline: none; border-radius: 6px;
+            margin-bottom: 20px; padding: 6px; font-weight: bold;
         }
 
         .delete-btn {
@@ -75,7 +74,6 @@
             font-size: 1.5em; cursor: pointer;
         }
 
-        /* Catena degli Effetti */
         .chain-container {
             display: flex; gap: 10px; overflow-x: auto;
             padding-bottom: 15px; scroll-snap-type: x mandatory;
@@ -84,7 +82,7 @@
         .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
         .pedal-slot {
-            flex: 0 0 130px; /* Larghezza fissa per ogni slot */
+            flex: 0 0 135px;
             background-color: var(--pedal-bg); border-radius: 10px;
             padding: 12px; display: flex; flex-direction: column; align-items: center;
             border: 1px solid #444; scroll-snap-align: start;
@@ -98,31 +96,51 @@
         
         .pedal-image { 
             width: 100%; height: 110px; object-fit: contain; 
-            margin-bottom: 5px; border-radius: 6px; 
+            margin-bottom: 8px; border-radius: 6px; 
             background-color: #111; padding: 5px;
+            transition: all 0.3s ease;
         }
 
-        /* Il famoso pallino verde/rosso */
-        .status-indicator {
-            width: 10px; height: 10px; border-radius: 50%;
-            background-color: #555; margin-bottom: 10px;
+        .pedal-image.off {
+            filter: grayscale(100%) brightness(0.4);
+            opacity: 0.7;
         }
-        .status-indicator.on { background-color: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
-        .status-indicator.off { background-color: #e74c3c; box-shadow: 0 0 8px #e74c3c; }
+
+        .status-indicator {
+            width: 14px; height: 14px; border-radius: 50%;
+            background-color: #555; margin-bottom: 10px;
+            cursor: pointer; border: 2px solid #111;
+            transition: all 0.2s;
+        }
+        .status-indicator.on { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
+        .status-indicator.off { background-color: #e74c3c; box-shadow: 0 0 10px #e74c3c; }
+        .status-indicator.empty { visibility: hidden; } 
         
         .pedal-select {
             width: 100%; background-color: var(--input-bg); color: white;
-            border: 1px solid #555; border-radius: 6px; font-size: 0.8em;
-            padding: 6px; margin-bottom: 8px; outline: none;
+            border: 1px solid #555; border-radius: 6px; font-size: 0.75em;
+            padding: 6px; margin-bottom: 10px; outline: none;
+        }
+
+        .params-container {
+            width: 100%; display: flex; flex-direction: column; gap: 5px;
         }
         
-        .settings-input {
-            width: 100%; background-color: var(--input-bg); color: var(--spark-gold);
-            border: 1px dashed #555; border-radius: 6px; font-size: 0.75em;
-            padding: 6px; text-align: center; box-sizing: border-box;
-            outline: none; font-weight: bold;
+        .param-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background-color: #1a1a1a; padding: 3px 6px; 
+            border-radius: 4px; border: 1px solid #444;
         }
-        .settings-input:focus { border-color: var(--spark-gold); border-style: solid; }
+        
+        .param-label {
+            font-size: 0.7em; color: var(--spark-gold); font-weight: bold;
+        }
+        
+        .param-val {
+            background-color: #333; color: white; border: 1px solid #555;
+            border-radius: 4px; font-size: 0.75em; padding: 2px 4px; outline: none;
+            cursor: pointer; text-align: center; font-weight: bold;
+        }
 
         @media (min-width: 768px) {
             .pedal-slot { flex: 1; min-width: 0; } 
@@ -140,122 +158,122 @@
     <div id="preset-list"></div>
 
     <script>
-        // IL CATALOGO ESATTO CON LE IMMAGINI DEL TUO GITHUB E I PARAMETRI DI DEFAULT
+        // IL CATALOGO CON I PERCORSI CORRETTI (Inclusa la cartella 'database')
         const catalog = {
             "Gate": [
-                { name: "Spento", img: "", defParams: "" },
-                { name: "01 NoisGate", img: "1-noisegate/NoiseGate-01-NoisGate.jpg", defParams: "Threshold: " }
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 NoisGate", img: "database/1-noisegate/NoiseGate-01-NoisGate.jpg", params: ["Threshold"] }
             ],
             "Comp": [
-                { name: "Spento", img: "", defParams: "" },
-                { name: "01 LA Comp", img: "2-COMP-WAH/COMP-WAH-01-LA-Comp.jpg", defParams: "Sustain: , Level: " },
-                { name: "02 Sustain Comp", img: "2-COMP-WAH/COMP-WAH-02-Sustain-Comp.jpg", defParams: "Sustain: , Level: " },
-                { name: "03 Red Comp", img: "2-COMP-WAH/COMP-WAH-03-Red-Comp.jpg", defParams: "Sustain: , Level: " },
-                { name: "04 Bass Comp", img: "2-COMP-WAH/COMP-WAH-04-Bass-Comp.jpg", defParams: "Comp: , Level: " },
-                { name: "05 Optical Comp", img: "2-COMP-WAH/COMP-WAH-05-Optical-Comp.jpg", defParams: "Comp: , Level: " }
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 LA Comp", img: "database/2-COMP-WAH/COMP-WAH-01-LA-Comp.jpg", params: ["Sustain", "Level"] },
+                { name: "02 Sustain", img: "database/2-COMP-WAH/COMP-WAH-02-Sustain-Comp.jpg", params: ["Sustain", "Level"] },
+                { name: "03 Red Comp", img: "database/2-COMP-WAH/COMP-WAH-03-Red-Comp.jpg", params: ["Sustain", "Level"] },
+                { name: "04 Bass Comp", img: "database/2-COMP-WAH/COMP-WAH-04-Bass-Comp.jpg", params: ["Comp", "Level"] },
+                { name: "05 Optical", img: "database/2-COMP-WAH/COMP-WAH-05-Optical-Comp.jpg", params: ["Comp", "Level"] }
             ],
             "Drive": [
-                { name: "Spento", img: "", defParams: "" },
-                { name: "01 Booster", img: "3-Drive/Drive-01-Booster.jpg", defParams: "Gain: , Vol: " },
-                { name: "02 Clone Drive", img: "3-Drive/Drive-02-Clone-Drive.jpg", defParams: "Gain: , Tone: " },
-                { name: "03 Tube Drive", img: "3-Drive/Drive-03-Tube-Drive.jpg", defParams: "Gain: , Tone: " },
-                { name: "04 Over Drive", img: "3-Drive/Drive-04-Over-Drive.jpg", defParams: "Gain: , Tone: " },
-                { name: "09 Fuzz Face", img: "3-Drive/Drive-09-Fuzz-Face.jpg", defParams: "Fuzz: , Vol: " },
-                { name: "10 Black Op", img: "3-Drive/Drive-10-Black-Op.jpg", defParams: "Gain: , Tone: " },
-                { name: "11 Bass Muff", img: "3-Drive/Drive-11-Bass-Muff.jpg", defParams: "Sustain: , Tone: " },
-                { name: "12 Guitar Muff", img: "3-Drive/Drive-12-Guitar-Muff.jpg", defParams: "Sustain: , Tone: " },
-                { name: "13 Bassmaster", img: "3-Drive/Drive-13-Bassmaster.jpg", defParams: "Vol: , Tone: " },
-                { name: "14 SAB Driver", img: "3-Drive/Drive-14-SAB-driver.jpg", defParams: "Gain: , Tone: " }
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Booster", img: "database/3-Drive/Drive-01-Booster.jpg", params: ["Gain", "Vol"] },
+                { name: "02 Clone Drv", img: "database/3-Drive/Drive-02-Clone-Drive.jpg", params: ["Gain", "Tone"] },
+                { name: "03 Tube Drv", img: "database/3-Drive/Drive-03-Tube-Drive.jpg", params: ["Gain", "Tone"] },
+                { name: "04 Over Drv", img: "database/3-Drive/Drive-04-Over-Drive.jpg", params: ["Gain", "Tone"] },
+                { name: "09 Fuzz Face", img: "database/3-Drive/Drive-09-Fuzz-Face.jpg", params: ["Fuzz", "Vol"] },
+                { name: "10 Black Op", img: "database/3-Drive/Drive-10-Black-Op.jpg", params: ["Gain", "Tone"] },
+                { name: "11 Bass Muff", img: "database/3-Drive/Drive-11-Bass-Muff.jpg", params: ["Sustain", "Tone"] },
+                { name: "12 Guitar Muff", img: "database/3-Drive/Drive-12-Guitar-Muff.jpg", params: ["Sustain", "Tone"] },
+                { name: "13 Bassmaster", img: "database/3-Drive/Drive-13-Bassmaster.jpg", params: ["Vol", "Tone"] },
+                { name: "14 SAB Driver", img: "database/3-Drive/Drive-14-SAB-driver.jpg", params: ["Gain", "Tone"] }
             ],
             "Amp": [
-                { name: "Spento", img: "", defParams: "Input Fender" },
-                { name: "01 Silver 120", img: "4-AMP/Amp-01-Silver-120.jpg", defParams: "Gain: , Master: " },
-                { name: "02 Black Duo", img: "4-AMP/Amp-02-Black-Duo.jpg", defParams: "Gain: , Master: " },
-                { name: "03 AD Clean", img: "4-AMP/Amp-03-AD-Clean.jpg", defParams: "Gain: , Master: " },
-                { name: "04 Match Dc", img: "4-AMP/Amp-04-Match-Dc.jpg", defParams: "Gain: , Master: " },
-                { name: "05 OSD 50", img: "4-AMP/Amp-05-OSD-50.jpg", defParams: "Gain: , Master: " },
-                { name: "08 Blues Boy", img: "4-AMP/Amp-08-Blues-Boy.jpg", defParams: "Gain: , Master: " },
-                { name: "09 Tweed Bass", img: "4-AMP/Amp-09-Tweed-Bass.jpg", defParams: "Gain: , Master: " },
-                { name: "10 Ac Boost", img: "4-AMP/Amp-10-Ac-Boost.jpg", defParams: "Gain: , Master: " },
-                { name: "11 Checkmate", img: "4-AMP/Amp-11-Checkmate.jpg", defParams: "Gain: , Master: " },
-                { name: "12 Two Stone", img: "4-AMP/Amp-12-Two-Stone-SP50.jpg", defParams: "Gain: , Master: " },
-                { name: "15 American Dlx", img: "4-AMP/Amp-15-American-Deluxe.jpg", defParams: "Gain: , Master: " },
-                { name: "16 Plexiglas", img: "4-AMP/Amp-16-Plexiglas.jpg", defParams: "Gain: , Master: " },
-                { name: "17 JM45", img: "4-AMP/Amp-17-JM45.jpg", defParams: "Gain: , Master: " },
-                { name: "18 Lux Verb", img: "4-AMP/AMP-18-Lux-Verb.jpg", defParams: "Gain: , Master: " },
-                { name: "21 RB 101", img: "4-AMP/AMP-21-RB-101.jpg", defParams: "Gain: , Master: " },
-                { name: "22 British 30", img: "4-AMP/AMP-22-British-30.jpg", defParams: "Gain: , Master: " },
-                { name: "23 Am. High Gain", img: "4-AMP/AMP-23-American-High-Gain.jpg", defParams: "Gain: , Master: " },
-                { name: "24 SLO 100", img: "4-AMP/AMP-24-SLO-100.jpg", defParams: "Gain: , Master: " },
-                { name: "25 YJM100", img: "4-AMP/AMP-25-YJM100.jpg", defParams: "Gain: , Master: " },
-                { name: "26 Treadplate", img: "4-AMP/AMP-26-Treadplate.jpg", defParams: "Gain: , Master: " },
-                { name: "27 Insane", img: "4-AMP/AMP-27-Insane.jpg", defParams: "Gain: , Master: " },
-                { name: "28 Insane 6508", img: "4-AMP/AMP-28-Insane-6508.jpg", defParams: "Gain: , Master: " },
-                { name: "29 SwitchAxe", img: "4-AMP/AMP-29-SwitchAxe.jpg", defParams: "Gain: , Master: " },
-                { name: "30 Rocker V", img: "4-AMP/AMP-30-Rocker-V.jpg", defParams: "Gain: , Master: " },
-                { name: "31 BE 101", img: "4-AMP/AMP-31-BE-101.jpg", defParams: "Gain: , Master: " },
-                { name: "32 Acoustic", img: "4-AMP/AMP-32-Pure-Acoustic.jpg", defParams: "Gain: , Master: " },
-                { name: "33 Fishboy", img: "4-AMP/AMP-33-Fishboy.jpg", defParams: "Gain: , Master: " },
-                { name: "34 Jumbo", img: "4-AMP/AMP-34-Jumbo.jpg", defParams: "Gain: , Master: " },
-                { name: "35 Flat Ac.", img: "4-AMP/AMP-35-Flat-Acoustic.jpg", defParams: "Gain: , Master: " },
-                { name: "36 RB 800", img: "4-AMP/AMP-36-RB-800.jpg", defParams: "Gain: , Master: " },
-                { name: "37 Sunny 3000", img: "4-AMP/AMP-37-Sunny-3000.jpg", defParams: "Gain: , Master: " },
-                { name: "38 W600", img: "4-AMP/AMP-38-W600.jpg", defParams: "Gain: , Master: " },
-                { name: "39 Hammer 500", img: "4-AMP/AMP-39-Hammer-500.jpg", defParams: "Gain: , Master: " }
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Silver 120", img: "database/4-AMP/Amp-01-Silver-120.jpg", params: ["Gain", "Master"] },
+                { name: "02 Black Duo", img: "database/4-AMP/Amp-02-Black-Duo.jpg", params: ["Gain", "Master"] },
+                { name: "03 AD Clean", img: "database/4-AMP/Amp-03-AD-Clean.jpg", params: ["Gain", "Master"] },
+                { name: "04 Match Dc", img: "database/4-AMP/Amp-04-Match-Dc.jpg", params: ["Gain", "Master"] },
+                { name: "05 OSD 50", img: "database/4-AMP/Amp-05-OSD-50.jpg", params: ["Gain", "Master"] },
+                { name: "08 Blues Boy", img: "database/4-AMP/Amp-08-Blues-Boy.jpg", params: ["Gain", "Master"] },
+                { name: "09 Tweed Bass", img: "database/4-AMP/Amp-09-Tweed-Bass.jpg", params: ["Gain", "Master"] },
+                { name: "10 Ac Boost", img: "database/4-AMP/Amp-10-Ac-Boost.jpg", params: ["Gain", "Master"] },
+                { name: "11 Checkmate", img: "database/4-AMP/Amp-11-Checkmate.jpg", params: ["Gain", "Master"] },
+                { name: "12 Two Stone", img: "database/4-AMP/Amp-12-Two-Stone-SP50.jpg", params: ["Gain", "Master"] },
+                { name: "15 Am. Dlx", img: "database/4-AMP/Amp-15-American-Deluxe.jpg", params: ["Gain", "Master"] },
+                { name: "16 Plexiglas", img: "database/4-AMP/Amp-16-Plexiglas.jpg", params: ["Gain", "Master"] },
+                { name: "17 JM45", img: "database/4-AMP/Amp-17-JM45.jpg", params: ["Gain", "Master"] },
+                { name: "18 Lux Verb", img: "database/4-AMP/AMP-18-Lux-Verb.jpg", params: ["Gain", "Master"] },
+                { name: "21 RB 101", img: "database/4-AMP/AMP-21-RB-101.jpg", params: ["Gain", "Master"] },
+                { name: "22 British 30", img: "database/4-AMP/AMP-22-British-30.jpg", params: ["Gain", "Master"] },
+                { name: "23 Am. H.Gain", img: "database/4-AMP/AMP-23-American-High-Gain.jpg", params: ["Gain", "Master"] },
+                { name: "24 SLO 100", img: "database/4-AMP/AMP-24-SLO-100.jpg", params: ["Gain", "Master"] },
+                { name: "25 YJM100", img: "database/4-AMP/AMP-25-YJM100.jpg", params: ["Gain", "Master"] },
+                { name: "26 Treadplate", img: "database/4-AMP/AMP-26-Treadplate.jpg", params: ["Gain", "Master"] },
+                { name: "27 Insane", img: "database/4-AMP/AMP-27-Insane.jpg", params: ["Gain", "Master"] },
+                { name: "28 Insane 6508", img: "database/4-AMP/AMP-28-Insane-6508.jpg", params: ["Gain", "Master"] },
+                { name: "29 SwitchAxe", img: "database/4-AMP/AMP-29-SwitchAxe.jpg", params: ["Gain", "Master"] },
+                { name: "30 Rocker V", img: "database/4-AMP/AMP-30-Rocker-V.jpg", params: ["Gain", "Master"] },
+                { name: "31 BE 101", img: "database/4-AMP/AMP-31-BE-101.jpg", params: ["Gain", "Master"] },
+                { name: "32 Acoustic", img: "database/4-AMP/AMP-32-Pure-Acoustic.jpg", params: ["Gain", "Master"] },
+                { name: "33 Fishboy", img: "database/4-AMP/AMP-33-Fishboy.jpg", params: ["Gain", "Master"] },
+                { name: "34 Jumbo", img: "database/4-AMP/AMP-34-Jumbo.jpg", params: ["Gain", "Master"] },
+                { name: "35 Flat Ac.", img: "database/4-AMP/AMP-35-Flat-Acoustic.jpg", params: ["Gain", "Master"] },
+                { name: "36 RB 800", img: "database/4-AMP/AMP-36-RB-800.jpg", params: ["Gain", "Master"] },
+                { name: "37 Sunny 3000", img: "database/4-AMP/AMP-37-Sunny-3000.jpg", params: ["Gain", "Master"] },
+                { name: "38 W600", img: "database/4-AMP/AMP-38-W600.jpg", params: ["Gain", "Master"] },
+                { name: "39 Hammer 500", img: "database/4-AMP/AMP-39-Hammer-500.jpg", params: ["Gain", "Master"] }
             ],
             "Mod": [
-                { name: "Spento", img: "", defParams: "" },
-                { name: "01 Tremolo", img: "5-MOD-EQ/MOD-EQ-01-Tremolo.jpg", defParams: "Speed: , Depth: " },
-                { name: "02 Chorus", img: "5-MOD-EQ/MOD-EQ-02-Chorus.jpg", defParams: "Rate: , Depth: " },
-                { name: "03 Flanger", img: "5-MOD-EQ/MOD-EQ-03-Flanger.jpg", defParams: "Rate: , Depth: " },
-                { name: "04 Phaser", img: "5-MOD-EQ/MOD-EQ-04-Phaser.jpg", defParams: "Speed: , Depth: " },
-                { name: "05 Vibrato", img: "5-MOD-EQ/MOD-EQ-05-Vibrato.jpg", defParams: "Rate: , Depth: " },
-                { name: "06 UniVibe", img: "5-MOD-EQ/MOD-EQ-06-UniVibe.jpg", defParams: "Rate: , Depth: " },
-                { name: "08 Cloner", img: "5-MOD-EQ/MOD-EQ-08-Cloner-Chorus.jpg", defParams: "Rate: , Depth: " },
-                { name: "09 Classic Vibe", img: "5-MOD-EQ/MOD-EQ-09-Classic-Vibe.jpg", defParams: "Speed: , Depth: " },
-                { name: "10 Tremolator", img: "5-MOD-EQ/MOD-EQ-10-Tremolator.jpg", defParams: "Speed: , Depth: " },
-                { name: "11 Trem. Square", img: "5-MOD-EQ/MOD-EQ-11-Tremolo-Square.jpg", defParams: "Speed: , Depth: " },
-                { name: "12 Guitar EQ", img: "5-MOD-EQ/MOD-EQ-12-Guitar-EQ.jpg", defParams: "B: , M: , T: " },
-                { name: "13 Bass EQ", img: "5-MOD-EQ/MOD-EQ-13-Bass-EQ.jpg", defParams: "B: , M: , T: " }
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Tremolo", img: "database/5-MOD-EQ/MOD-EQ-01-Tremolo.jpg", params: ["Speed", "Depth"] },
+                { name: "02 Chorus", img: "database/5-MOD-EQ/MOD-EQ-02-Chorus.jpg", params: ["Rate", "Depth"] },
+                { name: "03 Flanger", img: "database/5-MOD-EQ/MOD-EQ-03-Flanger.jpg", params: ["Rate", "Depth"] },
+                { name: "04 Phaser", img: "database/5-MOD-EQ/MOD-EQ-04-Phaser.jpg", params: ["Speed", "Depth"] },
+                { name: "05 Vibrato", img: "database/5-MOD-EQ/MOD-EQ-05-Vibrato.jpg", params: ["Rate", "Depth"] },
+                { name: "06 UniVibe", img: "database/5-MOD-EQ/MOD-EQ-06-UniVibe.jpg", params: ["Rate", "Depth"] },
+                { name: "08 Cloner", img: "database/5-MOD-EQ/MOD-EQ-08-Cloner-Chorus.jpg", params: ["Rate", "Depth"] },
+                { name: "09 Classic Vibe", img: "database/5-MOD-EQ/MOD-EQ-09-Classic-Vibe.jpg", params: ["Speed", "Depth"] },
+                { name: "10 Tremolator", img: "database/5-MOD-EQ/MOD-EQ-10-Tremolator.jpg", params: ["Speed", "Depth"] },
+                { name: "11 Trem. Square", img: "database/5-MOD-EQ/MOD-EQ-11-Tremolo-Square.jpg", params: ["Speed", "Depth"] },
+                { name: "12 Guitar EQ", img: "database/5-MOD-EQ/MOD-EQ-12-Guitar-EQ.jpg", params: ["Bass", "Mid", "Treb"] },
+                { name: "13 Bass EQ", img: "database/5-MOD-EQ/MOD-EQ-13-Bass-EQ.jpg", params: ["Bass", "Mid", "Treb"] }
             ],
             "Delay": [
-                { name: "Spento", img: "", defParams: "" },
-                { name: "01 Digital", img: "6-Delay/Delay-01-Digital-Delay.jpg", defParams: "Time: , Feed: " },
-                { name: "02 Echo Fit", img: "6-Delay/Delay-02-Echo-Fit.jpg", defParams: "Time: , Feed: " },
-                { name: "03 Vintage", img: "6-Delay/Delay-03-Vintage-Delay.jpg", defParams: "Time: , Feed: " },
-                { name: "04 Reverse", img: "6-Delay/Delay-04-Reverse-Delay.jpg", defParams: "Time: , Mix: " },
-                { name: "05 Multi Head", img: "6-Delay/Delay-05-Multi-Head.jpg", defParams: "Time: , Feed: " },
-                { name: "06 Echo Tape", img: "6-Delay/Delay-06-Echo-Tape.ipg.jpg", defParams: "Time: , Feed: " }
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Digital", img: "database/6-Delay/Delay-01-Digital-Delay.jpg", params: ["Time", "Feed"] },
+                { name: "02 Echo Fit", img: "database/6-Delay/Delay-02-Echo-Fit.jpg", params: ["Time", "Feed"] },
+                { name: "03 Vintage", img: "database/6-Delay/Delay-03-Vintage-Delay.jpg", params: ["Time", "Feed"] },
+                { name: "04 Reverse", img: "database/6-Delay/Delay-04-Reverse-Delay.jpg", params: ["Time", "Mix"] },
+                { name: "05 Multi Head", img: "database/6-Delay/Delay-05-Multi-Head.jpg", params: ["Time", "Feed"] },
+                { name: "06 Echo Tape", img: "database/6-Delay/Delay-06-Echo-Tape.ipg.jpg", params: ["Time", "Feed"] }
             ],
             "Reverb": [
-                { name: "Spento", img: "", defParams: "Uso Molla Fisica" },
-                { name: "01 Room A", img: "7-Reverb/Reverb-01-Room-Studio-A.jpg", defParams: "Level: , Time: " },
-                { name: "02 Chamber", img: "7-Reverb/Reverb-02-Chamber.jpg", defParams: "Level: , Time: " },
-                { name: "03 Hall Nat.", img: "7-Reverb/Reverb-03-Hall-Natural.jpg", defParams: "Level: , Time: " },
-                { name: "04 Plate Short", img: "7-Reverb/Reverb-04-Plate-Short.jpg", defParams: "Level: , Time: " },
-                { name: "05 Hall Amb.", img: "7-Reverb/Reverb-05-Hall-Ambient.jpg", defParams: "Level: , Time: " },
-                { name: "06 Plate Rich", img: "7-Reverb/Reverb-06-Plate-Rich.jpg", defParams: "Level: , Time: " },
-                { name: "07 Hall Med.", img: "7-Reverb/Reverb-07-Hall-Medium.jpg", defParams: "Level: , Time: " },
-                { name: "08 Plate Long", img: "7-Reverb/Reverb-08-Plate-Long.jpg", defParams: "Level: , Time: " },
-                { name: "09 Room B", img: "7-Reverb/Reverb-09-Room-Studio-B.jpg", defParams: "Level: , Time: " }
+                { name: "Nessun Pedale", img: "", params: [] },
+                { name: "01 Room A", img: "database/7-Reverb/Reverb-01-Room-Studio-A.jpg", params: ["Level", "Time"] },
+                { name: "02 Chamber", img: "database/7-Reverb/Reverb-02-Chamber.jpg", params: ["Level", "Time"] },
+                { name: "03 Hall Nat.", img: "database/7-Reverb/Reverb-03-Hall-Natural.jpg", params: ["Level", "Time"] },
+                { name: "04 Plate Short", img: "database/7-Reverb/Reverb-04-Plate-Short.jpg", params: ["Level", "Time"] },
+                { name: "05 Hall Amb.", img: "database/7-Reverb/Reverb-05-Hall-Ambient.jpg", params: ["Level", "Time"] },
+                { name: "06 Plate Rich", img: "database/7-Reverb/Reverb-06-Plate-Rich.jpg", params: ["Level", "Time"] },
+                { name: "07 Hall Med.", img: "database/7-Reverb/Reverb-07-Hall-Medium.jpg", params: ["Level", "Time"] },
+                { name: "08 Plate Long", img: "database/7-Reverb/Reverb-08-Plate-Long.jpg", params: ["Level", "Time"] },
+                { name: "09 Room B", img: "database/7-Reverb/Reverb-09-Room-Studio-B.jpg", params: ["Level", "Time"] }
             ]
         };
 
         const defaultSong = {
             title: "Titolo Brano", 
-            part: "Accompagno / Assolo",
+            part: "Accompagnamento",
             chain: [
-                { category: "Gate", name: "Spento", img: "", settings: "" },
-                { category: "Comp", name: "Spento", img: "", settings: "" },
-                { category: "Drive", name: "Spento", img: "", settings: "" },
-                { category: "Amp", name: "Spento", img: "", settings: "Input Fender" },
-                { category: "Mod", name: "Spento", img: "", settings: "" },
-                { category: "Delay", name: "Spento", img: "", settings: "" },
-                { category: "Reverb", name: "Spento", img: "", settings: "Uso Molla Fisica" }
+                { category: "Gate", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+                { category: "Comp", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+                { category: "Drive", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+                { category: "Amp", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+                { category: "Mod", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+                { category: "Delay", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
+                { category: "Reverb", name: "Nessun Pedale", img: "", status: "on", paramValues: [] }
             ]
         };
 
-        let songs = JSON.parse(localStorage.getItem('sparkPresetsManager')) || [];
+        let songs = JSON.parse(localStorage.getItem('sparkPresetsV5')) || [];
 
         function renderApp() {
             const container = document.getElementById('preset-list');
@@ -272,26 +290,49 @@
                         `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`
                     ).join('');
 
-                    // LOGICA PALLINO E IMMAGINE
-                    let isOff = (slot.name === "Spento");
-                    let dotClass = isOff ? "off" : "on";
-                    let imgSrc = slot.img ? slot.img : `https://via.placeholder.com/130x150/111/444?text=OFF`;
+                    let isEmpty = (slot.name === "Nessun Pedale");
+                    let dotClass = isEmpty ? "empty" : (slot.status === "on" ? "on" : "off");
+                    let imgClass = slot.status === "on" ? "" : "off";
+                    let imgSrc = slot.img ? slot.img : `https://via.placeholder.com/130x150/111/444?text=VUOTO`;
+
+                    let paramsHTML = '';
+                    let pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
+                    
+                    if (pedalData.params && pedalData.params.length > 0) {
+                        paramsHTML = '<div class="params-container">';
+                        pedalData.params.forEach((paramName, pIndex) => {
+                            let val = slot.paramValues[pIndex] !== undefined ? slot.paramValues[pIndex] : "5";
+                            let valOptions = "";
+                            for(let i=0; i<=10; i++) {
+                                valOptions += `<option value="${i}" ${val == i ? 'selected' : ''}>${i}</option>`;
+                            }
+
+                            paramsHTML += `
+                                <div class="param-row">
+                                    <span class="param-label">${paramName}</span>
+                                    <select class="param-val" onchange="updateParamValue(${songIndex}, ${slotIndex}, ${pIndex}, this.value)">
+                                        ${valOptions}
+                                    </select>
+                                </div>
+                            `;
+                        });
+                        paramsHTML += '</div>';
+                    }
 
                     chainHTML += `
                         <div class="pedal-slot">
                             <span class="pedal-category">${slot.category}</span>
                             
-                            <img src="${imgSrc}" class="pedal-image" 
+                            <img src="${imgSrc}" class="pedal-image ${imgClass}" 
                                 onerror="this.src='https://via.placeholder.com/130x150/111/c0392b?text=NO+FOTO'">
                             
-                            <div class="status-indicator ${dotClass}"></div>
+                            <div class="status-indicator ${dotClass}" onclick="togglePedal(${songIndex}, ${slotIndex})"></div>
 
                             <select class="pedal-select" onchange="updatePedal(${songIndex}, ${slotIndex}, this.value)">
                                 ${optionsHTML}
                             </select>
 
-                            <input type="text" class="settings-input" placeholder="Valori..." 
-                                value="${slot.settings}" onchange="updateSettings(${songIndex}, ${slotIndex}, this.value)">
+                            ${paramsHTML}
                         </div>
                     `;
                 });
@@ -299,8 +340,14 @@
                 card.innerHTML = `
                     <button class="delete-btn" onclick="deleteSong(${songIndex})" title="Elimina">✖</button>
                     <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongInfo(${songIndex}, 'title', this.value)" placeholder="Titolo del brano">
-                    <input type="text" class="song-part-input" value="${song.part}" onchange="updateSongInfo(${songIndex}, 'part', this.value)" placeholder="Es. Assolo / Accompagno">
                     
+                    <select class="song-part-select" onchange="updateSongInfo(${songIndex}, 'part', this.value)">
+                        <option value="Accompagnamento" ${song.part === 'Accompagnamento' ? 'selected' : ''}>Accompagnamento</option>
+                        <option value="Assolo" ${song.part === 'Assolo' ? 'selected' : ''}>Assolo</option>
+                        <option value="Intro / Riff" ${song.part === 'Intro / Riff' ? 'selected' : ''}>Intro / Riff</option>
+                        <option value="Clean / Arpeggio" ${song.part === 'Clean / Arpeggio' ? 'selected' : ''}>Clean / Arpeggio</option>
+                    </select>
+
                     <div class="chain-container">
                         ${chainHTML}
                     </div>
@@ -308,7 +355,15 @@
                 container.appendChild(card);
             });
 
-            localStorage.setItem('sparkPresetsManager', JSON.stringify(songs));
+            localStorage.setItem('sparkPresetsV5', JSON.stringify(songs));
+        }
+
+        function togglePedal(songIndex, slotIndex) {
+            let slot = songs[songIndex].chain[slotIndex];
+            if (slot.name !== "Nessun Pedale") {
+                slot.status = slot.status === "on" ? "off" : "on";
+                renderApp();
+            }
         }
 
         function updateSongInfo(songIndex, field, value) { 
@@ -323,15 +378,15 @@
             if (pedalData) {
                 songs[songIndex].chain[slotIndex].name = pedalData.name;
                 songs[songIndex].chain[slotIndex].img = pedalData.img;
-                // Inserisce i parametri "già segnati" da completare
-                songs[songIndex].chain[slotIndex].settings = pedalData.defParams;
+                songs[songIndex].chain[slotIndex].status = "on"; 
+                songs[songIndex].chain[slotIndex].paramValues = pedalData.params ? pedalData.params.map(() => "5") : [];
             }
             renderApp();
         }
 
-        function updateSettings(songIndex, slotIndex, value) { 
-            songs[songIndex].chain[slotIndex].settings = value; 
-            renderApp(); 
+        function updateParamValue(songIndex, slotIndex, paramIndex, value) {
+            songs[songIndex].chain[slotIndex].paramValues[paramIndex] = value;
+            renderApp();
         }
 
         function addSong() { 
