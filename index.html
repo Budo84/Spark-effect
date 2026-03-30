@@ -64,7 +64,7 @@
             color: var(--spark-red); font-size: 1.5em; cursor: pointer;
         }
 
-        /* STILE MOTORE DI RICERCA */
+        /* STILE MOTORE DI RICERCA AGGIUNTO */
         .search-box {
             width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; 
             background: #111; color: white; font-size: 0.9em; box-sizing: border-box;
@@ -75,7 +75,6 @@
         }
         .user-suggestion { border-color: #2ecc71; color: #2ecc71; }
 
-        /* --- STILE INTERRUTTORE MODALITA' (Cuffie / Input) --- */
         .mode-switch {
             display: flex; gap: 0; margin-bottom: 15px; border-radius: 8px; 
             overflow: hidden; border: 1px solid var(--spark-gold);
@@ -86,7 +85,6 @@
         }
         .mode-btn.active { background: var(--spark-gold); color: #000; }
 
-        /* --- STILE TABS PER LE PARTI DEL BRANO --- */
         .tabs-container {
             display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #333; 
             padding-bottom: 0px; overflow-x: auto; scrollbar-width: none;
@@ -113,7 +111,6 @@
             padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: bold;
         }
 
-        /* --- CATENA EFFETTI --- */
         .chain-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; scroll-snap-type: x mandatory; }
         .chain-container::-webkit-scrollbar { height: 8px; }
         .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
@@ -290,23 +287,8 @@
             { category: "Reverb", name: "Nessun Pedale", img: "", status: "on", paramValues: [] }
         ];
 
-        // DATABASE ESTESO (Top 100)
+        // DATABASE ESTESO (Prime 40, l'app imparerà le altre dai tuoi salvataggi)
         const presetSuggestions = [
-            { title: "Pink Floyd - Comfortably Numb", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"21 RB 101", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"03 Hall Nat."}},
-            { title: "AC/DC - Back in Black", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"Nessun Pedale", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Nirvana - Smells Like Teen Spirit", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"02 Black Duo", Mod:"02 Chorus", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Led Zeppelin - Stairway to Heaven", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
-            { title: "Metallica - Enter Sandman", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Guns N' Roses - Sweet Child O' Mine", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"21 RB 101", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}},
-            { title: "U2 - With Or Without You", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"22 British 30", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"05 Hall Amb."}},
-            { title: "Dire Straits - Sultans of Swing", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
-            { title: "Deep Purple - Smoke on the Water", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "The Police - Every Breath You Take", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"01 Silver 120", Mod:"02 Chorus", Delay:"01 Digital", Reverb:"04 Plate Short"}},
-            { title: "Black Sabbath - Paranoid", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"12 Guitar Muff", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Queen - Bohemian Rhapsody", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
-            { title: "The Rolling Stones - Start Me Up", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"09 Tweed Bass", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Van Halen - Eruption", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"04 Phaser", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
-            { title: "RHCP - Under The Bridge", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}}
             // --- ROCK CLASSICO & HARD ROCK ---
             { title: "Pink Floyd - Comfortably Numb", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"21 RB 101", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"03 Hall Nat."}},
             { title: "AC/DC - Back in Black", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"Nessun Pedale", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
@@ -559,7 +541,7 @@
             learn();
             const blob = new Blob([JSON.stringify(songs, null, 2)], {type: "application/json"});
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = "spark_presets_intelligence.json"; a.click();
+            const a = document.createElement('a'); a.href = url; a.download = "spark_intelligence.json"; a.click();
         }
 
         function importData(e) {
