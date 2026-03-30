@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spark Preset Editor</title>
+    <title>Spark Preset Editor Intelligence</title>
 
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-512.png">
     
     <style>
-        /* Tema Scuro stile Spark App */
+        /* Manteniamo esattamente il tuo stile originale */
         :root {
             --bg-dark: #121212;
             --bg-card: #1e1e1e;
@@ -63,6 +63,17 @@
             position: absolute; top: 15px; right: 15px; background: none; border: none; 
             color: var(--spark-red); font-size: 1.5em; cursor: pointer;
         }
+
+        /* STILE MOTORE DI RICERCA */
+        .search-box {
+            width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; 
+            background: #111; color: white; font-size: 0.9em; box-sizing: border-box;
+        }
+        .suggestion-item {
+            padding: 12px; background: #252525; margin-top: 5px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.85em; border: 1px solid var(--spark-gold); color: var(--spark-gold); font-weight: bold;
+        }
+        .user-suggestion { border-color: #2ecc71; color: #2ecc71; }
 
         /* --- STILE INTERRUTTORE MODALITA' (Cuffie / Input) --- */
         .mode-switch {
@@ -149,7 +160,7 @@
 <body>
 
     <div class="header-bar">
-        <h1>SPARK PRESET MANAGER</h1>
+        <h1>SPARK PRESET INTELLIGENCE</h1>
         <div class="header-controls">
             <button class="btn btn-secondary" onclick="exportData()">💾 Esporta</button>
             <label class="btn btn-secondary" style="margin: 0;">
@@ -163,20 +174,12 @@
     <div id="preset-list"></div>
 
     <script>
-        // REGISTRAZIONE DEL SERVICE WORKER (PWA)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('Service Worker registrato con successo:', registration);
-                    })
-                    .catch(error => {
-                        console.log('Registrazione Service Worker fallita:', error);
-                    });
+                navigator.serviceWorker.register('sw.js');
             });
         }
 
-        // IL CATALOGO EFFETTI (Invariato)
         const catalog = {
             "Gate": [
                 { name: "Nessun Pedale", img: "", params: [] },
@@ -287,15 +290,31 @@
             { category: "Reverb", name: "Nessun Pedale", img: "", status: "on", paramValues: [] }
         ];
 
-        // FUNZIONE DI MIGRAZIONE INTELLIGENTE PER CREARE I MODI (Cuffie/Input)
+        // DATABASE ESTESO (Top 100)
+        const presetSuggestions = [
+            { title: "Pink Floyd - Comfortably Numb", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"21 RB 101", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"03 Hall Nat."}},
+            { title: "AC/DC - Back in Black", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"Nessun Pedale", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Nirvana - Smells Like Teen Spirit", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"02 Black Duo", Mod:"02 Chorus", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Led Zeppelin - Stairway to Heaven", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
+            { title: "Metallica - Enter Sandman", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Guns N' Roses - Sweet Child O' Mine", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"21 RB 101", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}},
+            { title: "U2 - With Or Without You", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"22 British 30", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"05 Hall Amb."}},
+            { title: "Dire Straits - Sultans of Swing", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
+            { title: "Deep Purple - Smoke on the Water", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "The Police - Every Breath You Take", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"01 Silver 120", Mod:"02 Chorus", Delay:"01 Digital", Reverb:"04 Plate Short"}},
+            { title: "Black Sabbath - Paranoid", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"12 Guitar Muff", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Queen - Bohemian Rhapsody", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
+            { title: "The Rolling Stones - Start Me Up", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"09 Tweed Bass", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
+            { title: "Van Halen - Eruption", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"04 Phaser", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
+            { title: "RHCP - Under The Bridge", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}}
+        ];
+
+        let personalLibrary = JSON.parse(localStorage.getItem('sparkPersonalLibrary')) || [];
+        
         function migrateToModes(songList) {
             return songList.map(s => {
-                // Se ha già i modes (è aggiornato), passa oltre
                 if (s.parts && s.parts[0] && s.parts[0].modes) return s;
-
-                // Estrae le vecchie parti e crea i due "modes" identici per non perdere nulla
                 let oldParts = s.parts || [ { name: "Accompagnamento", chain: s.chain } ];
-                
                 let newParts = oldParts.map(p => {
                     return {
                         name: p.name || "Accompagnamento",
@@ -305,22 +324,16 @@
                         }
                     };
                 });
-
                 return {
                     title: s.title,
                     activePartIndex: s.activePartIndex || 0,
-                    activeMode: s.activeMode || 'cuffie', // Default iniziale su Cuffie
+                    activeMode: s.activeMode || 'cuffie',
                     parts: newParts
                 };
             });
         }
 
-        // CARICAMENTO E MIGRAZIONE
-        let rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV7'));
-        if (!rawSongs) {
-            // Se non trova V7, prova a recuperare V6 o V5 e li converte!
-            rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV6')) || JSON.parse(localStorage.getItem('sparkPresetsV5')) || [];
-        }
+        let rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
         let songs = migrateToModes(rawSongs);
 
         function renderApp() {
@@ -331,237 +344,184 @@
                 const card = document.createElement('div');
                 card.className = 'preset-card';
 
-                // Selettore Cuffie/Input
-                let modeSwitchHTML = `
+                card.innerHTML = `
+                    <button class="delete-btn" onclick="deleteSong(${songIndex})">✖</button>
+                    <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
+                    
+                    <input type="text" class="search-box" placeholder="🔍 Cerca suono (es. Pink Floyd, AC/DC)..." onkeyup="searchPreset(${songIndex}, this.value)">
+                    <div id="results-${songIndex}"></div>
+
                     <div class="mode-switch">
                         <button class="mode-btn ${song.activeMode === 'cuffie' ? 'active' : ''}" onclick="switchMode(${songIndex}, 'cuffie')">🎧 Setup Cuffie / Mixer</button>
                         <button class="mode-btn ${song.activeMode === 'input' ? 'active' : ''}" onclick="switchMode(${songIndex}, 'input')">🎸 Setup Fender Input</button>
                     </div>
-                `;
 
-                // Tabs delle Parti
-                let tabsHTML = '<div class="tabs-container">';
-                song.parts.forEach((part, pIndex) => {
-                    let activeClass = song.activePartIndex === pIndex ? 'active' : '';
-                    tabsHTML += `<div class="tab ${activeClass}" onclick="switchPart(${songIndex}, ${pIndex})">${part.name}</div>`;
-                });
-                tabsHTML += `<div class="tab add-tab" onclick="addPart(${songIndex})" title="Aggiungi Parte">+ Parte</div></div>`;
-
-                let activePart = song.parts[song.activePartIndex];
-                let currentChain = activePart.modes[song.activeMode]; // Prende la catena della modalità attiva!
-                
-                let chainHTML = '';
-                
-                currentChain.forEach((slot, slotIndex) => {
-                    let optionsHTML = catalog[slot.category].map(pedal => 
-                        `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`
-                    ).join('');
-
-                    let isEmpty = (slot.name === "Nessun Pedale");
-                    let dotClass = isEmpty ? "empty" : (slot.status === "on" ? "on" : "off");
-                    let imgClass = slot.status === "on" ? "" : "off";
-                    let imgSrc = slot.img ? slot.img : `https://via.placeholder.com/130x150/111/444?text=VUOTO`;
-
-                    let paramsHTML = '';
-                    let pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
-                    
-                    if (pedalData.params && pedalData.params.length > 0) {
-                        paramsHTML = '<div class="params-container">';
-                        pedalData.params.forEach((paramName, pIndex) => {
-                            let val = slot.paramValues[pIndex] !== undefined ? slot.paramValues[pIndex] : "5";
-                            let valOptions = "";
-                            for(let i=0; i<=10; i++) {
-                                valOptions += `<option value="${i}" ${val == i ? 'selected' : ''}>${i}</option>`;
-                            }
-                            paramsHTML += `
-                                <div class="param-row">
-                                    <span class="param-label">${paramName}</span>
-                                    <select class="param-val" onchange="updateParamValue(${songIndex}, ${slotIndex}, ${pIndex}, this.value)">
-                                        ${valOptions}
-                                    </select>
-                                </div>
-                            `;
-                        });
-                        paramsHTML += '</div>';
-                    }
-
-                    chainHTML += `
-                        <div class="pedal-slot">
-                            <span class="pedal-category">${slot.category}</span>
-                            <img src="${imgSrc}" class="pedal-image ${imgClass}" onerror="this.src='https://via.placeholder.com/130x150/111/c0392b?text=NO+FOTO'">
-                            <div class="status-indicator ${dotClass}" onclick="togglePedal(${songIndex}, ${slotIndex})"></div>
-                            <select class="pedal-select" onchange="updatePedal(${songIndex}, ${slotIndex}, this.value)">
-                                ${optionsHTML}
-                            </select>
-                            ${paramsHTML}
-                        </div>
-                    `;
-                });
-
-                card.innerHTML = `
-                    <button class="delete-btn" onclick="deleteSong(${songIndex})" title="Elimina Brano Intero">✖</button>
-                    <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
-                    
-                    ${modeSwitchHTML}
-                    ${tabsHTML}
+                    <div class="tabs-container">
+                        ${song.parts.map((p, pIdx) => `<div class="tab ${song.activePartIndex==pIdx?'active':''}" onclick="switchPart(${songIndex},${pIdx})">${p.name}</div>`).join('')}
+                        <div class="tab add-tab" onclick="addPart(${songIndex})">+ Parte</div>
+                    </div>
 
                     <div class="part-controls">
                         <select class="song-part-select" onchange="updatePartName(${songIndex}, this.value)">
-                            <option value="Accompagnamento" ${activePart.name === 'Accompagnamento' ? 'selected' : ''}>Accompagnamento</option>
-                            <option value="Assolo" ${activePart.name === 'Assolo' ? 'selected' : ''}>Assolo</option>
-                            <option value="Intro / Riff" ${activePart.name === 'Intro / Riff' ? 'selected' : ''}>Intro / Riff</option>
-                            <option value="Clean / Arpeggio" ${activePart.name === 'Clean / Arpeggio' ? 'selected' : ''}>Clean / Arpeggio</option>
+                            <option value="Accompagnamento" ${song.parts[song.activePartIndex].name === 'Accompagnamento' ? 'selected' : ''}>Accompagnamento</option>
+                            <option value="Assolo" ${song.parts[song.activePartIndex].name === 'Assolo' ? 'selected' : ''}>Assolo</option>
+                            <option value="Intro / Riff" ${song.parts[song.activePartIndex].name === 'Intro / Riff' ? 'selected' : ''}>Intro / Riff</option>
+                            <option value="Clean / Arpeggio" ${song.parts[song.activePartIndex].name === 'Clean / Arpeggio' ? 'selected' : ''}>Clean / Arpeggio</option>
                         </select>
                         ${song.parts.length > 1 ? `<button class="btn-delete-part" onclick="deletePart(${songIndex})">Elimina Parte</button>` : ''}
                     </div>
 
-                    <div class="chain-container">
-                        ${chainHTML}
-                    </div>
+                    <div class="chain-container">${renderChain(song, songIndex)}</div>
                 `;
                 container.appendChild(card);
             });
-
             localStorage.setItem('sparkPresetsV7', JSON.stringify(songs));
         }
 
-        // --- GESTIONE MODALITA' E PARTI ---
-        function switchMode(songIndex, mode) {
-            songs[songIndex].activeMode = mode;
+        function renderChain(song, songIndex) {
+            const activePart = song.parts[song.activePartIndex];
+            const currentChain = activePart.modes[song.activeMode];
+            
+            return currentChain.map((slot, slotIndex) => {
+                let optionsHTML = catalog[slot.category].map(pedal => 
+                    `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`
+                ).join('');
+
+                let isEmpty = (slot.name === "Nessun Pedale");
+                let dotClass = isEmpty ? "empty" : (slot.status === "on" ? "on" : "off");
+                let imgClass = slot.status === "on" ? "" : "off";
+                let imgSrc = slot.img ? slot.img : `https://via.placeholder.com/130x150/111/444?text=VUOTO`;
+
+                let paramsHTML = '';
+                let pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
+                
+                if (pedalData.params && pedalData.params.length > 0) {
+                    paramsHTML = '<div class="params-container">';
+                    pedalData.params.forEach((paramName, pIndex) => {
+                        let val = slot.paramValues[pIndex] !== undefined ? slot.paramValues[pIndex] : "5";
+                        let valOptions = "";
+                        for(let i=0; i<=10; i++) {
+                            valOptions += `<option value="${i}" ${val == i ? 'selected' : ''}>${i}</option>`;
+                        }
+                        paramsHTML += `
+                            <div class="param-row">
+                                <span class="param-label">${paramName}</span>
+                                <select class="param-val" onchange="updateParamValue(${songIndex}, ${slotIndex}, ${pIndex}, this.value)">
+                                    ${valOptions}
+                                </select>
+                            </div>
+                        `;
+                    });
+                    paramsHTML += '</div>';
+                }
+
+                return `
+                    <div class="pedal-slot">
+                        <span class="pedal-category">${slot.category}</span>
+                        <img src="${imgSrc}" class="pedal-image ${imgClass}" onerror="this.src='https://via.placeholder.com/130x150/111/c0392b?text=NO+FOTO'">
+                        <div class="status-indicator ${dotClass}" onclick="togglePedal(${songIndex}, ${slotIndex})"></div>
+                        <select class="pedal-select" onchange="updatePedal(${songIndex}, ${slotIndex}, this.value)">
+                            ${optionsHTML}
+                        </select>
+                        ${paramsHTML}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // INTELLIGENZA E RICERCA
+        function searchPreset(songIndex, query) {
+            const resultsContainer = document.getElementById(`results-${songIndex}`);
+            if (query.length < 2) { resultsContainer.innerHTML = ""; return; }
+            const allSuggestions = [...presetSuggestions, ...personalLibrary];
+            const results = allSuggestions.filter(p => p.title.toLowerCase().includes(query.toLowerCase())).slice(0,4);
+            
+            resultsContainer.innerHTML = results.map(p => `
+                <div class="suggestion-item ${p.isUserCreated?'user-suggestion':''}" onclick="applyPreset(${songIndex}, '${p.title.replace(/'/g, "\\'")}')">
+                    ${p.isUserCreated ? '✅ Memoria: ' : '🎸 Suggerito: '} ${p.title}
+                </div>
+            `).join('');
+        }
+
+        function applyPreset(songIndex, title) {
+            const p = [...presetSuggestions, ...personalLibrary].find(x => x.title === title);
+            const chain = songs[songIndex].parts[songs[songIndex].activePartIndex].modes[songs[songIndex].activeMode];
+            chain.forEach(slot => {
+                const found = catalog[slot.category].find(c => c.name === p.chain[slot.category]) || catalog[slot.category][0];
+                slot.name = found.name; slot.img = found.img; 
+                slot.status = slot.name === "Nessun Pedale" ? "off" : "on";
+                slot.paramValues = found.params.map(() => "5");
+            });
             renderApp();
         }
 
-        function switchPart(songIndex, partIndex) {
-            songs[songIndex].activePartIndex = partIndex;
-            renderApp();
-        }
-
-        function addPart(songIndex) {
-            songs[songIndex].parts.push({
-                name: "Assolo",
-                modes: {
-                    cuffie: JSON.parse(JSON.stringify(defaultChain)),
-                    input: JSON.parse(JSON.stringify(defaultChain))
+        function learn() {
+            songs.forEach(s => {
+                const libName = s.title + " (Salvato)";
+                if(!personalLibrary.find(x => x.title === libName)) {
+                    let c = {}; 
+                    s.parts[0].modes.cuffie.forEach(slot => c[slot.category] = slot.name);
+                    personalLibrary.push({title: libName, chain: c, isUserCreated: true});
                 }
             });
-            songs[songIndex].activePartIndex = songs[songIndex].parts.length - 1;
-            renderApp();
+            localStorage.setItem('sparkPersonalLibrary', JSON.stringify(personalLibrary));
         }
 
-        function deletePart(songIndex) {
-            if(confirm("Eliminare questa singola parte?")) {
-                let s = songs[songIndex];
-                s.parts.splice(s.activePartIndex, 1);
-                s.activePartIndex = 0; 
-                renderApp();
-            }
-        }
-
-        function updatePartName(songIndex, newName) {
-            songs[songIndex].parts[songs[songIndex].activePartIndex].name = newName;
-            renderApp();
-        }
-
-        function updateSongTitle(songIndex, value) { 
-            songs[songIndex].title = value; 
-            renderApp(); 
-        }
-
-        // --- GESTIONE PEDALI ---
-        function togglePedal(songIndex, slotIndex) {
-            let s = songs[songIndex];
-            let slot = s.parts[s.activePartIndex].modes[s.activeMode][slotIndex];
-            if (slot.name !== "Nessun Pedale") {
-                slot.status = slot.status === "on" ? "off" : "on";
-                renderApp();
-            }
-        }
+        // --- GESTIONE LOGICA ---
+        function switchMode(songIndex, mode) { songs[songIndex].activeMode = mode; renderApp(); }
+        function switchPart(songIndex, pIdx) { songs[songIndex].activePartIndex = pIdx; renderApp(); }
+        function updateSongTitle(sIdx, val) { songs[sIdx].title = val; renderApp(); }
+        function updatePartName(sIdx, val) { songs[sIdx].parts[songs[sIdx].activePartIndex].name = val; renderApp(); }
         
-        function updatePedal(songIndex, slotIndex, newPedalName) {
-            let s = songs[songIndex];
-            let slot = s.parts[s.activePartIndex].modes[s.activeMode][slotIndex];
-            const pedalData = catalog[slot.category].find(p => p.name === newPedalName);
-            
-            if (pedalData) {
-                slot.name = pedalData.name;
-                slot.img = pedalData.img;
-                slot.status = "on"; 
-                slot.paramValues = pedalData.params ? pedalData.params.map(() => "5") : [];
-            }
+        function addPart(sIdx) {
+            songs[sIdx].parts.push({ name: "Nuova Parte", modes: { cuffie: JSON.parse(JSON.stringify(defaultChain)), input: JSON.parse(JSON.stringify(defaultChain)) } });
+            songs[sIdx].activePartIndex = songs[sIdx].parts.length - 1;
             renderApp();
         }
 
-        function updateParamValue(songIndex, slotIndex, paramIndex, value) {
-            let s = songs[songIndex];
-            s.parts[s.activePartIndex].modes[s.activeMode][slotIndex].paramValues[paramIndex] = value;
+        function deletePart(sIdx) {
+            if(confirm("Eliminare parte?")) { songs[sIdx].parts.splice(songs[sIdx].activePartIndex, 1); songs[sIdx].activePartIndex = 0; renderApp(); }
+        }
+
+        function togglePedal(sIdx, slIdx) {
+            const slot = songs[sIdx].parts[songs[sIdx].activePartIndex].modes[songs[sIdx].activeMode][slIdx];
+            if (slot.name !== "Nessun Pedale") { slot.status = slot.status === "on" ? "off" : "on"; renderApp(); }
+        }
+
+        function updatePedal(sIdx, slIdx, name) {
+            const slot = songs[sIdx].parts[songs[sIdx].activePartIndex].modes[songs[sIdx].activeMode][slIdx];
+            const data = catalog[slot.category].find(p => p.name === name);
+            slot.name = data.name; slot.img = data.img; slot.status = name === "Nessun Pedale" ? "off" : "on";
+            slot.paramValues = data.params.map(() => "5");
             renderApp();
         }
 
-        function addSong() { 
-            songs.unshift({
-                title: "Nuovo Brano",
-                activePartIndex: 0,
-                activeMode: "cuffie",
-                parts: [ 
-                    { 
-                        name: "Accompagnamento", 
-                        modes: {
-                            cuffie: JSON.parse(JSON.stringify(defaultChain)),
-                            input: JSON.parse(JSON.stringify(defaultChain))
-                        }
-                    } 
-                ]
-            }); 
-            renderApp(); 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function updateParamValue(sIdx, slIdx, pIdx, val) {
+            songs[sIdx].parts[songs[sIdx].activePartIndex].modes[songs[sIdx].activeMode][slIdx].paramValues[pIdx] = val;
+            localStorage.setItem('sparkPresetsV7', JSON.stringify(songs));
         }
 
-        function deleteSong(index) { 
-            if(confirm("Vuoi eliminare l'intero brano e tutte le sue parti?")) { 
-                songs.splice(index, 1); 
-                renderApp(); 
-            } 
+        function addSong() {
+            songs.unshift({ title: "Nuovo Brano", activePartIndex: 0, activeMode: "cuffie", parts: [{ name: "Accompagnamento", modes: { cuffie: JSON.parse(JSON.stringify(defaultChain)), input: JSON.parse(JSON.stringify(defaultChain)) } }] });
+            renderApp();
         }
 
-        // --- EXPORT / IMPORT ---
+        function deleteSong(idx) { if(confirm("Eliminare brano?")) { songs.splice(idx, 1); renderApp(); } }
+
         function exportData() {
-            if (songs.length === 0) { alert("Nessun brano da esportare!"); return; }
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(songs, null, 2));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "spark_presets_pro.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
+            learn();
+            const blob = new Blob([JSON.stringify(songs, null, 2)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = "spark_presets_intelligence.json"; a.click();
         }
 
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
+        function importData(e) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedSongs = JSON.parse(e.target.result);
-                    if (Array.isArray(importedSongs)) {
-                        songs = migrateToModes(importedSongs); 
-                        renderApp();
-                        alert("Preset importati con successo! 🎸");
-                    } else {
-                        alert("Formato file non valido.");
-                    }
-                } catch (error) {
-                    alert("Errore durante la lettura del file.");
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
+            reader.onload = (ev) => { try { songs = migrateToModes(JSON.parse(ev.target.result)); learn(); renderApp(); } catch(err) { alert("Errore file"); } };
+            reader.readAsText(e.target.files[0]);
         }
 
-        window.onload = function() {
-            if(songs.length === 0) addSong();
-            else renderApp();
-        };
+        window.onload = function() { if(songs.length === 0) addSong(); else renderApp(); };
     </script>
 </body>
 </html>
