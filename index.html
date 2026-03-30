@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Spark Editor</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212">
     <link rel="apple-touch-icon" href="icon-192.png">
@@ -25,7 +26,7 @@
             color: var(--text-main);
             margin: 0;
             padding: 15px;
-            padding-bottom: 80px; /* Spazio per lo scroll su mobile */
+            padding-bottom: 90px;
         }
 
         .header-bar {
@@ -33,7 +34,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             border-bottom: 2px solid var(--spark-gold);
         }
 
@@ -41,69 +42,85 @@
 
         .btn {
             background-color: var(--spark-gold); color: #000; border: none;
-            padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;
+            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
-        .btn:active { opacity: 0.8; }
-        .btn-danger { background-color: var(--spark-red); color: white; }
+        .btn:active { opacity: 0.8; transform: translateY(2px); }
 
         .preset-card {
             background-color: var(--bg-card); border-radius: 12px;
-            padding: 15px; margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            padding: 20px 15px; margin-bottom: 25px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6);
             position: relative;
+            border-top: 3px solid #333;
         }
 
         .song-title-input {
-            width: 100%; background: transparent; border: none;
+            width: 85%; background: transparent; border: none;
             color: var(--spark-gold); font-size: 1.4em; font-weight: bold;
-            margin-bottom: 5px; outline: none; border-bottom: 1px dashed #555;
+            margin-bottom: 8px; outline: none; border-bottom: 1px dashed #555;
+            padding-bottom: 5px;
         }
 
         .song-part-input {
-            width: 100%; background: transparent; border: none;
+            width: 85%; background: transparent; border: none;
             color: var(--text-main); font-size: 1em; outline: none;
-            border-bottom: 1px dashed #555; margin-bottom: 15px;
+            border-bottom: 1px dashed #555; margin-bottom: 20px;
+            padding-bottom: 5px;
         }
 
         .delete-btn {
             position: absolute; top: 15px; right: 15px;
-            background: none; border: none; color: var(--spark-red); font-size: 1.2em;
+            background: rgba(192, 57, 43, 0.2); border: none; color: var(--spark-red); 
+            font-size: 1.2em; border-radius: 50%; width: 35px; height: 35px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
 
-        /* Scorrimento orizzontale in stile App originale */
         .chain-container {
-            display: flex; gap: 8px; overflow-x: auto;
-            padding-bottom: 10px; scroll-snap-type: x mandatory;
+            display: flex; gap: 10px; overflow-x: auto;
+            padding-bottom: 15px; scroll-snap-type: x mandatory;
         }
-        .chain-container::-webkit-scrollbar { height: 6px; }
-        .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+        .chain-container::-webkit-scrollbar { height: 8px; }
+        .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
         .pedal-slot {
-            flex: 0 0 110px; /* Larghezza fissa per ogni slot */
-            background-color: var(--pedal-bg); border-radius: 8px;
-            padding: 10px; display: flex; flex-direction: column; align-items: center;
+            flex: 0 0 130px;
+            background-color: var(--pedal-bg); border-radius: 10px;
+            padding: 12px; display: flex; flex-direction: column; align-items: center;
             border: 1px solid #444; scroll-snap-align: start;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
         }
 
-        .pedal-category { font-size: 0.7em; color: #aaa; text-transform: uppercase; margin-bottom: 5px; }
+        .pedal-category { 
+            font-size: 0.75em; color: var(--spark-gold); 
+            text-transform: uppercase; font-weight: bold; margin-bottom: 10px; 
+            letter-spacing: 1px;
+        }
         
-        .pedal-image { width: 100%; height: 90px; object-fit: contain; margin-bottom: 10px; border-radius: 4px; }
+        .pedal-image { 
+            width: 100%; height: 110px; object-fit: contain; 
+            margin-bottom: 12px; border-radius: 6px; 
+            background-color: #181818; padding: 5px;
+        }
         
         .pedal-select {
             width: 100%; background-color: var(--input-bg); color: white;
-            border: 1px solid #555; border-radius: 4px; font-size: 0.75em;
-            padding: 4px; margin-bottom: 5px;
+            border: 1px solid #555; border-radius: 6px; font-size: 0.8em;
+            padding: 6px; margin-bottom: 8px; outline: none;
         }
         
         .settings-input {
-            width: 100%; background-color: var(--input-bg); color: var(--spark-gold);
-            border: 1px solid #555; border-radius: 4px; font-size: 0.75em;
-            padding: 4px; text-align: center; box-sizing: border-box;
+            width: 100%; background-color: var(--input-bg); color: var(--text-main);
+            border: 1px solid #555; border-radius: 6px; font-size: 0.75em;
+            padding: 6px; text-align: center; box-sizing: border-box;
+            outline: none; transition: border 0.3s;
         }
+        .settings-input:focus { border-color: var(--spark-gold); }
 
         @media (min-width: 768px) {
-            .pedal-slot { flex: 1; min-width: 0; } /* Su tablet/PC si adatta allo schermo */
+            .pedal-slot { flex: 1; min-width: 0; } 
             .chain-container { overflow-x: visible; justify-content: space-between; }
+            .preset-card { padding: 30px; }
         }
     </style>
 </head>
@@ -111,72 +128,132 @@
 
     <div class="header-bar">
         <h1>SPARK EDITOR</h1>
-        <button class="btn" onclick="addSong()">+ Aggiungi Brano</button>
+        <button class="btn" onclick="addSong()">+ Nuovo Brano</button>
     </div>
 
     <div id="preset-list"></div>
 
     <script>
-        // Registrazione del Service Worker per l'installazione PWA
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => console.log("Service Worker Registrato!"));
+            navigator.serviceWorker.register('sw.js').then(() => console.log("App installabile!"));
         }
 
-        // --- INSERISCI QUI IL NOME ESATTO DELLE TUE IMMAGINI SU GITHUB ---
-        // Attenzione: i nomi in 'img' devono corrispondere esattamente ai file nella tua repo!
+        // Il catalogo mappato ESATTAMENTE sulle tue cartelle e immagini
         const catalog = {
             "Gate": [
-                { name: "Spento", img: "gate_off.jpg" },
-                { name: "Noise Gate", img: "gate_noisegate.jpg" }
+                { name: "Spento", img: "" },
+                { name: "01 NoisGate", img: "1-noisegate/NoiseGate-01-NoisGate.jpg" }
             ],
             "Comp": [
-                { name: "Spento", img: "comp_off.jpg" },
-                { name: "LA Comp", img: "comp_lacomp.jpg" }
+                { name: "Spento", img: "" },
+                { name: "01 LA Comp", img: "2-COMP-WAH/COMP-WAH-01-LA-Comp.jpg" },
+                { name: "02 Sustain Comp", img: "2-COMP-WAH/COMP-WAH-02-Sustain-Comp.jpg" },
+                { name: "03 Red Comp", img: "2-COMP-WAH/COMP-WAH-03-Red-Comp.jpg" },
+                { name: "04 Bass Comp", img: "2-COMP-WAH/COMP-WAH-04-Bass-Comp.jpg" },
+                { name: "05 Optical Comp", img: "2-COMP-WAH/COMP-WAH-05-Optical-Comp.jpg" }
             ],
             "Drive": [
-                { name: "Spento", img: "drive_off.jpg" },
-                { name: "Booster", img: "drive_booster.jpg" },
-                { name: "Black Op", img: "drive_blackop.jpg" },
-                { name: "Guitar Muff", img: "drive_muff.jpg" }
+                { name: "Spento", img: "" },
+                { name: "01 Booster", img: "3-Drive/Drive-01-Booster.jpg" },
+                { name: "02 Clone Drive", img: "3-Drive/Drive-02-Clone-Drive.jpg" },
+                { name: "03 Tube Drive", img: "3-Drive/Drive-03-Tube-Drive.jpg" },
+                { name: "04 Over Drive", img: "3-Drive/Drive-04-Over-Drive.jpg" },
+                { name: "09 Fuzz Face", img: "3-Drive/Drive-09-Fuzz-Face.jpg" },
+                { name: "10 Black Op", img: "3-Drive/Drive-10-Black-Op.jpg" },
+                { name: "11 Bass Muff", img: "3-Drive/Drive-11-Bass-Muff.jpg" },
+                { name: "12 Guitar Muff", img: "3-Drive/Drive-12-Guitar-Muff.jpg" },
+                { name: "13 Bassmaster", img: "3-Drive/Drive-13-Bassmaster.jpg" },
+                { name: "14 SAB Driver", img: "3-Drive/Drive-14-SAB-driver.jpg" }
             ],
             "Amp": [
-                { name: "Spento", img: "amp_off.jpg" },
-                { name: "Fender 65R", img: "amp_fender.jpg" }
+                { name: "Spento", img: "" },
+                { name: "01 Silver 120", img: "4-AMP/Amp-01-Silver-120.jpg" },
+                { name: "02 Black Duo", img: "4-AMP/Amp-02-Black-Duo.jpg" },
+                { name: "03 AD Clean", img: "4-AMP/Amp-03-AD-Clean.jpg" },
+                { name: "04 Match Dc", img: "4-AMP/Amp-04-Match-Dc.jpg" },
+                { name: "05 OSD 50", img: "4-AMP/Amp-05-OSD-50.jpg" },
+                { name: "08 Blues Boy", img: "4-AMP/Amp-08-Blues-Boy.jpg" },
+                { name: "09 Tweed Bass", img: "4-AMP/Amp-09-Tweed-Bass.jpg" },
+                { name: "10 Ac Boost", img: "4-AMP/Amp-10-Ac-Boost.jpg" },
+                { name: "11 Checkmate", img: "4-AMP/Amp-11-Checkmate.jpg" },
+                { name: "12 Two Stone SP50", img: "4-AMP/Amp-12-Two-Stone-SP50.jpg" },
+                { name: "15 American Deluxe", img: "4-AMP/Amp-15-American-Deluxe.jpg" },
+                { name: "16 Plexiglas", img: "4-AMP/Amp-16-Plexiglas.jpg" },
+                { name: "17 JM45", img: "4-AMP/Amp-17-JM45.jpg" },
+                { name: "18 Lux Verb", img: "4-AMP/AMP-18-Lux-Verb.jpg" },
+                { name: "21 RB 101", img: "4-AMP/AMP-21-RB-101.jpg" },
+                { name: "22 British 30", img: "4-AMP/AMP-22-British-30.jpg" },
+                { name: "23 American High Gain", img: "4-AMP/AMP-23-American-High-Gain.jpg" },
+                { name: "24 SLO 100", img: "4-AMP/AMP-24-SLO-100.jpg" },
+                { name: "25 YJM100", img: "4-AMP/AMP-25-YJM100.jpg" },
+                { name: "26 Treadplate", img: "4-AMP/AMP-26-Treadplate.jpg" },
+                { name: "27 Insane", img: "4-AMP/AMP-27-Insane.jpg" },
+                { name: "28 Insane 6508", img: "4-AMP/AMP-28-Insane-6508.jpg" },
+                { name: "29 SwitchAxe", img: "4-AMP/AMP-29-SwitchAxe.jpg" },
+                { name: "30 Rocker V", img: "4-AMP/AMP-30-Rocker-V.jpg" },
+                { name: "31 BE 101", img: "4-AMP/AMP-31-BE-101.jpg" },
+                { name: "32 Pure Acoustic", img: "4-AMP/AMP-32-Pure-Acoustic.jpg" },
+                { name: "33 Fishboy", img: "4-AMP/AMP-33-Fishboy.jpg" },
+                { name: "34 Jumbo", img: "4-AMP/AMP-34-Jumbo.jpg" },
+                { name: "35 Flat Acoustic", img: "4-AMP/AMP-35-Flat-Acoustic.jpg" },
+                { name: "36 RB 800", img: "4-AMP/AMP-36-RB-800.jpg" },
+                { name: "37 Sunny 3000", img: "4-AMP/AMP-37-Sunny-3000.jpg" },
+                { name: "38 W600", img: "4-AMP/AMP-38-W600.jpg" },
+                { name: "39 Hammer 500", img: "4-AMP/AMP-39-Hammer-500.jpg" }
             ],
             "Mod": [
-                { name: "Spento", img: "mod_off.jpg" },
-                { name: "EQ Pedal", img: "mod_eq.jpg" },
-                { name: "Chorus", img: "mod_chorus.jpg" }
+                { name: "Spento", img: "" },
+                { name: "01 Tremolo", img: "5-MOD-EQ/MOD-EQ-01-Tremolo.jpg" },
+                { name: "02 Chorus", img: "5-MOD-EQ/MOD-EQ-02-Chorus.jpg" },
+                { name: "03 Flanger", img: "5-MOD-EQ/MOD-EQ-03-Flanger.jpg" },
+                { name: "04 Phaser", img: "5-MOD-EQ/MOD-EQ-04-Phaser.jpg" },
+                { name: "05 Vibrato", img: "5-MOD-EQ/MOD-EQ-05-Vibrato.jpg" },
+                { name: "06 UniVibe", img: "5-MOD-EQ/MOD-EQ-06-UniVibe.jpg" },
+                { name: "08 Cloner Chorus", img: "5-MOD-EQ/MOD-EQ-08-Cloner-Chorus.jpg" },
+                { name: "09 Classic Vibe", img: "5-MOD-EQ/MOD-EQ-09-Classic-Vibe.jpg" },
+                { name: "10 Tremolator", img: "5-MOD-EQ/MOD-EQ-10-Tremolator.jpg" },
+                { name: "11 Tremolo Square", img: "5-MOD-EQ/MOD-EQ-11-Tremolo-Square.jpg" },
+                { name: "12 Guitar EQ", img: "5-MOD-EQ/MOD-EQ-12-Guitar-EQ.jpg" },
+                { name: "13 Bass EQ", img: "5-MOD-EQ/MOD-EQ-13-Bass-EQ.jpg" }
             ],
             "Delay": [
-                { name: "Spento", img: "delay_off.jpg" },
-                { name: "Echotape", img: "delay_echotape.jpg" }
+                { name: "Spento", img: "" },
+                { name: "01 Digital Delay", img: "6-Delay/Delay-01-Digital-Delay.jpg" },
+                { name: "02 Echo Fit", img: "6-Delay/Delay-02-Echo-Fit.jpg" },
+                { name: "03 Vintage Delay", img: "6-Delay/Delay-03-Vintage-Delay.jpg" },
+                { name: "04 Reverse Delay", img: "6-Delay/Delay-04-Reverse-Delay.jpg" },
+                { name: "05 Multi Head", img: "6-Delay/Delay-05-Multi-Head.jpg" },
+                { name: "06 Echo Tape", img: "6-Delay/Delay-06-Echo-Tape.ipg.jpg" }
             ],
             "Reverb": [
-                { name: "Spento", img: "reverb_off.jpg" }
+                { name: "Spento", img: "" },
+                { name: "01 Room Studio A", img: "7-Reverb/Reverb-01-Room-Studio-A.jpg" },
+                { name: "02 Chamber", img: "7-Reverb/Reverb-02-Chamber.jpg" },
+                { name: "03 Hall Natural", img: "7-Reverb/Reverb-03-Hall-Natural.jpg" },
+                { name: "04 Plate Short", img: "7-Reverb/Reverb-04-Plate-Short.jpg" },
+                { name: "05 Hall Ambient", img: "7-Reverb/Reverb-05-Hall-Ambient.jpg" },
+                { name: "06 Plate Rich", img: "7-Reverb/Reverb-06-Plate-Rich.jpg" },
+                { name: "07 Hall Medium", img: "7-Reverb/Reverb-07-Hall-Medium.jpg" },
+                { name: "08 Plate Long", img: "7-Reverb/Reverb-08-Plate-Long.jpg" },
+                { name: "09 Room Studio B", img: "7-Reverb/Reverb-09-Room-Studio-B.jpg" }
             ]
         };
 
         const defaultSong = {
-            title: "Nuovo Brano", part: "Accompagno / Assolo",
+            title: "Titolo Brano", 
+            part: "Accompagno / Assolo",
             chain: [
-                { category: "Gate", name: "Spento", img: "gate_off.jpg", settings: "" },
-                { category: "Comp", name: "Spento", img: "comp_off.jpg", settings: "" },
-                { category: "Drive", name: "Spento", img: "drive_off.jpg", settings: "" },
-                { category: "Amp", name: "Spento", img: "amp_off.jpg", settings: "" },
-                { category: "Mod", name: "Spento", img: "mod_off.jpg", settings: "" },
-                { category: "Delay", name: "Spento", img: "delay_off.jpg", settings: "" },
-                { category: "Reverb", name: "Spento", img: "reverb_off.jpg", settings: "" }
+                { category: "Gate", name: "Spento", img: "", settings: "" },
+                { category: "Comp", name: "Spento", img: "", settings: "" },
+                { category: "Drive", name: "Spento", img: "", settings: "" },
+                { category: "Amp", name: "Spento", img: "", settings: "" },
+                { category: "Mod", name: "Spento", img: "", settings: "" },
+                { category: "Delay", name: "Spento", img: "", settings: "" },
+                { category: "Reverb", name: "Spento", img: "", settings: "" }
             ]
         };
 
         let songs = JSON.parse(localStorage.getItem('sparkPresetsApp')) || [];
-
-        // Funzione per pescare le immagini dalla tua repo (se sono nella cartella principale)
-        function getImageUrl(imgName) {
-            // Se hai messo le immagini in una cartella chiamata "images", usa: return 'images/' + imgName;
-            return imgName; 
-        }
 
         function renderApp() {
             const container = document.getElementById('preset-list');
@@ -187,15 +264,22 @@
                 card.className = 'preset-card';
 
                 let chainHTML = '';
+                
                 song.chain.forEach((slot, slotIndex) => {
                     let optionsHTML = catalog[slot.category].map(pedal => 
                         `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`
                     ).join('');
 
+                    // Logica Immagine: se è "Spento" mostra icona nera SPENTO, altrimenti carica l'immagine corretta
+                    let imgSrc = slot.img ? slot.img : `https://via.placeholder.com/130x150/111/d4af37?text=SPENTO`;
+
                     chainHTML += `
                         <div class="pedal-slot">
                             <span class="pedal-category">${slot.category}</span>
-                            <img src="${getImageUrl(slot.img)}" class="pedal-image" onerror="this.src='https://via.placeholder.com/70x100/333/d4af37?text=${slot.category}'" alt="${slot.name}">
+                            
+                            <img src="${imgSrc}" class="pedal-image" 
+                                onerror="this.src='https://via.placeholder.com/130x150/111/c0392b?text=NO+FOTO'" 
+                                alt="${slot.name}">
                             
                             <select class="pedal-select" onchange="updatePedal(${songIndex}, ${slotIndex}, this.value)">
                                 ${optionsHTML}
@@ -208,9 +292,9 @@
                 });
 
                 card.innerHTML = `
-                    <button class="delete-btn" onclick="deleteSong(${songIndex})">🗑️</button>
-                    <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongInfo(${songIndex}, 'title', this.value)" placeholder="Titolo">
-                    <input type="text" class="song-part-input" value="${song.part}" onchange="updateSongInfo(${songIndex}, 'part', this.value)" placeholder="Parte (es. Assolo)">
+                    <button class="delete-btn" onclick="deleteSong(${songIndex})" title="Elimina Preset">✖</button>
+                    <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongInfo(${songIndex}, 'title', this.value)" placeholder="Nome della Canzone">
+                    <input type="text" class="song-part-input" value="${song.part}" onchange="updateSongInfo(${songIndex}, 'part', this.value)" placeholder="Es. Assolo / Ritornello">
                     
                     <div class="chain-container">
                         ${chainHTML}
@@ -222,7 +306,10 @@
             localStorage.setItem('sparkPresetsApp', JSON.stringify(songs));
         }
 
-        function updateSongInfo(songIndex, field, value) { songs[songIndex][field] = value; renderApp(); }
+        function updateSongInfo(songIndex, field, value) { 
+            songs[songIndex][field] = value; 
+            renderApp(); 
+        }
         
         function updatePedal(songIndex, slotIndex, newPedalName) {
             const category = songs[songIndex].chain[slotIndex].category;
@@ -234,9 +321,23 @@
             renderApp();
         }
 
-        function updateSettings(songIndex, slotIndex, value) { songs[songIndex].chain[slotIndex].settings = value; renderApp(); }
-        function addSong() { songs.unshift(JSON.parse(JSON.stringify(defaultSong))); renderApp(); }
-        function deleteSong(index) { if(confirm("Eliminare brano?")) { songs.splice(index, 1); renderApp(); } }
+        function updateSettings(songIndex, slotIndex, value) { 
+            songs[songIndex].chain[slotIndex].settings = value; 
+            renderApp(); 
+        }
+
+        function addSong() { 
+            songs.unshift(JSON.parse(JSON.stringify(defaultSong))); 
+            renderApp(); 
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteSong(index) { 
+            if(confirm("Sei sicuro di voler eliminare questo preset?")) { 
+                songs.splice(index, 1); 
+                renderApp(); 
+            } 
+        }
 
         window.onload = function() {
             if(songs.length === 0) addSong();
