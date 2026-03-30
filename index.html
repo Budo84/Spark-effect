@@ -28,20 +28,13 @@
         }
 
         .header-bar {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--spark-gold);
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--spark-gold);
         }
 
         h1 { color: var(--spark-gold); margin: 0; font-size: 1.5em; font-weight: 800; letter-spacing: 1px; text-align: center; }
 
-        .header-controls {
-            display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%;
-        }
+        .header-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
 
         .btn {
             background-color: var(--spark-gold); color: #000; border: none;
@@ -52,100 +45,79 @@
         .btn-secondary { background-color: #444; color: white; }
 
         .preset-card {
-            background-color: var(--bg-card);
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            position: relative;
+            background-color: var(--bg-card); border: 1px solid #333; border-radius: 12px;
+            padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative;
         }
 
         .song-title-input {
-            width: 85%; background: transparent; border: none;
-            color: var(--spark-gold); font-size: 1.5em; font-weight: bold;
-            margin-bottom: 15px; outline: none; border-bottom: 1px dashed #555;
-            padding-bottom: 5px;
+            width: 85%; background: transparent; border: none; color: var(--spark-gold); 
+            font-size: 1.5em; font-weight: bold; margin-bottom: 15px; outline: none; 
+            border-bottom: 1px dashed #555; padding-bottom: 5px;
         }
 
         .delete-btn {
-            position: absolute; top: 15px; right: 15px;
-            background: none; border: none; color: var(--spark-red); 
-            font-size: 1.5em; cursor: pointer;
+            position: absolute; top: 15px; right: 15px; background: none; border: none; 
+            color: var(--spark-red); font-size: 1.5em; cursor: pointer;
         }
+
+        /* --- STILE INTERRUTTORE MODALITA' (Cuffie / Input) --- */
+        .mode-switch {
+            display: flex; gap: 0; margin-bottom: 15px; border-radius: 8px; 
+            overflow: hidden; border: 1px solid var(--spark-gold);
+        }
+        .mode-btn {
+            flex: 1; padding: 10px; background: #111; color: var(--text-muted); 
+            border: none; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.3s;
+        }
+        .mode-btn.active { background: var(--spark-gold); color: #000; }
 
         /* --- STILE TABS PER LE PARTI DEL BRANO --- */
         .tabs-container {
-            display: flex; gap: 5px; margin-bottom: 15px; 
-            border-bottom: 2px solid #333; padding-bottom: 0px; 
-            overflow-x: auto; scrollbar-width: none;
+            display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #333; 
+            padding-bottom: 0px; overflow-x: auto; scrollbar-width: none;
         }
         .tabs-container::-webkit-scrollbar { display: none; }
 
         .tab {
-            padding: 10px 15px; background: #222; border-radius: 8px 8px 0 0; 
-            color: var(--text-muted); cursor: pointer; font-size: 0.9em; 
-            font-weight: bold; white-space: nowrap; border: 1px solid #333;
-            border-bottom: none; transition: background 0.3s;
+            padding: 10px 15px; background: #222; border-radius: 8px 8px 0 0; color: var(--text-muted); 
+            cursor: pointer; font-size: 0.9em; font-weight: bold; white-space: nowrap; 
+            border: 1px solid #333; border-bottom: none; transition: background 0.3s;
         }
-        .tab.active {
-            background: var(--spark-gold); color: #000; border-color: var(--spark-gold);
-        }
-        .tab.add-tab {
-            background: transparent; color: var(--spark-gold); 
-            border: 1px dashed var(--spark-gold); border-bottom: none;
-        }
+        .tab.active { background: var(--text-main); color: #000; border-color: var(--text-main); }
+        .tab.add-tab { background: transparent; color: var(--spark-gold); border: 1px dashed var(--spark-gold); border-bottom: none; }
 
-        .part-controls {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; gap: 10px;
-        }
+        .part-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
 
         .song-part-select {
             flex-grow: 1; background-color: var(--input-bg); border: 1px solid #555;
-            color: var(--text-main); font-size: 0.9em; outline: none; border-radius: 6px;
-            padding: 6px; font-weight: bold;
+            color: var(--text-main); font-size: 0.9em; outline: none; border-radius: 6px; padding: 6px; font-weight: bold;
         }
 
         .btn-delete-part {
             background: rgba(192, 57, 43, 0.2); color: var(--spark-red); border: 1px solid var(--spark-red);
             padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: bold;
         }
-        .btn-delete-part:hover { background: var(--spark-red); color: white; }
 
         /* --- CATENA EFFETTI --- */
-        .chain-container {
-            display: flex; gap: 10px; overflow-x: auto;
-            padding-bottom: 15px; scroll-snap-type: x mandatory;
-        }
+        .chain-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; scroll-snap-type: x mandatory; }
         .chain-container::-webkit-scrollbar { height: 8px; }
         .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
         .pedal-slot {
-            flex: 0 0 135px;
-            background-color: var(--pedal-bg); border-radius: 10px;
-            padding: 12px; display: flex; flex-direction: column; align-items: center;
-            border: 1px solid #444; scroll-snap-align: start;
+            flex: 0 0 135px; background-color: var(--pedal-bg); border-radius: 10px; padding: 12px; 
+            display: flex; flex-direction: column; align-items: center; border: 1px solid #444; scroll-snap-align: start;
         }
 
-        .pedal-category { 
-            font-size: 0.7em; color: var(--text-muted); 
-            text-transform: uppercase; font-weight: bold; margin-bottom: 5px; 
-            letter-spacing: 1px;
-        }
+        .pedal-category { font-size: 0.7em; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; }
         
         .pedal-image { 
-            width: 100%; height: 110px; object-fit: contain; 
-            margin-bottom: 8px; border-radius: 6px; 
-            background-color: #111; padding: 5px;
-            transition: all 0.3s ease;
+            width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; 
+            border-radius: 6px; background-color: #111; padding: 5px; transition: all 0.3s ease;
         }
-
         .pedal-image.off { filter: grayscale(100%) brightness(0.4); opacity: 0.7; }
 
         .status-indicator {
-            width: 14px; height: 14px; border-radius: 50%;
-            background-color: #555; margin-bottom: 10px;
+            width: 14px; height: 14px; border-radius: 50%; background-color: #555; margin-bottom: 10px;
             cursor: pointer; border: 2px solid #111; transition: all 0.2s;
         }
         .status-indicator.on { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
@@ -153,26 +125,14 @@
         .status-indicator.empty { visibility: hidden; } 
         
         .pedal-select {
-            width: 100%; background-color: var(--input-bg); color: white;
-            border: 1px solid #555; border-radius: 6px; font-size: 0.75em;
-            padding: 6px; margin-bottom: 10px; outline: none;
+            width: 100%; background-color: var(--input-bg); color: white; border: 1px solid #555; 
+            border-radius: 6px; font-size: 0.75em; padding: 6px; margin-bottom: 10px; outline: none;
         }
 
         .params-container { width: 100%; display: flex; flex-direction: column; gap: 5px; }
-        
-        .param-row {
-            display: flex; justify-content: space-between; align-items: center;
-            background-color: #1a1a1a; padding: 3px 6px; 
-            border-radius: 4px; border: 1px solid #444;
-        }
-        
+        .param-row { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; padding: 3px 6px; border-radius: 4px; border: 1px solid #444; }
         .param-label { font-size: 0.7em; color: var(--spark-gold); font-weight: bold; }
-        
-        .param-val {
-            background-color: #333; color: white; border: 1px solid #555;
-            border-radius: 4px; font-size: 0.75em; padding: 2px 4px; outline: none;
-            cursor: pointer; text-align: center; font-weight: bold;
-        }
+        .param-val { background-color: #333; color: white; border: 1px solid #555; border-radius: 4px; font-size: 0.75em; padding: 2px 4px; outline: none; cursor: pointer; text-align: center; font-weight: bold; }
 
         @media (min-width: 768px) {
             .header-bar { flex-direction: row; }
@@ -310,23 +270,41 @@
             { category: "Reverb", name: "Nessun Pedale", img: "", status: "on", paramValues: [] }
         ];
 
-        // FUNZIONE DI MIGRAZIONE: Trasforma i vecchi salvataggi nel nuovo formato a "Tab"
-        function migrateSongs(songList) {
+        // FUNZIONE DI MIGRAZIONE INTELLIGENTE PER CREARE I MODI (Cuffie/Input)
+        function migrateToModes(songList) {
             return songList.map(s => {
-                if(s.chain && !s.parts) {
+                // Se ha già i modes (è aggiornato), passa oltre
+                if (s.parts && s.parts[0] && s.parts[0].modes) return s;
+
+                // Estrae le vecchie parti e crea i due "modes" identici per non perdere nulla
+                let oldParts = s.parts || [ { name: "Accompagnamento", chain: s.chain } ];
+                
+                let newParts = oldParts.map(p => {
                     return {
-                        title: s.title,
-                        activePartIndex: 0,
-                        parts: [ { name: s.part || "Accompagnamento", chain: s.chain } ]
+                        name: p.name || "Accompagnamento",
+                        modes: {
+                            cuffie: JSON.parse(JSON.stringify(p.chain || defaultChain)),
+                            input: JSON.parse(JSON.stringify(p.chain || defaultChain))
+                        }
                     };
-                }
-                if (s.activePartIndex === undefined) s.activePartIndex = 0;
-                return s;
+                });
+
+                return {
+                    title: s.title,
+                    activePartIndex: s.activePartIndex || 0,
+                    activeMode: s.activeMode || 'cuffie', // Default iniziale su Cuffie
+                    parts: newParts
+                };
             });
         }
 
-        let rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV6')) || [];
-        let songs = migrateSongs(rawSongs);
+        // CARICAMENTO E MIGRAZIONE
+        let rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV7'));
+        if (!rawSongs) {
+            // Se non trova V7, prova a recuperare V6 o V5 e li converte!
+            rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV6')) || JSON.parse(localStorage.getItem('sparkPresetsV5')) || [];
+        }
+        let songs = migrateToModes(rawSongs);
 
         function renderApp() {
             const container = document.getElementById('preset-list');
@@ -336,7 +314,15 @@
                 const card = document.createElement('div');
                 card.className = 'preset-card';
 
-                // Generazione dei Tabs
+                // Selettore Cuffie/Input
+                let modeSwitchHTML = `
+                    <div class="mode-switch">
+                        <button class="mode-btn ${song.activeMode === 'cuffie' ? 'active' : ''}" onclick="switchMode(${songIndex}, 'cuffie')">🎧 Setup Cuffie / Mixer</button>
+                        <button class="mode-btn ${song.activeMode === 'input' ? 'active' : ''}" onclick="switchMode(${songIndex}, 'input')">🎸 Setup Fender Input</button>
+                    </div>
+                `;
+
+                // Tabs delle Parti
                 let tabsHTML = '<div class="tabs-container">';
                 song.parts.forEach((part, pIndex) => {
                     let activeClass = song.activePartIndex === pIndex ? 'active' : '';
@@ -345,10 +331,11 @@
                 tabsHTML += `<div class="tab add-tab" onclick="addPart(${songIndex})" title="Aggiungi Parte">+ Parte</div></div>`;
 
                 let activePart = song.parts[song.activePartIndex];
+                let currentChain = activePart.modes[song.activeMode]; // Prende la catena della modalità attiva!
+                
                 let chainHTML = '';
                 
-                // Generazione Catena per la Parte Attiva
-                activePart.chain.forEach((slot, slotIndex) => {
+                currentChain.forEach((slot, slotIndex) => {
                     let optionsHTML = catalog[slot.category].map(pedal => 
                         `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`
                     ).join('');
@@ -398,6 +385,7 @@
                     <button class="delete-btn" onclick="deleteSong(${songIndex})" title="Elimina Brano Intero">✖</button>
                     <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
                     
+                    ${modeSwitchHTML}
                     ${tabsHTML}
 
                     <div class="part-controls">
@@ -417,10 +405,15 @@
                 container.appendChild(card);
             });
 
-            localStorage.setItem('sparkPresetsV6', JSON.stringify(songs));
+            localStorage.setItem('sparkPresetsV7', JSON.stringify(songs));
         }
 
-        // --- GESTIONE TABS E PARTI ---
+        // --- GESTIONE MODALITA' E PARTI ---
+        function switchMode(songIndex, mode) {
+            songs[songIndex].activeMode = mode;
+            renderApp();
+        }
+
         function switchPart(songIndex, partIndex) {
             songs[songIndex].activePartIndex = partIndex;
             renderApp();
@@ -429,17 +422,20 @@
         function addPart(songIndex) {
             songs[songIndex].parts.push({
                 name: "Assolo",
-                chain: JSON.parse(JSON.stringify(defaultChain))
+                modes: {
+                    cuffie: JSON.parse(JSON.stringify(defaultChain)),
+                    input: JSON.parse(JSON.stringify(defaultChain))
+                }
             });
             songs[songIndex].activePartIndex = songs[songIndex].parts.length - 1;
             renderApp();
         }
 
         function deletePart(songIndex) {
-            if(confirm("Eliminare questa singola parte del brano?")) {
+            if(confirm("Eliminare questa singola parte?")) {
                 let s = songs[songIndex];
                 s.parts.splice(s.activePartIndex, 1);
-                s.activePartIndex = 0; // Torna alla prima parte
+                s.activePartIndex = 0; 
                 renderApp();
             }
         }
@@ -454,9 +450,10 @@
             renderApp(); 
         }
 
-        // --- GESTIONE PEDALI (Adattata alla nuova struttura) ---
+        // --- GESTIONE PEDALI ---
         function togglePedal(songIndex, slotIndex) {
-            let slot = songs[songIndex].parts[songs[songIndex].activePartIndex].chain[slotIndex];
+            let s = songs[songIndex];
+            let slot = s.parts[s.activePartIndex].modes[s.activeMode][slotIndex];
             if (slot.name !== "Nessun Pedale") {
                 slot.status = slot.status === "on" ? "off" : "on";
                 renderApp();
@@ -464,7 +461,8 @@
         }
         
         function updatePedal(songIndex, slotIndex, newPedalName) {
-            const slot = songs[songIndex].parts[songs[songIndex].activePartIndex].chain[slotIndex];
+            let s = songs[songIndex];
+            let slot = s.parts[s.activePartIndex].modes[s.activeMode][slotIndex];
             const pedalData = catalog[slot.category].find(p => p.name === newPedalName);
             
             if (pedalData) {
@@ -477,7 +475,8 @@
         }
 
         function updateParamValue(songIndex, slotIndex, paramIndex, value) {
-            songs[songIndex].parts[songs[songIndex].activePartIndex].chain[slotIndex].paramValues[paramIndex] = value;
+            let s = songs[songIndex];
+            s.parts[s.activePartIndex].modes[s.activeMode][slotIndex].paramValues[paramIndex] = value;
             renderApp();
         }
 
@@ -485,7 +484,16 @@
             songs.unshift({
                 title: "Nuovo Brano",
                 activePartIndex: 0,
-                parts: [ { name: "Accompagnamento", chain: JSON.parse(JSON.stringify(defaultChain)) } ]
+                activeMode: "cuffie",
+                parts: [ 
+                    { 
+                        name: "Accompagnamento", 
+                        modes: {
+                            cuffie: JSON.parse(JSON.stringify(defaultChain)),
+                            input: JSON.parse(JSON.stringify(defaultChain))
+                        }
+                    } 
+                ]
             }); 
             renderApp(); 
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -498,13 +506,13 @@
             } 
         }
 
-        // --- FUNZIONI DI EXPORT ED IMPORT ---
+        // --- EXPORT / IMPORT ---
         function exportData() {
             if (songs.length === 0) { alert("Nessun brano da esportare!"); return; }
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(songs, null, 2));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "spark_presets_multichannel.json");
+            downloadAnchorNode.setAttribute("download", "spark_presets_pro.json");
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
@@ -519,7 +527,7 @@
                 try {
                     const importedSongs = JSON.parse(e.target.result);
                     if (Array.isArray(importedSongs)) {
-                        songs = migrateSongs(importedSongs); // Migra automaticamente i vecchi file
+                        songs = migrateToModes(importedSongs); 
                         renderApp();
                         alert("Preset importati con successo! 🎸");
                     } else {
