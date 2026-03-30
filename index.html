@@ -163,6 +163,19 @@
     <div id="preset-list"></div>
 
     <script>
+        // REGISTRAZIONE DEL SERVICE WORKER (PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registrato con successo:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Registrazione Service Worker fallita:', error);
+                    });
+            });
+        }
+
         // IL CATALOGO EFFETTI (Invariato)
         const catalog = {
             "Gate": [
