@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spark-editor-v7';
+const CACHE_NAME = 'spark-editor-v8';
 
 // File da salvare per l'uso offline
 const urlsToCache = [
