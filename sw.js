@@ -1,18 +1,35 @@
-const CACHE_NAME = 'spark-editor-v10';
+const CACHE_NAME = 'spark-editor-v11';
 
-// File da salvare per l'uso offline
+// I nomi devono essere IDENTICI a quelli nella tua cartella GitHub
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  './icona-app.png'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+      .then(cache => {
+        console.log('Salvataggio icone in corso...');
+        return cache.addAll(urlsToCache);
+      })
+  );
+});
+
+// Questo serve a cancellare la vecchia cache v10 e attivare la v11
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });
 
