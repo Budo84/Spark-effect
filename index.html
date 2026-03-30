@@ -2,19 +2,21 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spark Preset Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Spark Editor</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <style>
-        /* Tema Scuro stile Spark App */
         :root {
             --bg-dark: #121212;
             --bg-card: #1e1e1e;
             --text-main: #f0f0f0;
-            --text-muted: #aaaaaa;
             --spark-gold: #d4af37;
             --spark-red: #c0392b;
-            --pedal-bg: #2a2a2a;
-            --input-bg: #333333;
+            --pedal-bg: #222;
+            --input-bg: #333;
         }
 
         body {
@@ -22,242 +24,160 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
+            padding-bottom: 80px; /* Spazio per lo scroll su mobile */
         }
 
-        .header-controls {
+        .header-bar {
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--spark-gold);
         }
 
-        h1 {
-            color: var(--spark-gold);
-            margin: 0;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-align: center;
-            flex-grow: 1;
-        }
+        h1 { color: var(--spark-gold); margin: 0; font-size: 1.5em; font-weight: 800; }
 
         .btn {
-            background-color: var(--spark-gold);
-            color: #000;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
+            background-color: var(--spark-gold); color: #000; border: none;
+            padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;
         }
-
-        .btn:hover { background-color: #e6c24a; }
+        .btn:active { opacity: 0.8; }
         .btn-danger { background-color: var(--spark-red); color: white; }
-        .btn-danger:hover { background-color: #e74c3c; }
-        .btn-secondary { background-color: #444; color: white; }
 
-        /* Stile delle Card dei Brani */
         .preset-card {
-            background-color: var(--bg-card);
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background-color: var(--bg-card); border-radius: 12px;
+            padding: 15px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             position: relative;
         }
 
-        .preset-header {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 15px;
+        .song-title-input {
+            width: 100%; background: transparent; border: none;
+            color: var(--spark-gold); font-size: 1.4em; font-weight: bold;
+            margin-bottom: 5px; outline: none; border-bottom: 1px dashed #555;
         }
 
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        input[type="text"] {
-            background-color: var(--input-bg);
-            border: 1px solid #555;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 1em;
-            width: 100%;
-        }
-
-        input.song-title-input {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: var(--spark-gold);
-        }
-
-        /* Catena degli Effetti (7 Slot) */
-        .chain-container {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 15px;
-        }
-
-        .chain-container::-webkit-scrollbar { height: 8px; }
-        .chain-container::-webkit-scrollbar-thumb { background-color: #555; border-radius: 10px; }
-
-        .pedal-slot {
-            flex: 0 0 calc(100% / 7 - 10px);
-            min-width: 100px;
-            background-color: var(--pedal-bg);
-            border-radius: 8px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 1px solid #444;
-        }
-
-        .pedal-category {
-            font-size: 0.7em;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .pedal-image {
-            width: 100%;
-            max-width: 70px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 4px;
-            background-color: #111;
-            margin-bottom: 10px;
-        }
-
-        select.pedal-select {
-            background-color: var(--input-bg);
-            color: white;
-            border: 1px solid #555;
-            padding: 5px;
-            border-radius: 4px;
-            width: 100%;
-            font-size: 0.75em;
-            margin-bottom: 8px;
-        }
-
-        input.settings-input {
-            width: 100%;
-            font-size: 0.75em;
-            padding: 5px;
-            box-sizing: border-box;
-            text-align: center;
+        .song-part-input {
+            width: 100%; background: transparent; border: none;
+            color: var(--text-main); font-size: 1em; outline: none;
+            border-bottom: 1px dashed #555; margin-bottom: 15px;
         }
 
         .delete-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--spark-red);
-            font-size: 1.5em;
-            cursor: pointer;
+            position: absolute; top: 15px; right: 15px;
+            background: none; border: none; color: var(--spark-red); font-size: 1.2em;
         }
 
-        @media (max-width: 768px) {
-            .pedal-slot { min-width: 120px; }
-            .header-row { flex-direction: column; }
+        /* Scorrimento orizzontale in stile App originale */
+        .chain-container {
+            display: flex; gap: 8px; overflow-x: auto;
+            padding-bottom: 10px; scroll-snap-type: x mandatory;
+        }
+        .chain-container::-webkit-scrollbar { height: 6px; }
+        .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+
+        .pedal-slot {
+            flex: 0 0 110px; /* Larghezza fissa per ogni slot */
+            background-color: var(--pedal-bg); border-radius: 8px;
+            padding: 10px; display: flex; flex-direction: column; align-items: center;
+            border: 1px solid #444; scroll-snap-align: start;
+        }
+
+        .pedal-category { font-size: 0.7em; color: #aaa; text-transform: uppercase; margin-bottom: 5px; }
+        
+        .pedal-image { width: 100%; height: 90px; object-fit: contain; margin-bottom: 10px; border-radius: 4px; }
+        
+        .pedal-select {
+            width: 100%; background-color: var(--input-bg); color: white;
+            border: 1px solid #555; border-radius: 4px; font-size: 0.75em;
+            padding: 4px; margin-bottom: 5px;
+        }
+        
+        .settings-input {
+            width: 100%; background-color: var(--input-bg); color: var(--spark-gold);
+            border: 1px solid #555; border-radius: 4px; font-size: 0.75em;
+            padding: 4px; text-align: center; box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+            .pedal-slot { flex: 1; min-width: 0; } /* Su tablet/PC si adatta allo schermo */
+            .chain-container { overflow-x: visible; justify-content: space-between; }
         }
     </style>
 </head>
 <body>
 
-    <div class="header-controls">
-        <button class="btn" onclick="addSong()">+ Nuovo Brano</button>
+    <div class="header-bar">
         <h1>SPARK EDITOR</h1>
-        <button class="btn btn-secondary" onclick="exportJSON()">Esporta Codice</button>
+        <button class="btn" onclick="addSong()">+ Aggiungi Brano</button>
     </div>
 
     <div id="preset-list"></div>
 
     <script>
-        // CATALOGO EFFETTI DISPONIBILI (Popola i menù a tendina)
-        const catalog = {
-            "Gate": [
-                { name: "Spento", img: "gate_00_off.jpg" },
-                { name: "Noise Gate", img: "gate_01_noisegate.jpg" }
-            ],
-            "Comp": [
-                { name: "Spento", img: "comp_00_off.jpg" },
-                { name: "LA Comp", img: "comp_01_lacomp.jpg" },
-                { name: "Red Comp", img: "comp_02_redcomp.jpg" }
-            ],
-            "Drive": [
-                { name: "Spento", img: "drive_00_off.jpg" },
-                { name: "Booster", img: "drive_01_booster.jpg" },
-                { name: "Tube Drive", img: "drive_02_tubedrive.jpg" },
-                { name: "Black Op", img: "drive_03_blackop.jpg" },
-                { name: "Guitar Muff", img: "drive_04_muff.jpg" }
-            ],
-            "Amp": [
-                { name: "Spento", img: "amp_00_off.jpg" },
-                { name: "Fender 65R", img: "amp_fender_65r.jpg" }
-            ],
-            "Mod": [
-                { name: "Spento", img: "mod_00_off.jpg" },
-                { name: "Tremolo", img: "mod_01_tremolo.jpg" },
-                { name: "Chorus", img: "mod_02_chorus.jpg" },
-                { name: "Flanger", img: "mod_03_flanger.jpg" },
-                { name: "EQ Pedal", img: "mod_04_eq.jpg" }
-            ],
-            "Delay": [
-                { name: "Spento", img: "delay_00_off.jpg" },
-                { name: "Digital Delay", img: "delay_01_digital.jpg" },
-                { name: "Vintage Delay", img: "delay_02_vintage.jpg" },
-                { name: "Echotape", img: "delay_03_echotape.jpg" }
-            ],
-            "Reverb": [
-                { name: "Spento", img: "reverb_00_off.jpg" },
-                { name: "Room Studio", img: "reverb_01_room.jpg" },
-                { name: "Hall Natural", img: "reverb_02_hall.jpg" }
-            ]
-        };
-
-        // Struttura base di un nuovo brano
-        const defaultSong = {
-            title: "Nuovo Brano",
-            part: "Accompagno",
-            chain: [
-                { category: "Gate", name: "Spento", img: "gate_00_off.jpg", settings: "" },
-                { category: "Comp", name: "Spento", img: "comp_00_off.jpg", settings: "" },
-                { category: "Drive", name: "Spento", img: "drive_00_off.jpg", settings: "" },
-                { category: "Amp", name: "Spento", img: "amp_00_off.jpg", settings: "" },
-                { category: "Mod", name: "Spento", img: "mod_00_off.jpg", settings: "" },
-                { category: "Delay", name: "Spento", img: "delay_00_off.jpg", settings: "" },
-                { category: "Reverb", name: "Spento", img: "reverb_00_off.jpg", settings: "" }
-            ]
-        };
-
-        // Carica dati dal Local Storage o usa un array vuoto
-        let songs = JSON.parse(localStorage.getItem('sparkPresets')) || [];
-
-        // Funzione per generare il placeholder immagine
-        function getImageUrl(imgName) {
-            let text = imgName.split('_')[0].toUpperCase();
-            return `https://via.placeholder.com/70x100/333333/d4af37?text=${text}`;
-            // Sostituisci con questo quando hai la cartella immagini su GitHub:
-            // return `images/${imgName}`;
+        // Registrazione del Service Worker per l'installazione PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(() => console.log("Service Worker Registrato!"));
         }
 
-        // Funzione principale di renderizzazione
+        // --- INSERISCI QUI IL NOME ESATTO DELLE TUE IMMAGINI SU GITHUB ---
+        // Attenzione: i nomi in 'img' devono corrispondere esattamente ai file nella tua repo!
+        const catalog = {
+            "Gate": [
+                { name: "Spento", img: "gate_off.jpg" },
+                { name: "Noise Gate", img: "gate_noisegate.jpg" }
+            ],
+            "Comp": [
+                { name: "Spento", img: "comp_off.jpg" },
+                { name: "LA Comp", img: "comp_lacomp.jpg" }
+            ],
+            "Drive": [
+                { name: "Spento", img: "drive_off.jpg" },
+                { name: "Booster", img: "drive_booster.jpg" },
+                { name: "Black Op", img: "drive_blackop.jpg" },
+                { name: "Guitar Muff", img: "drive_muff.jpg" }
+            ],
+            "Amp": [
+                { name: "Spento", img: "amp_off.jpg" },
+                { name: "Fender 65R", img: "amp_fender.jpg" }
+            ],
+            "Mod": [
+                { name: "Spento", img: "mod_off.jpg" },
+                { name: "EQ Pedal", img: "mod_eq.jpg" },
+                { name: "Chorus", img: "mod_chorus.jpg" }
+            ],
+            "Delay": [
+                { name: "Spento", img: "delay_off.jpg" },
+                { name: "Echotape", img: "delay_echotape.jpg" }
+            ],
+            "Reverb": [
+                { name: "Spento", img: "reverb_off.jpg" }
+            ]
+        };
+
+        const defaultSong = {
+            title: "Nuovo Brano", part: "Accompagno / Assolo",
+            chain: [
+                { category: "Gate", name: "Spento", img: "gate_off.jpg", settings: "" },
+                { category: "Comp", name: "Spento", img: "comp_off.jpg", settings: "" },
+                { category: "Drive", name: "Spento", img: "drive_off.jpg", settings: "" },
+                { category: "Amp", name: "Spento", img: "amp_off.jpg", settings: "" },
+                { category: "Mod", name: "Spento", img: "mod_off.jpg", settings: "" },
+                { category: "Delay", name: "Spento", img: "delay_off.jpg", settings: "" },
+                { category: "Reverb", name: "Spento", img: "reverb_off.jpg", settings: "" }
+            ]
+        };
+
+        let songs = JSON.parse(localStorage.getItem('sparkPresetsApp')) || [];
+
+        // Funzione per pescare le immagini dalla tua repo (se sono nella cartella principale)
+        function getImageUrl(imgName) {
+            // Se hai messo le immagini in una cartella chiamata "images", usa: return 'images/' + imgName;
+            return imgName; 
+        }
+
         function renderApp() {
             const container = document.getElementById('preset-list');
             container.innerHTML = '';
@@ -267,39 +187,31 @@
                 card.className = 'preset-card';
 
                 let chainHTML = '';
-                
                 song.chain.forEach((slot, slotIndex) => {
-                    // Genera le opzioni per il menù a tendina di questa categoria
-                    let optionsHTML = catalog[slot.category].map(pedal => {
-                        return `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`;
-                    }).join('');
+                    let optionsHTML = catalog[slot.category].map(pedal => 
+                        `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`
+                    ).join('');
 
                     chainHTML += `
                         <div class="pedal-slot">
                             <span class="pedal-category">${slot.category}</span>
-                            <img src="${getImageUrl(slot.img)}" class="pedal-image" alt="${slot.name}">
+                            <img src="${getImageUrl(slot.img)}" class="pedal-image" onerror="this.src='https://via.placeholder.com/70x100/333/d4af37?text=${slot.category}'" alt="${slot.name}">
                             
                             <select class="pedal-select" onchange="updatePedal(${songIndex}, ${slotIndex}, this.value)">
                                 ${optionsHTML}
                             </select>
 
-                            <input type="text" class="settings-input" placeholder="Valori es. Gain 5" 
-                                value="${slot.settings}" 
-                                onchange="updateSettings(${songIndex}, ${slotIndex}, this.value)">
+                            <input type="text" class="settings-input" placeholder="Parametri" 
+                                value="${slot.settings}" onchange="updateSettings(${songIndex}, ${slotIndex}, this.value)">
                         </div>
                     `;
                 });
 
                 card.innerHTML = `
-                    <button class="delete-btn" onclick="deleteSong(${songIndex})" title="Elimina Brano">✖</button>
-                    <div class="preset-header">
-                        <div class="header-row">
-                            <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongInfo(${songIndex}, 'title', this.value)" placeholder="Titolo del brano">
-                        </div>
-                        <div class="header-row">
-                            <input type="text" value="${song.part}" onchange="updateSongInfo(${songIndex}, 'part', this.value)" placeholder="Es. Assolo o Accompagno" style="width: 50%;">
-                        </div>
-                    </div>
+                    <button class="delete-btn" onclick="deleteSong(${songIndex})">🗑️</button>
+                    <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongInfo(${songIndex}, 'title', this.value)" placeholder="Titolo">
+                    <input type="text" class="song-part-input" value="${song.part}" onchange="updateSongInfo(${songIndex}, 'part', this.value)" placeholder="Parte (es. Assolo)">
+                    
                     <div class="chain-container">
                         ${chainHTML}
                     </div>
@@ -307,21 +219,14 @@
                 container.appendChild(card);
             });
 
-            // Salva le modifiche in automatico nel browser
-            localStorage.setItem('sparkPresets', JSON.stringify(songs));
+            localStorage.setItem('sparkPresetsApp', JSON.stringify(songs));
         }
 
-        // Aggiorna titolo o parte del brano
-        function updateSongInfo(songIndex, field, value) {
-            songs[songIndex][field] = value;
-            renderApp();
-        }
-
-        // Aggiorna il pedale selezionato e la sua immagine
+        function updateSongInfo(songIndex, field, value) { songs[songIndex][field] = value; renderApp(); }
+        
         function updatePedal(songIndex, slotIndex, newPedalName) {
             const category = songs[songIndex].chain[slotIndex].category;
             const pedalData = catalog[category].find(p => p.name === newPedalName);
-            
             if (pedalData) {
                 songs[songIndex].chain[slotIndex].name = pedalData.name;
                 songs[songIndex].chain[slotIndex].img = pedalData.img;
@@ -329,45 +234,13 @@
             renderApp();
         }
 
-        // Aggiorna i valori (Gain, Volume, ecc.)
-        function updateSettings(songIndex, slotIndex, value) {
-            songs[songIndex].chain[slotIndex].settings = value;
-            renderApp();
-        }
+        function updateSettings(songIndex, slotIndex, value) { songs[songIndex].chain[slotIndex].settings = value; renderApp(); }
+        function addSong() { songs.unshift(JSON.parse(JSON.stringify(defaultSong))); renderApp(); }
+        function deleteSong(index) { if(confirm("Eliminare brano?")) { songs.splice(index, 1); renderApp(); } }
 
-        // Aggiunge un nuovo brano vuoto
-        function addSong() {
-            // Crea una copia profonda del brano di default per evitare riferimenti incrociati
-            songs.unshift(JSON.parse(JSON.stringify(defaultSong)));
-            renderApp();
-        }
-
-        // Elimina un brano
-        function deleteSong(index) {
-            if(confirm("Sei sicuro di voler eliminare questo brano?")) {
-                songs.splice(index, 1);
-                renderApp();
-            }
-        }
-
-        // Esporta in JSON
-        function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(songs, null, 4));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href",     dataStr);
-            downloadAnchorNode.setAttribute("download", "spark_presets.json");
-            document.body.appendChild(downloadAnchorNode); // Richiesto per Firefox
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        }
-
-        // Inizializza l'app al caricamento
         window.onload = function() {
-            if(songs.length === 0) {
-                addSong(); // Se è vuoto, aggiunge un brano di default
-            } else {
-                renderApp();
-            }
+            if(songs.length === 0) addSong();
+            else renderApp();
         };
     </script>
 </body>
