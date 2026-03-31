@@ -507,10 +507,17 @@
             const p = [...presetSuggestions, ...personalLibrary].find(x => x.title === title);
             const currentPart = songs[songIndex].parts[songs[songIndex].activePartIndex];
             
-            // IL FIX: Applichiamo il preset a ENTRAMBE le modalità (cuffie e input)
             ['cuffie', 'input'].forEach(mode => {
                 currentPart.modes[mode].forEach(slot => {
-                    const found = catalog[slot.category].find(c => c.name === p.chain[slot.category]) || catalog[slot.category][0];
+                    // Di base, prendiamo il pedale suggerito dal database
+                    let targetPedalName = p.chain[slot.category];
+                    
+                    // LA MAGIA: Se siamo nel setup Fender (input) e lo slot è l'Amp, lo svuotiamo!
+                    if (mode === 'input' && slot.category === 'Amp') {
+                        targetPedalName = "Nessun Pedale";
+                    }
+
+                    const found = catalog[slot.category].find(c => c.name === targetPedalName) || catalog[slot.category][0];
                     slot.name = found.name; 
                     slot.img = found.img; 
                     slot.status = slot.name === "Nessun Pedale" ? "off" : "on";
