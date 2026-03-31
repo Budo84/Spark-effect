@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spark-editor-v11';
+const CACHE_NAME = 'spark-editor-v12';
 
 // I nomi devono essere IDENTICI a quelli nella tua cartella GitHub
 const urlsToCache = [
