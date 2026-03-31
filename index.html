@@ -505,13 +505,19 @@
 
         function applyPreset(songIndex, title) {
             const p = [...presetSuggestions, ...personalLibrary].find(x => x.title === title);
-            const chain = songs[songIndex].parts[songs[songIndex].activePartIndex].modes[songs[songIndex].activeMode];
-            chain.forEach(slot => {
-                const found = catalog[slot.category].find(c => c.name === p.chain[slot.category]) || catalog[slot.category][0];
-                slot.name = found.name; slot.img = found.img; 
-                slot.status = slot.name === "Nessun Pedale" ? "off" : "on";
-                slot.paramValues = found.params.map(() => "5");
+            const currentPart = songs[songIndex].parts[songs[songIndex].activePartIndex];
+            
+            // IL FIX: Applichiamo il preset a ENTRAMBE le modalità (cuffie e input)
+            ['cuffie', 'input'].forEach(mode => {
+                currentPart.modes[mode].forEach(slot => {
+                    const found = catalog[slot.category].find(c => c.name === p.chain[slot.category]) || catalog[slot.category][0];
+                    slot.name = found.name; 
+                    slot.img = found.img; 
+                    slot.status = slot.name === "Nessun Pedale" ? "off" : "on";
+                    slot.paramValues = found.params.map(() => "5");
+                });
             });
+            
             renderApp();
         }
 
