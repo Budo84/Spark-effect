@@ -64,6 +64,15 @@
             color: var(--spark-red); font-size: 1.5em; cursor: pointer;
         }
 
+        .youtube-btn {
+            position: absolute; top: 15px; right: 130px; 
+            background-color: #FF0000; color: white; border: none; 
+            padding: 4px 10px; border-radius: 12px; font-size: 0.75em; 
+            font-weight: bold; cursor: pointer; text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .youtube-btn:hover { opacity: 0.8; }
+        
         .spotify-btn {
             position: absolute; top: 15px; right: 45px; 
             background-color: #1DB954; color: white; border: none; 
@@ -408,6 +417,7 @@
 
                 card.innerHTML = `
                     <button class="delete-btn" onclick="deleteSong(${songIndex})">✖</button>
+                    <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(song.title + ' backing track guitar')}" target="_blank" class="youtube-btn" title="Cerca Backing Track">▶️ YouTube</a>
                     <a href="https://open.spotify.com/search/${encodeURIComponent(song.title)}" target="_blank" class="spotify-btn" title="Cerca su Spotify">🎵 Spotify</a>
                     <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
                     
