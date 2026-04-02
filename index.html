@@ -443,7 +443,7 @@
                     <button class="delete-btn" onclick="deleteSong(${songIndex})">✖</button>
                     <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(song.title + ' backing track guitar')}" target="_blank" class="youtube-btn" title="Cerca Backing Track">▶️ YouTube</a>
                     <a href="https://open.spotify.com/search/${encodeURIComponent(song.title)}" target="_blank" class="spotify-btn" title="Cerca su Spotify">🎵 Spotify</a>
-                    <input type="text" class="song-title-input" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
+                    <input type="text" class="song-title-input" style="margin-left: 50px; width: calc(100% - 230px); min-width: 150px;" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
                     
                     <input type="text" class="search-box" placeholder="🔍 Cerca suono (es. Pink Floyd, AC/DC)..." onkeyup="searchPreset(${songIndex}, this.value)">
                     <div id="results-${songIndex}"></div>
