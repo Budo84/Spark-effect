@@ -482,8 +482,6 @@
                     </div>
 
                     <div class="chain-container">${renderChain(song, songIndex)}</div>
-
-                    <div class="chain-container">${renderChain(song, songIndex)}</div>
                     
                     <textarea class="technical-notes" placeholder="📝 Note tecniche (es. Usa pickup al manico, attiva il fuzz nel ritornello...)" onchange="updateNotes(${songIndex}, this.value)">${song.notes || ''}</textarea>
                 `;
