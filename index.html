@@ -201,6 +201,49 @@
             .pedal-slot { flex: 1; min-width: 0; } 
             .chain-container { overflow-x: visible; justify-content: space-between; }
         }
+
+        /* --- MODALITÀ LIVE --- */
+        body.live-mode .delete-btn,
+        body.live-mode .drag-handle,
+        body.live-mode .search-box,
+        body.live-mode .suggestion-item,
+        body.live-mode .add-tab,
+        body.live-mode .btn-delete-part,
+        body.live-mode .pedal-slot.is-empty,
+        body.live-mode .btn-hide-live {
+            display: none !important;
+        }
+
+        body.live-mode .song-title-input {
+            margin-left: 0 !important; width: 100% !important; 
+            text-align: center; font-size: 2em; border-bottom: none; 
+            pointer-events: none; /* Blocca la scrittura */
+        }
+
+        body.live-mode .action-buttons-container {
+            justify-content: center; margin-left: 0 !important;
+        }
+
+        body.live-mode .pedal-select, 
+        body.live-mode .param-val,
+        body.live-mode .song-part-select {
+            pointer-events: none; border: none; background: transparent; 
+            appearance: none; -webkit-appearance: none; font-size: 1.1em; text-align: center;
+        }
+
+        body.live-mode .technical-notes {
+            font-size: 1.2em; pointer-events: none; border: 1px dashed var(--spark-gold);
+        }
+        
+        .live-toggle-btn {
+            background-color: #e67e22; color: white; border: none;
+            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
+        }
+        body.live-mode .live-toggle-btn {
+            background-color: #e74c3c; /* Diventa rosso quando è attiva per ricordarti di spegnerla */
+            box-shadow: 0 0 15px #e74c3c;
+        }
+        
     </style>
 </head>
 <body>
@@ -208,12 +251,13 @@
     <div class="header-bar">
         <h1>SPARK PRESET INTELLIGENCE</h1>
         <div class="header-controls">
-            <button class="btn btn-secondary" onclick="exportData()">💾 Esporta</button>
-            <label class="btn btn-secondary" style="margin: 0;">
+            <button class="btn btn-secondary btn-hide-live" onclick="exportData()">💾 Esporta</button>
+            <label class="btn btn-secondary btn-hide-live" style="margin: 0;">
                 📂 Importa
                 <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
             </label>
-            <button class="btn" onclick="addSong()">+ Nuovo Brano</button>
+            <button class="btn btn-hide-live" onclick="addSong()">+ Nuovo Brano</button>
+            <button class="live-toggle-btn" onclick="toggleLiveMode()" id="liveBtn">🎸 Modalità Live</button>
         </div>
     </div>
 
@@ -534,7 +578,7 @@
                 }
 
                 return `
-                    <div class="pedal-slot">
+                    <div class="pedal-slot ${isEmpty ? 'is-empty' : ''}">
                         <span class="pedal-category">${slot.category}</span>
                         ${imageHTML}
                         <div class="status-indicator ${dotClass}" onclick="togglePedal(${songIndex}, ${slotIndex})"></div>
@@ -704,6 +748,19 @@
         function dragEnd(e) {
             e.target.classList.remove('dragging');
             document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('drag-over'));
+        }
+
+        // --- FUNZIONE MODALITÀ LIVE ---
+        let isLive = false;
+        function toggleLiveMode() {
+            isLive = !isLive;
+            if (isLive) {
+                document.body.classList.add('live-mode');
+                document.getElementById('liveBtn').innerHTML = "❌ Esci da Live";
+            } else {
+                document.body.classList.remove('live-mode');
+                document.getElementById('liveBtn').innerHTML = "🎸 Modalità Live";
+            }
         }
 
         window.onload = function() { if(songs.length === 0) addSong(); else renderApp(); };
