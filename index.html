@@ -64,23 +64,18 @@
             color: var(--spark-red); font-size: 1.5em; cursor: pointer;
         }
 
-        .youtube-btn {
-            position: absolute; top: 15px; right: 130px; 
-            background-color: #FF0000; color: white; border: none; 
-            padding: 4px 10px; border-radius: 12px; font-size: 0.75em; 
-            font-weight: bold; cursor: pointer; text-decoration: none;
-            transition: opacity 0.2s;
+        /*BOTTONI YOUTUBE SPOTIFY*/
+        .action-buttons-container {
+            display: flex; gap: 10px; margin-left: 35px; margin-bottom: 15px; flex-wrap: wrap;
         }
-        .youtube-btn:hover { opacity: 0.8; }
-        
-        .spotify-btn {
-            position: absolute; top: 15px; right: 45px; 
-            background-color: #1DB954; color: white; border: none; 
-            padding: 4px 10px; border-radius: 12px; font-size: 0.75em; 
-            font-weight: bold; cursor: pointer; text-decoration: none;
-            transition: opacity 0.2s;
+        .spotify-btn, .youtube-btn {
+            color: white; border: none; padding: 6px 12px; border-radius: 12px; 
+            font-size: 0.8em; font-weight: bold; text-decoration: none; transition: opacity 0.2s;
+            display: inline-block; text-align: center;
         }
-        .spotify-btn:hover { opacity: 0.8; }
+        .spotify-btn { background-color: #1DB954; }
+        .youtube-btn { background-color: #FF0000; }
+        .spotify-btn:hover, .youtube-btn:hover { opacity: 0.8; }
 
         .drag-handle {
             position: absolute; top: 15px; left: 15px;
@@ -454,9 +449,13 @@
                 card.innerHTML = `
                     <div class="drag-handle" title="Tieni premuto per trascinare">☰</div>
                     <button class="delete-btn" onclick="deleteSong(${songIndex})">✖</button>
-                    <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(song.title + ' backing track guitar')}" target="_blank" class="youtube-btn" title="Cerca Backing Track">▶️ YouTube</a>
-                    <a href="https://open.spotify.com/search/${encodeURIComponent(song.title)}" target="_blank" class="spotify-btn" title="Cerca su Spotify">🎵 Spotify</a>
-                    <input type="text" class="song-title-input" style="margin-left: 50px; width: calc(100% - 230px); min-width: 150px;" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
+                    
+                    <input type="text" class="song-title-input" style="margin-left: 35px; width: calc(100% - 70px);" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
+                    
+                    <div class="action-buttons-container">
+                        <a href="https://open.spotify.com/search/${encodeURIComponent(song.title)}" target="_blank" class="spotify-btn" title="Cerca su Spotify">🎵 Spotify</a>
+                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(song.title + ' backing track guitar')}" target="_blank" class="youtube-btn" title="Cerca Backing Track">▶️ YouTube</a>
+                    </div>
                     
                     <input type="text" class="search-box" placeholder="🔍 Cerca suono (es. Pink Floyd, AC/DC)..." onkeyup="searchPreset(${songIndex}, this.value)">
                     <div id="results-${songIndex}"></div>
@@ -484,7 +483,7 @@
                     <div class="chain-container">${renderChain(song, songIndex)}</div>
                     
                     <textarea class="technical-notes" placeholder="📝 Note tecniche (es. Usa pickup al manico, attiva il fuzz nel ritornello...)" onchange="updateNotes(${songIndex}, this.value)">${song.notes || ''}</textarea>
-                `;
+                `;                
                 container.appendChild(card);
             });
             localStorage.setItem('sparkPresetsV7', JSON.stringify(songs));
