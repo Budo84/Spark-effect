@@ -252,14 +252,14 @@
         }
         .collapse-btn:hover { color: white; }
         
-        /* Quando la scheda ha la classe 'collapsed', nascondi il contenuto interno */
-        .preset-card.collapsed .search-box,
-        .preset-card.collapsed div[id^="results-"],
-        .preset-card.collapsed .mode-switch,
-        .preset-card.collapsed .tabs-container,
-        .preset-card.collapsed .part-controls,
-        .preset-card.collapsed .chain-container,
-        .preset-card.collapsed .technical-notes {
+        /* Quando la scheda è chiusa (MA NON siamo in modalità live), nascondi il contenuto */
+        body:not(.live-mode) .preset-card.collapsed .search-box,
+        body:not(.live-mode) .preset-card.collapsed div[id^="results-"],
+        body:not(.live-mode) .preset-card.collapsed .mode-switch,
+        body:not(.live-mode) .preset-card.collapsed .tabs-container,
+        body:not(.live-mode) .preset-card.collapsed .part-controls,
+        body:not(.live-mode) .preset-card.collapsed .chain-container,
+        body:not(.live-mode) .preset-card.collapsed .technical-notes {
             display: none !important;
         }
         
