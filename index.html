@@ -82,6 +82,20 @@
         }
         .spotify-btn:hover { opacity: 0.8; }
 
+        .drag-handle {
+            position: absolute; top: 15px; left: 15px;
+            cursor: grab; font-size: 1.6em; color: var(--spark-gold);
+            user-select: none;
+        }
+        .drag-handle:active { cursor: grabbing; }
+        
+        .preset-card.dragging { 
+            opacity: 0.4; border: 2px dashed var(--spark-gold); 
+        }
+        .preset-card.drag-over { 
+            border-top: 4px solid #2ecc71; 
+        }
+
         /* STILE MOTORE DI RICERCA AGGIUNTO */
         .search-box {
             width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; 
@@ -415,7 +429,17 @@
                 const card = document.createElement('div');
                 card.className = 'preset-card';
 
+                // Attributi per il Drag & Drop
+                card.draggable = true;
+                card.setAttribute("ondragstart", `dragStart(event, ${songIndex})`);
+                card.setAttribute("ondragover", `dragOver(event)`);
+                card.setAttribute("ondrop", `drop(event, ${songIndex})`);
+                card.setAttribute("ondragenter", `dragEnter(event)`);
+                card.setAttribute("ondragleave", `dragLeave(event)`);
+                card.setAttribute("ondragend", `dragEnd(event)`);
+
                 card.innerHTML = `
+                    <div class="drag-handle" title="Tieni premuto per trascinare">☰</div>
                     <button class="delete-btn" onclick="deleteSong(${songIndex})">✖</button>
                     <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(song.title + ' backing track guitar')}" target="_blank" class="youtube-btn" title="Cerca Backing Track">▶️ YouTube</a>
                     <a href="https://open.spotify.com/search/${encodeURIComponent(song.title)}" target="_blank" class="spotify-btn" title="Cerca su Spotify">🎵 Spotify</a>
@@ -612,6 +636,53 @@
             const reader = new FileReader();
             reader.onload = (ev) => { try { songs = migrateToModes(JSON.parse(ev.target.result)); learn(); renderApp(); } catch(err) { alert("Errore file"); } };
             reader.readAsText(e.target.files[0]);
+        }
+
+        // --- FUNZIONI DRAG & DROP ---
+        let draggedIndex = null;
+
+        function dragStart(e, index) {
+            draggedIndex = index;
+            e.dataTransfer.effectAllowed = 'move';
+            // Un piccolo ritardo permette al browser di generare l'immagine "fantasma" prima di rendere trasparente la scheda
+            setTimeout(() => e.target.classList.add('dragging'), 0);
+        }
+
+        function dragOver(e) {
+            e.preventDefault(); // Necessario per permettere il rilascio (drop)
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function dragEnter(e) {
+            e.preventDefault();
+            // Aggiunge la linea verde sopra la scheda su cui stiamo passando
+            if (e.currentTarget.classList.contains('preset-card')) {
+                e.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function dragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function drop(e, dropIndex) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            
+            // Se stiamo rilasciando la scheda nello stesso punto, annulla
+            if (draggedIndex === null || draggedIndex === dropIndex) return;
+
+            // Rimuove il brano dalla vecchia posizione e lo inserisce nella nuova
+            const itemToMove = songs.splice(draggedIndex, 1)[0];
+            songs.splice(dropIndex, 0, itemToMove);
+            
+            draggedIndex = null;
+            renderApp(); // Ricarica tutto con il nuovo ordine salvandolo in automatico!
+        }
+
+        function dragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('drag-over'));
         }
 
         window.onload = function() { if(songs.length === 0) addSong(); else renderApp(); };
