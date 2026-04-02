@@ -262,8 +262,22 @@
         body:not(.live-mode) .preset-card.collapsed .technical-notes {
             display: none !important;
         }
+
+        /* --- SCALETTA LIVE (STELLA) --- */
+        .setlist-btn {
+            position: absolute; top: 15px; right: 75px; 
+            background: none; border: none; font-size: 1.2em; cursor: pointer; transition: 0.3s;
+            filter: grayscale(100%) opacity(0.4); /* Stella spenta */
+        }
+        .setlist-btn.active {
+            filter: grayscale(0%) opacity(1); /* Stella accesa (oro) */
+        }
         
-        
+        /* MAGIA: Nasconde i brani scartati in Modalità Live (solo se c'è una scaletta attiva) */
+        body.live-mode.has-setlist .preset-card:not(.in-setlist) {
+            display: none !important;
+        }      
+          
     </style>
 </head>
 <body>
@@ -499,8 +513,9 @@
 
             songs.forEach((song, songIndex) => {
                 const card = document.createElement('div');
-                // Aggiunge la classe collapsed se la scheda è chiusa
-                card.className = `preset-card ${song.isCollapsed ? 'collapsed' : ''}`;
+                // Aggiunge le classi se la scheda è chiusa o se è nella scaletta live
+                card.className = `preset-card ${song.isCollapsed ? 'collapsed' : ''} ${song.isSetlist ? 'in-setlist' : ''}`;
+                
 
                 // Attributi per il Drag & Drop
                 card.draggable = true;
@@ -513,10 +528,11 @@
 
                 card.innerHTML = `
                     <div class="drag-handle" title="Tieni premuto per trascinare">☰</div>
+                    <button class="setlist-btn btn-hide-live ${song.isSetlist ? 'active' : ''}" onclick="toggleSetlist(${songIndex})" title="Aggiungi alla Scaletta Live">⭐</button>
                     <button class="collapse-btn btn-hide-live" onclick="toggleCollapse(${songIndex})">${song.isCollapsed ? '▶' : '▼'}</button>
                     <button class="delete-btn btn-hide-live" onclick="deleteSong(${songIndex})">✖</button>
                     
-                    <input type="text" class="song-title-input" style="margin-left: 35px; width: calc(100% - 100px);" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
+                    <input type="text" class="song-title-input" style="margin-left: 35px; width: calc(100% - 130px);" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
                     
                     <div class="action-buttons-container">
                         <a href="https://open.spotify.com/search/${encodeURIComponent(song.title)}" target="_blank" class="spotify-btn" title="Cerca su Spotify">🎵 Spotify</a>
@@ -783,13 +799,27 @@
         let isLive = false;
         function toggleLiveMode() {
             isLive = !isLive;
+            
+            // Controlla se c'è almeno un brano con la stella accesa
+            const hasStarredSongs = songs.some(s => s.isSetlist);
+            
             if (isLive) {
                 document.body.classList.add('live-mode');
+                // Se hai preparato la scaletta, attiva il filtro che nasconde le altre!
+                if (hasStarredSongs) document.body.classList.add('has-setlist');
+                
                 document.getElementById('liveBtn').innerHTML = "❌ Esci da Live";
             } else {
                 document.body.classList.remove('live-mode');
+                document.body.classList.remove('has-setlist');
                 document.getElementById('liveBtn').innerHTML = "🎸 Modalità Live";
             }
+        }
+
+        // --- FUNZIONE AGGIUNGI A SCALETTA ---
+        function toggleSetlist(sIdx) {
+            songs[sIdx].isSetlist = !songs[sIdx].isSetlist;
+            renderApp();
         }
 
         window.onload = function() { if(songs.length === 0) addSong(); else renderApp(); };
