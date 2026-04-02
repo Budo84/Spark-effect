@@ -243,6 +243,26 @@
             background-color: #e74c3c; /* Diventa rosso quando è attiva per ricordarti di spegnerla */
             box-shadow: 0 0 15px #e74c3c;
         }
+
+        /* --- SCHEDE A SCOMPARSA (ACCORDION) --- */
+        .collapse-btn {
+            position: absolute; top: 15px; right: 45px; 
+            background: none; border: none; color: var(--text-muted); 
+            font-size: 1.2em; cursor: pointer; transition: color 0.3s;
+        }
+        .collapse-btn:hover { color: white; }
+        
+        /* Quando la scheda ha la classe 'collapsed', nascondi il contenuto interno */
+        .preset-card.collapsed .search-box,
+        .preset-card.collapsed div[id^="results-"],
+        .preset-card.collapsed .mode-switch,
+        .preset-card.collapsed .tabs-container,
+        .preset-card.collapsed .part-controls,
+        .preset-card.collapsed .chain-container,
+        .preset-card.collapsed .technical-notes {
+            display: none !important;
+        }
+        
         
     </style>
 </head>
@@ -479,7 +499,8 @@
 
             songs.forEach((song, songIndex) => {
                 const card = document.createElement('div');
-                card.className = 'preset-card';
+                // Aggiunge la classe collapsed se la scheda è chiusa
+                card.className = `preset-card ${song.isCollapsed ? 'collapsed' : ''}`;
 
                 // Attributi per il Drag & Drop
                 card.draggable = true;
@@ -492,9 +513,10 @@
 
                 card.innerHTML = `
                     <div class="drag-handle" title="Tieni premuto per trascinare">☰</div>
-                    <button class="delete-btn" onclick="deleteSong(${songIndex})">✖</button>
+                    <button class="collapse-btn btn-hide-live" onclick="toggleCollapse(${songIndex})">${song.isCollapsed ? '▶' : '▼'}</button>
+                    <button class="delete-btn btn-hide-live" onclick="deleteSong(${songIndex})">✖</button>
                     
-                    <input type="text" class="song-title-input" style="margin-left: 35px; width: calc(100% - 70px);" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
+                    <input type="text" class="song-title-input" style="margin-left: 35px; width: calc(100% - 100px);" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
                     
                     <div class="action-buttons-container">
                         <a href="https://open.spotify.com/search/${encodeURIComponent(song.title)}" target="_blank" class="spotify-btn" title="Cerca su Spotify">🎵 Spotify</a>
@@ -701,6 +723,13 @@
         function updateNotes(sIdx, val) { 
             songs[sIdx].notes = val; 
             localStorage.setItem('sparkPresetsV7', JSON.stringify(songs)); 
+        }
+
+        // --- FUNZIONE SCHEDE A SCOMPARSA ---
+        function toggleCollapse(sIdx) {
+            // Inverte lo stato della canzone (da aperta a chiusa e viceversa)
+            songs[sIdx].isCollapsed = !songs[sIdx].isCollapsed;
+            renderApp();
         }
 
         // --- FUNZIONI DRAG & DROP ---
