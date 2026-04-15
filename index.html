@@ -203,7 +203,6 @@
         }
 
 /* --- MODALITÀ LIVE --- */
-        /* Abbiamo rimosso .pedal-slot.is-empty da qui per tenerli sempre visibili */
         body.live-mode .delete-btn,
         body.live-mode .drag-handle,
         body.live-mode .search-box,
@@ -216,20 +215,21 @@
             display: none !important;
         }
 
-        /* LOGICA CASSA: Nascondi la categoria Amp solo in Modalità Live AND se siamo in Setup Fender (mode-input) */
+        /* LOGICA CASSA: Nascondi lo slot Amp solo in Modalità Live AND se siamo in Setup Fender (mode-input) */
         body.live-mode .preset-card.mode-input .pedal-slot.cat-amp {
             display: none !important;
         }
 
-        /* In modalità live, i pedali vuoti rimangono visibili ma più trasparenti per non distrarre */
+        /* In modalità live, i pedali vuoti rimangono visibili ma diventano molto trasparenti */
         body.live-mode .pedal-slot.is-empty {
-            opacity: 0.3;
+            opacity: 0.15;
+            pointer-events: none;
         }
 
         body.live-mode .song-title-input {
             margin-left: 0 !important; width: 100% !important; 
             text-align: center; font-size: 2em; border-bottom: none; 
-            pointer-events: none; /* Blocca la scrittura */
+            pointer-events: none;
         }
 
         body.live-mode .action-buttons-container {
@@ -695,7 +695,28 @@
         }
 
         // --- GESTIONE LOGICA ---
-        function switchMode(songIndex, mode) { songs[songIndex].activeMode = mode; renderApp(); }
+        function switchMode(songIndex, mode) { 
+            const song = songs[songIndex];
+            const activePart = song.parts[song.activePartIndex];
+            
+            // Se passiamo a 'input' e la catena è vuota, copiamo quella delle 'cuffie' come base
+            if (mode === 'input') {
+                const isEmpty = activePart.modes.input.every(slot => slot.name === "Nessun Pedale");
+                if (isEmpty) {
+                    activePart.modes.input = JSON.parse(JSON.stringify(activePart.modes.cuffie));
+                    // Rimuoviamo l'amplificatore dalla modalità input (Setup Fender)
+                    const ampSlot = activePart.modes.input.find(s => s.category === 'Amp');
+                    if (ampSlot) {
+                        ampSlot.name = "Nessun Pedale";
+                        ampSlot.img = "";
+                        ampSlot.status = "off";
+                    }
+                }
+            }
+            
+            song.activeMode = mode; 
+            renderApp(); 
+        }
         function switchPart(songIndex, pIdx) { songs[songIndex].activePartIndex = pIdx; renderApp(); }
         function updateSongTitle(sIdx, val) { songs[sIdx].title = val; renderApp(); }
         function updatePartName(sIdx, val) { songs[sIdx].parts[songs[sIdx].activePartIndex].name = val; renderApp(); }
