@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark Tone Labs</title>
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #f0f0f0;
+            --spark-gold: #d4af37;
+            --spark-purple: #8e44ad;
+            --input-bg: #333;
+        }
+
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 20px;
+            margin: 0;
+        }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--spark-purple); padding-bottom: 15px; margin-bottom: 25px;
+        }
+
+        .btn-back {
+            background-color: #444; color: white; text-decoration: none;
+            padding: 8px 15px; border-radius: 6px; font-weight: bold;
+        }
+
+        .labs-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
+        }
+
+        .lab-card {
+            background: var(--bg-card); border-radius: 12px; padding: 20px;
+            border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        h2 { color: var(--spark-gold); margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        h3 { color: var(--spark-purple); font-size: 0.9em; text-transform: uppercase; }
+
+        select, button {
+            width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px;
+            border: 1px solid #555; background: var(--input-bg); color: white; cursor: pointer;
+        }
+
+        .btn-magic { background-color: var(--spark-purple); font-weight: bold; border: none; }
+        
+        .result-box {
+            margin-top: 15px; padding: 10px; background: #111; border-left: 4px solid var(--spark-purple);
+            font-family: monospace; font-size: 0.85em; white-space: pre-wrap;
+        }
+
+        .tips { font-size: 0.85em; color: #aaa; margin-top: 10px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🧪 Tone Labs</h1>
+        <a href="index.html" class="btn-back">⬅ Torna alla Scaletta</a>
+    </div>
+
+    <div class="labs-grid">
+        
+        <div class="lab-card">
+            <h2>🧙‍♂️ Tone Wizard</h2>
+            <p class="tips">Genera una catena basata sul "Design Intent" della guida.</p>
+            
+            <h3>Scegli il ruolo della chitarra:</h3>
+            <select id="intent">
+                <option value="rhythm">Rhythm (Clarity & Consistency)</option>
+                <option value="lead">Lead (Vocals & Cutting)</option>
+                <option value="solo">Solo (Sustain & Liquid)</option>
+                <option value="ambient">Ambient (Texture & Space)</option>
+            </select>
+
+            <button class="btn-magic" onclick="runWizard()">✨ Genera Architettura</button>
+            <div id="wizard-result" class="result-box" style="display:none"></div>
+        </div>
+
+        <div class="lab-card">
+            <h2>🎸 Pickup Optimizer</h2>
+            <p class="tips">Applica i "Tone Fix" per bilanciare l'output dei tuoi magneti.</p>
+            
+            <select id="pickup">
+                <option value="single">Single Coil (Richiede più corpo)</option>
+                <option value="humbucker">Humbucker (Richiede chiarezza)</option>
+            </select>
+
+            <button class="btn-magic" style="background-color: var(--spark-gold); color: black;" onclick="fixPickup()">🛠 Applica Correzione</button>
+            <div id="pickup-result" class="result-box" style="display:none"></div>
+        </div>
+
+        <div class="lab-card">
+            <h2>🆘 SOS Suono</h2>
+            <p class="tips">Risolvi i problemi comuni seguendo i consigli tecnici.</p>
+            
+            <select id="problem">
+                <option value="muddy">Il suono è "fangoso" (Muddy)</option>
+                <option value="thin">Il suono è troppo sottile (Thin)</option>
+                <option value="harsh">Le alte frequenze fischiano (Harsh)</option>
+            </select>
+
+            <button class="btn-magic" style="background-color: #c0392b;" onclick="solveProblem()">🚑 Risolvi</button>
+            <div id="problem-result" class="result-box" style="display:none"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // Logica per il Tone Wizard basata sul PDF
+        function runWizard() {
+            const intent = document.getElementById('intent').value;
+            let advice = "";
+            
+            if(intent === 'ambient') {
+                advice = "ARCHITETTURA AMBIENT:\n- Ampli: Silver 120 (Max Headroom)\n- Mod: Chorus o UniVibe (per texture)\n- Delay: Vintage (per calore)\n- Reverb: Hall Ambient (Mix alto)";
+            } else if(intent === 'solo') {
+                advice = "ARCHITETTURA SOLO:\n- Comp: Sustain Comp (Sustain infinito)\n- Drive: Guitar Muff (per armonici)\n- EQ: Spingi i 800Hz (per tagliare il mix)\n- Delay: Multi Head (ping-pong)";
+            } else if(intent === 'rhythm') {
+                advice = "ARCHITETTURA RHYTHM:\n- Gate: NoiseGate (Tightness)\n- Amp: Plexiglas o AC Boost\n- EQ: Taglia i bassi estremi (evita il fango)";
+            } else {
+                advice = "ARCHITETTURA LEAD:\n- Drive: Tube Drive (Gain basso, Vol alto)\n- Amp: RB 101 o SLO 100\n- Reverb: Plate Rich (spazio ma senza fango)";
+            }
+
+            const res = document.getElementById('wizard-result');
+            res.innerText = advice;
+            res.style.display = 'block';
+        }
+
+        // Correzioni Pickup basate sulla guida
+        function fixPickup() {
+            const type = document.getElementById('pickup').value;
+            let advice = (type === 'single') 
+                ? "FIX SINGLE COIL:\n- Aggiungi Red Comp\n- Alza i medi nell'EQ (500Hz)\n- Chiudi leggermente il tono nel Drive"
+                : "FIX HUMBUCKER:\n- Drive: Gain 0, Level 10 (Tighten Low End)\n- Taglia i bassi nell'Amplificatore\n- Usa un Noise Gate più aggressivo";
+            
+            const res = document.getElementById('pickup-result');
+            res.innerText = advice;
+            res.style.display = 'block';
+        }
+
+        // Risoluzione problemi (Troubleshooting)
+        function solveProblem() {
+            const prob = document.getElementById('problem').value;
+            let advice = "";
+            if(prob === 'muddy') advice = "SOLUZIONE:\n- Riduci Gain Ampli\n- Abbassa Bassi sotto ore 9\n- Metti un Booster prima dell'Ampli";
+            if(prob === 'thin') advice = "SOLUZIONE:\n- Spingi i Medi (800Hz)\n- Aggiungi un Compressore ottico\n- Usa un Amp con più saturazione finale";
+            if(prob === 'harsh') advice = "SOLUZIONE:\n- Chiudi il Presence\n- Sposta il microfono (nel Cab Sim) verso il bordo\n- Taglia le alte nell'EQ";
+
+            const res = document.getElementById('problem-result');
+            res.innerText = advice;
+            res.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
