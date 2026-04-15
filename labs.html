@@ -67,6 +67,7 @@
             font-size: 0.8em; margin-right: 5px; color: var(--spark-gold); border: 1px solid #444;
         }
     </style>
+    <script src="cloud_presets.js"></script>
 </head>
 <body>
 
@@ -110,6 +111,19 @@
 
             <button class="btn-magic" style="background-color: #c0392b;" onclick="solveProblem()">🚑 Ottieni Soluzione</button>
             <div id="problem-result" class="result-box" style="display:none"></div>
+        </div>
+
+        <div class="lab-card">
+            <h2>☁️ Cloud Explorer</h2>
+            <p style="font-size:0.8em; color:#aaa">Cerca setup storici ispirati a GuitarCloud e ToneBridge.</p>
+    
+            <input type="text" id="cloud-search" placeholder="🔍 Cerca artista o brano..." onkeyup="searchCloud(this.value)">
+    
+            <div id="cloud-results" class="result-box" style="display:none; max-height: 200px; overflow-y: auto;"></div>
+    
+            <div id="cloud-preview" class="result-box" style="display:none; border-color: var(--spark-gold);"></div>
+    
+            <button id="save-cloud-btn" class="btn-save" onclick="saveCloudToMain()" style="display:none">💾 Salva nella Scaletta</button>
         </div>
 
     </div>
@@ -197,6 +211,105 @@
             res.innerText = solutions[prob];
             res.style.display = 'block';
         }
+
+let selectedCloudPreset = null;
+
+// Cerca nel database caricato da cloud_presets.js
+function searchCloud(query) {
+    const resultsDiv = document.getElementById('cloud-results');
+    const previewDiv = document.getElementById('cloud-preview');
+    const saveBtn = document.getElementById('save-cloud-btn');
+
+    if (query.length < 2) {
+        resultsDiv.style.display = 'none';
+        return;
+    }
+
+    // Filtra i preset dal file esterno cloud_presets.js
+    const filtered = cloudPresets.filter(p => 
+        p.title.toLowerCase().includes(query.toLowerCase())
+    );
+
+    if (filtered.length > 0) {
+        resultsDiv.innerHTML = filtered.map((p, idx) => `
+            <div style="padding:10px; border-bottom:1px solid #333; cursor:pointer;" onclick="previewCloud(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                🎵 ${p.title}
+            </div>
+        `).join('');
+        resultsDiv.style.display = 'block';
+    } else {
+        resultsDiv.innerHTML = "<p style='padding:10px; font-size:0.8em;'>Nessun risultato trovato.</p>";
+    }
+}
+
+// Mostra l'anteprima della catena prima di salvare
+function previewCloud(preset) {
+    selectedCloudPreset = preset;
+    const previewDiv = document.getElementById('cloud-preview');
+    const saveBtn = document.getElementById('save-cloud-btn');
+    const resultsDiv = document.getElementById('cloud-results');
+
+    resultsDiv.style.display = 'none'; // Chiude i risultati della ricerca
+
+    let html = `<b>Catena Identificata:</b><br><br>`;
+    for (let cat in preset.chain) {
+        html += `<span class="pedal-tag">${cat.toUpperCase()}</span> ${preset.chain[cat]}<br>`;
+    }
+
+    previewDiv.innerHTML = html;
+    previewDiv.style.display = 'block';
+    saveBtn.style.display = 'block';
+}
+
+// Salva il preset nel localStorage condiviso con index.html
+function saveCloudToMain() {
+    if (!selectedCloudPreset) return;
+
+    let savedSongs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
+
+    const categories = ["Gate", "Comp", "Drive", "Amp", "Mod", "Delay", "Reverb"];
+    
+    // Costruisce la struttura dati completa richiesta da index.html
+    const newChain = categories.map(cat => ({
+        category: cat,
+        name: selectedCloudPreset.chain[cat] || "Nessun Pedale",
+        img: "", 
+        status: (selectedCloudPreset.chain[cat] && selectedCloudPreset.chain[cat] !== "Nessun Pedale") ? "on" : "off",
+        paramValues: ["5", "5", "5"]
+    }));
+
+    const newSong = {
+        title: selectedCloudPreset.title,
+        activePartIndex: 0,
+        activeMode: "cuffie",
+        notes: "Preset importato da Cloud Labs.",
+        parts: [{
+            name: "Cloud Import",
+            modes: {
+                cuffie: JSON.parse(JSON.stringify(newChain)),
+                input: JSON.parse(JSON.stringify(newChain))
+            }
+        }]
+    };
+
+    // Applica la logica Fender (toglie l'amp nella modalità input)
+    const ampSlot = newSong.parts[0].modes.input.find(s => s.category === 'Amp');
+    if (ampSlot) {
+        ampSlot.name = "Nessun Pedale";
+        ampSlot.status = "off";
+    }
+
+    savedSongs.unshift(newSong);
+    localStorage.setItem('sparkPresetsV7', JSON.stringify(savedSongs));
+
+    alert(`✅ "${selectedCloudPreset.title}" aggiunto correttamente alla scaletta!`);
+    
+    // Reset interfaccia
+    document.getElementById('cloud-preview').style.display = 'none';
+    document.getElementById('save-cloud-btn').style.display = 'none';
+    document.getElementById('cloud-search').value = "";
+}
+
     </script>
 </body>
 </html>
