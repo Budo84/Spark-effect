@@ -202,16 +202,28 @@
             .chain-container { overflow-x: visible; justify-content: space-between; }
         }
 
-        /* --- MODALITÀ LIVE --- */
+/* --- MODALITÀ LIVE --- */
+        /* Abbiamo rimosso .pedal-slot.is-empty da qui per tenerli sempre visibili */
         body.live-mode .delete-btn,
         body.live-mode .drag-handle,
         body.live-mode .search-box,
         body.live-mode .suggestion-item,
         body.live-mode .add-tab,
         body.live-mode .btn-delete-part,
-        body.live-mode .pedal-slot.is-empty,
-        body.live-mode .btn-hide-live {
+        body.live-mode .btn-hide-live,
+        body.live-mode .setlist-btn,
+        body.live-mode .collapse-btn {
             display: none !important;
+        }
+
+        /* LOGICA CASSA: Nascondi la categoria Amp solo in Modalità Live AND se siamo in Setup Fender (mode-input) */
+        body.live-mode .preset-card.mode-input .pedal-slot.cat-amp {
+            display: none !important;
+        }
+
+        /* In modalità live, i pedali vuoti rimangono visibili ma più trasparenti per non distrarre */
+        body.live-mode .pedal-slot.is-empty {
+            opacity: 0.3;
         }
 
         body.live-mode .song-title-input {
@@ -618,7 +630,7 @@
                 }
 
                 return `
-                    <div class="pedal-slot ${isEmpty ? 'is-empty' : ''}">
+                    <div class="pedal-slot ${isEmpty ? 'is-empty' : ''} cat-${slot.category.toLowerCase()}">
                         <span class="pedal-category">${slot.category}</span>
                         ${imageHTML}
                         <div class="status-indicator ${dotClass}" onclick="togglePedal(${songIndex}, ${slotIndex})"></div>
