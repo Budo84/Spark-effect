@@ -603,7 +603,7 @@
                 if (isEmpty || !slot.img) {
                     imageHTML = `<div class="pedal-empty-box">VUOTO</div>`;
                 } else {
-                    imageHTML = `<img src="${slot.img}" class="pedal-image ${imgClass}" alt="${slot.name}" onerror="this.style.opacity='0'">`;
+                    imageHTML = `<img src="${pedalData.img}" class="pedal-image ${imgClass}" alt="${slot.name}" onerror="this.style.opacity='0'">`;
                 }
 
                 let paramsHTML = '';
