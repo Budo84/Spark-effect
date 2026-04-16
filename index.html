@@ -598,17 +598,19 @@
                 let dotClass = isEmpty ? "empty" : (slot.status === "on" ? "on" : "off");
                 let imgClass = slot.status === "on" ? "" : "off";
                 
-                // SISTEMAZIONE IMMAGINE VUOTA OFFLINE
+                // 1. SPOSTATO QUI: L'app "capisce" quale pedale è PRIMA di cercare l'immagine
+                let pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
+
+                // 2. ORA DISEGNA L'IMMAGINE SENZA ERRORI
                 let imageHTML = "";
-                if (isEmpty || !slot.img) {
+                if (isEmpty || !pedalData.img) {
                     imageHTML = `<div class="pedal-empty-box">VUOTO</div>`;
                 } else {
                     imageHTML = `<img src="${pedalData.img}" class="pedal-image ${imgClass}" alt="${slot.name}" onerror="this.style.opacity='0'">`;
                 }
 
+                // 3. DISEGNA LE MANOPOLE
                 let paramsHTML = '';
-                let pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
-                
                 if (pedalData.params && pedalData.params.length > 0) {
                     paramsHTML = '<div class="params-container">';
                     pedalData.params.forEach((paramName, pIndex) => {
