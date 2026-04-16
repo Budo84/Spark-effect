@@ -145,10 +145,13 @@
             generatedChain = data;
 
             let html = `<b>Architettura Suggerita:</b><br><br>`;
-            for (let cat in data) {
-                if(cat !== 'notes') html += `<span class="pedal-tag">${cat.toUpperCase()}</span> ${data[cat]}<br>`;
-            }
-            html += `<br><i>💡 ${data[notes]}</i>`;
+            const cats = ["gate", "comp", "drive", "amp", "mod", "delay", "reverb"];
+            cats.forEach(cat => {
+                html += `<span class="pedal-tag">${cat.toUpperCase()}</span> ${data[cat]}<br>`;
+            });
+            
+            // CORRETTO: data.notes (con il punto) invece di data[notes]
+            html += `<br><i>💡 ${data.notes}</i>`;
 
             const res = document.getElementById('wizard-result');
             res.innerHTML = html;
