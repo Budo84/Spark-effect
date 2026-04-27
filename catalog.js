@@ -1,5 +1,5 @@
 // catalog.js
-// Inventario completo dei pedali Spark con TUTTE le manopole (controlli) sbloccate + Pacchetto Hendrix.
+// Inventario completo dei pedali Spark con TUTTE le manopole (controlli) sbloccate + Pacchetto Hendrix Completo.
 
 const catalog = {
     "Gate": [
@@ -12,7 +12,9 @@ const catalog = {
         { name: "02 Sustain", img: "database/2-COMP-WAH/COMP-WAH-02-Sustain-Comp.jpg", params: ["Sustain", "Attack", "Level"] },
         { name: "03 Red Comp", img: "database/2-COMP-WAH/COMP-WAH-03-Red-Comp.jpg", params: ["Sens", "Level"] },
         { name: "04 Bass Comp", img: "database/2-COMP-WAH/COMP-WAH-04-Bass-Comp.jpg", params: ["Comp", "Rel", "Level"] },
-        { name: "05 Optical", img: "database/2-COMP-WAH/COMP-WAH-05-Optical-Comp.jpg", params: ["Comp", "Tone", "Level"] }
+        { name: "05 Optical", img: "database/2-COMP-WAH/COMP-WAH-05-Optical-Comp.jpg", params: ["Comp", "Tone", "Level"] },
+        // --- INIZIO PACCHETTO HENDRIX ---
+        { name: "J.H. Legendary Wah", img: "database/2-COMP-WAH/JH-Legendary-Wah.jpg", params: ["Pedal"] }
     ],
     "Drive": [
         { name: "Nessun Pedale", img: "", params: [] },
@@ -27,8 +29,10 @@ const catalog = {
         { name: "13 Bassmaster", img: "database/3-Drive/Drive-13-Bassmaster.jpg", params: ["Drive", "Tone", "Vol"] },
         { name: "14 SAB Driver", img: "database/3-Drive/Drive-14-SAB-driver.jpg", params: ["Drive", "Bass", "Treb", "Blend", "Pres", "Vol"] },
         // --- INIZIO PACCHETTO HENDRIX ---
-        { name: "Hendrix Fuzz", img: "database/3-Drive/Hendrix-Fuzz.jpg", params: ["Fuzz", "Vol"] },
-        { name: "Hendrix Octavia", img: "database/3-Drive/Hendrix-Octavia.jpg", params: ["Drive", "Vol"] }
+        { name: "J.H. Axle Fuzz", img: "database/3-Drive/JH-Axle-Fuzz.jpg", params: ["Fuzz", "Vol"] },
+        { name: "J.H. Super Fuzz", img: "database/3-Drive/JH-Super-Fuzz.jpg", params: ["Fuzz", "Level"] },
+        { name: "J.H. Octave Fuzz", img: "database/3-Drive/JH-Octave-Fuzz.jpg", params: ["Fuzz", "Level"] },
+        { name: "J.H. Fuzz Zone", img: "database/3-Drive/JH-Fuzz-Zone.jpg", params: ["Attack", "Vol"] }
     ],
     "Amp": [
         { name: "Nessun Pedale", img: "", params: [] },
@@ -66,8 +70,12 @@ const catalog = {
         { name: "38 W600", img: "database/4-AMP/AMP-38-W600.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] },
         { name: "39 Hammer 500", img: "database/4-AMP/AMP-39-Hammer-500.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] },
         // --- INIZIO PACCHETTO HENDRIX ---
-        { name: "Hendrix JTM45", img: "database/4-AMP/Amp-Hendrix-JTM45.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] },
-        { name: "Hendrix Sunn", img: "database/4-AMP/Amp-Hendrix-Sunn.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] }
+        { name: "J.H. Super 100", img: "database/4-AMP/Amp-JH-Super-100.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] },
+        { name: "J.H. Tone City 100", img: "database/4-AMP/Amp-JH-Tone-City.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] },
+        { name: "J.H. D-Show Master", img: "database/4-AMP/Amp-JH-D-Show.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] },
+        { name: "J.H. Bass Master", img: "database/4-AMP/Amp-JH-Bass-Master.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] },
+        { name: "J.H. Sun 100S", img: "database/4-AMP/Amp-JH-Sun-100S.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] },
+        { name: "J.H. 45/100", img: "database/4-AMP/Amp-JH-45-100.jpg", params: ["Gain", "Bass", "Mid", "Treb", "Pres", "Master"] }
     ],
     "Mod": [
         { name: "Nessun Pedale", img: "", params: [] },
@@ -84,7 +92,8 @@ const catalog = {
         { name: "12 Guitar EQ", img: "database/5-MOD-EQ/MOD-EQ-12-Guitar-EQ.jpg", params: ["100Hz", "200Hz", "400Hz", "800Hz", "1.6k", "3.2k", "Vol"] },
         { name: "13 Bass EQ", img: "database/5-MOD-EQ/MOD-EQ-13-Bass-EQ.jpg", params: ["50Hz", "120Hz", "400Hz", "500Hz", "800Hz", "4.5k", "Vol"] },
         // --- INIZIO PACCHETTO HENDRIX ---
-        { name: "Hendrix Vibe", img: "database/5-MOD-EQ/Hendrix-Vibe.jpg", params: ["Speed", "Depth", "Vol"] }
+        { name: "J.H. Legendary Vibe", img: "database/5-MOD-EQ/JH-Legendary-Vibe.jpg", params: ["Speed", "Intens"] },
+        { name: "J.H. Micro Vibe", img: "database/5-MOD-EQ/JH-Micro-Vibe.jpg", params: ["Speed", "Intens"] }
     ],
     "Delay": [
         { name: "Nessun Pedale", img: "", params: [] },
@@ -93,9 +102,7 @@ const catalog = {
         { name: "03 Vintage", img: "database/6-Delay/Delay-03-Vintage-Delay.jpg", params: ["Time", "Feed", "Tone", "Level"] },
         { name: "04 Reverse", img: "database/6-Delay/Delay-04-Reverse-Delay.jpg", params: ["Time", "Feed", "Level"] },
         { name: "05 Multi Head", img: "database/6-Delay/Delay-05-Multi-Head.jpg", params: ["Time", "Feed", "Head", "Level"] },
-        { name: "06 Echo Tape", img: "database/6-Delay/Delay-06-Echo-Tape.ipg.jpg", params: ["Time", "Feed", "Tone", "Level"] },
-        // --- INIZIO PACCHETTO HENDRIX ---
-        { name: "Hendrix Tape Echo", img: "database/6-Delay/Hendrix-Tape-Echo.jpg", params: ["Time", "Feed", "Tone", "Level"] }
+        { name: "06 Echo Tape", img: "database/6-Delay/Delay-06-Echo-Tape.ipg.jpg", params: ["Time", "Feed", "Tone", "Level"] }
     ],
     "Reverb": [
         { name: "Nessun Pedale", img: "", params: [] },
