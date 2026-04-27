@@ -3,641 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Spark Preset Editor Intelligence</title>
+    <title>Spark Preset Editor - Live Edition</title>
 
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icon-192.png">
-    <link rel="apple-touch-icon" href="icon-512.png">
     
     <style>
-        /* Manteniamo esattamente il tuo stile originale */
         :root {
-            --bg-dark: #121212;
-            --bg-card: #1e1e1e;
-            --text-main: #f0f0f0;
-            --text-muted: #aaaaaa;
-            --spark-gold: #d4af37;
-            --spark-red: #c0392b;
-            --pedal-bg: #2a2a2a;
-            --input-bg: #333333;
+            --bg-dark: #121212; --bg-card: #1e1e1e; --text-main: #f0f0f0;
+            --spark-gold: #d4af37; --spark-red: #c0392b; --pedal-bg: #2a2a2a;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            margin: 0;
-            padding: 15px;
-            padding-bottom: 90px;
+            font-family: -apple-system, system-ui, sans-serif;
+            background-color: var(--bg-dark); color: var(--text-main);
+            margin: 0; padding: 15px; padding-bottom: 90px;
         }
 
-        .header-bar {
-            display: flex; flex-direction: column; align-items: center; gap: 15px;
-            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--spark-gold);
-        }
+        /* --- STILI LIVE MODE AGGIORNATI --- */
+        body.live-mode .delete-btn, body.live-mode .drag-handle, 
+        body.live-mode .search-box, body.live-mode .add-tab, 
+        body.live-mode .btn-delete-part, body.live-mode .btn-hide-live,
+        body.live-mode .setlist-btn { display: none !important; }
 
-        h1 { color: var(--spark-gold); margin: 0; font-size: 1.5em; font-weight: 800; letter-spacing: 1px; text-align: center; }
+        /* Nascondi AMP solo in Setup Fender + Live Mode */
+        body.live-mode .preset-card.mode-input .pedal-slot.cat-amp { display: none !important; }
 
-        .header-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+        /* Pedali vuoti trasparenti in Live Mode per non distrarre */
+        body.live-mode .pedal-slot.is-empty { opacity: 0.15; pointer-events: none; }
 
-        .btn {
-            background-color: var(--spark-gold); color: #000; border: none;
-            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
-            display: inline-block; text-align: center; font-size: 0.9em;
-        }
-        .btn:active { opacity: 0.8; }
-        .btn-secondary { background-color: #444; color: white; }
-
-        .preset-card {
-            background-color: var(--bg-card); border: 1px solid #333; border-radius: 12px;
-            padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative;
-        }
-
-        .song-title-input {
-            width: 85%; background: transparent; border: none; color: var(--spark-gold); 
-            font-size: 1.5em; font-weight: bold; margin-bottom: 15px; outline: none; 
-            border-bottom: 1px dashed #555; padding-bottom: 5px;
-        }
-
-        .delete-btn {
-            position: absolute; top: 15px; right: 15px; background: none; border: none; 
-            color: var(--spark-red); font-size: 1.5em; cursor: pointer;
-        }
-
-        /*BOTTONI YOUTUBE SPOTIFY*/
-        .action-buttons-container {
-            display: flex; gap: 10px; margin-left: 35px; margin-bottom: 15px; flex-wrap: wrap;
-        }
-        .spotify-btn, .youtube-btn {
-            color: white; border: none; padding: 6px 12px; border-radius: 12px; 
-            font-size: 0.8em; font-weight: bold; text-decoration: none; transition: opacity 0.2s;
-            display: inline-block; text-align: center;
-        }
-        .spotify-btn { background-color: #1DB954; }
-        .youtube-btn { background-color: #FF0000; }
-        .spotify-btn:hover, .youtube-btn:hover { opacity: 0.8; }
-
-        .drag-handle {
-            position: absolute; top: 15px; left: 15px;
-            cursor: grab; font-size: 1.6em; color: var(--spark-gold);
-            user-select: none;
-        }
-        .drag-handle:active { cursor: grabbing; }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .preset-card { background: var(--bg-card); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #333; position: relative; }
+        .chain-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .pedal-slot { background: var(--pedal-bg); min-width: 120px; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #444; }
+        .pedal-image { width: 100%; height: 80px; object-fit: contain; margin: 5px 0; }
+        .pedal-image.off { filter: grayscale(1) brightness(0.5); }
+        .param-row { display: flex; justify-content: space-between; font-size: 0.7em; color: var(--spark-gold); margin-top: 4px; }
+        .param-val { background: transparent; color: white; border: none; font-size: 1em; }
         
-        .preset-card.dragging { 
-            opacity: 0.4; border: 2px dashed var(--spark-gold); 
-        }
-        .preset-card.drag-over { 
-            border-top: 4px solid #2ecc71; 
-        }
-
-        /*BLOCCO NOTE*/
-
-        .technical-notes {
-            width: 100%; background-color: var(--input-bg); color: var(--text-muted);
-            border: 1px solid #444; border-radius: 8px; padding: 10px; margin-top: 15px;
-            font-family: inherit; font-size: 0.85em; resize: vertical; box-sizing: border-box;
-            transition: 0.3s;
-        }
-        .technical-notes:focus {
-            outline: none; border-color: var(--spark-gold); color: var(--text-main);
-        }
-        
-
-        /* STILE MOTORE DI RICERCA AGGIUNTO */
-        .search-box {
-            width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; 
-            background: #111; color: white; font-size: 0.9em; box-sizing: border-box;
-        }
-        .suggestion-item {
-            padding: 12px; background: #252525; margin-top: 5px; border-radius: 8px; cursor: pointer; 
-            font-size: 0.85em; border: 1px solid var(--spark-gold); color: var(--spark-gold); font-weight: bold;
-        }
-        .user-suggestion { border-color: #2ecc71; color: #2ecc71; }
-
-        .mode-switch {
-            display: flex; gap: 0; margin-bottom: 15px; border-radius: 8px; 
-            overflow: hidden; border: 1px solid var(--spark-gold);
-        }
-        .mode-btn {
-            flex: 1; padding: 10px; background: #111; color: var(--text-muted); 
-            border: none; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.3s;
-        }
-        .mode-btn.active { background: var(--spark-gold); color: #000; }
-
-        .tabs-container {
-            display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #333; 
-            padding-bottom: 0px; overflow-x: auto; scrollbar-width: none;
-        }
-        .tabs-container::-webkit-scrollbar { display: none; }
-
-        .tab {
-            padding: 10px 15px; background: #222; border-radius: 8px 8px 0 0; color: var(--text-muted); 
-            cursor: pointer; font-size: 0.9em; font-weight: bold; white-space: nowrap; 
-            border: 1px solid #333; border-bottom: none; transition: background 0.3s;
-        }
-        .tab.active { background: var(--text-main); color: #000; border-color: var(--text-main); }
-        .tab.add-tab { background: transparent; color: var(--spark-gold); border: 1px dashed var(--spark-gold); border-bottom: none; }
-
-        .part-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
-
-        .song-part-select {
-            flex-grow: 1; background-color: var(--input-bg); border: 1px solid #555;
-            color: var(--text-main); font-size: 0.9em; outline: none; border-radius: 6px; padding: 6px; font-weight: bold;
-        }
-
-        .btn-delete-part {
-            background: rgba(192, 57, 43, 0.2); color: var(--spark-red); border: 1px solid var(--spark-red);
-            padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: bold;
-        }
-
-        /* --- CATENA EFFETTI --- */
-        .chain-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; scroll-snap-type: x mandatory; }
-        .chain-container::-webkit-scrollbar { height: 8px; }
-        .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-
-        .pedal-slot {
-            flex: 0 0 135px; background-color: var(--pedal-bg); border-radius: 10px; padding: 12px; 
-            display: flex; flex-direction: column; align-items: center; border: 1px solid #444; scroll-snap-align: start;
-        }
-
-        .pedal-category { font-size: 0.7em; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; }
-        
-        .pedal-image { 
-            width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; 
-            border-radius: 6px; background-color: #111; padding: 5px; transition: all 0.3s ease; box-sizing: border-box;
-        }
-        .pedal-image.off { filter: grayscale(100%) brightness(0.4); opacity: 0.7; }
-
-        /* NUOVA CLASSE PER PEDALI VUOTI SENZA INTERNET */
-        .pedal-empty-box {
-            display: flex; align-items: center; justify-content: center;
-            width: 100%; height: 110px; margin-bottom: 8px; border-radius: 6px;
-            background-color: #111; border: 1px dashed #444; color: #555;
-            font-size: 0.8em; font-weight: bold; box-sizing: border-box;
-        }
-
-        .status-indicator {
-            width: 14px; height: 14px; border-radius: 50%; background-color: #555; margin-bottom: 10px;
-            cursor: pointer; border: 2px solid #111; transition: all 0.2s;
-        }
-        .status-indicator.on { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
-        .status-indicator.off { background-color: #e74c3c; box-shadow: 0 0 10px #e74c3c; }
-        .status-indicator.empty { visibility: hidden; } 
-        
-        .pedal-select {
-            width: 100%; background-color: var(--input-bg); color: white; border: 1px solid #555; 
-            border-radius: 6px; font-size: 0.75em; padding: 6px; margin-bottom: 10px; outline: none;
-        }
-
-        .params-container { width: 100%; display: flex; flex-direction: column; gap: 5px; }
-        .param-row { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; padding: 3px 6px; border-radius: 4px; border: 1px solid #444; }
-        .param-label { font-size: 0.7em; color: var(--spark-gold); font-weight: bold; }
-        .param-val { background-color: #333; color: white; border: 1px solid #555; border-radius: 4px; font-size: 0.75em; padding: 2px 4px; outline: none; cursor: pointer; text-align: center; font-weight: bold; }
-
-        @media (min-width: 768px) {
-            .header-bar { flex-direction: row; }
-            .header-controls { justify-content: flex-end; width: auto; }
-            .pedal-slot { flex: 1; min-width: 0; } 
-            .chain-container { overflow-x: visible; justify-content: space-between; }
-        }
-
-/* --- MODALITÀ LIVE --- */
-        body.live-mode .delete-btn,
-        body.live-mode .drag-handle,
-        body.live-mode .search-box,
-        body.live-mode .suggestion-item,
-        body.live-mode .add-tab,
-        body.live-mode .btn-delete-part,
-        body.live-mode .btn-hide-live,
-        body.live-mode .setlist-btn,
-        body.live-mode .collapse-btn {
-            display: none !important;
-        }
-
-        /* LOGICA CASSA: Nascondi lo slot Amp solo in Modalità Live AND se siamo in Setup Fender (mode-input) */
-        body.live-mode .preset-card.mode-input .pedal-slot.cat-amp {
-            display: none !important;
-        }
-
-        /* In modalità live, i pedali vuoti rimangono visibili ma diventano molto trasparenti */
-        body.live-mode .pedal-slot.is-empty {
-            opacity: 0.15;
-            pointer-events: none;
-        }
-
-        body.live-mode .song-title-input {
-            margin-left: 0 !important; width: 100% !important; 
-            text-align: center; font-size: 2em; border-bottom: none; 
-            pointer-events: none;
-        }
-
-        body.live-mode .action-buttons-container {
-            justify-content: center; margin-left: 0 !important;
-        }
-
-        body.live-mode .pedal-select, 
-        body.live-mode .param-val,
-        body.live-mode .song-part-select {
-            pointer-events: none; border: none; background: transparent; 
-            appearance: none; -webkit-appearance: none; font-size: 1.1em; text-align: center;
-        }
-
-        body.live-mode .technical-notes {
-            font-size: 1.2em; pointer-events: none; border: 1px dashed var(--spark-gold);
-        }
-        
-        .live-toggle-btn {
-            background-color: #e67e22; color: white; border: none;
-            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
-        }
-        body.live-mode .live-toggle-btn {
-            background-color: #e74c3c; /* Diventa rosso quando è attiva per ricordarti di spegnerla */
-            box-shadow: 0 0 15px #e74c3c;
-        }
-
-        /* --- SCHEDE A SCOMPARSA (ACCORDION) --- */
-        .collapse-btn {
-            position: absolute; top: 15px; right: 45px; 
-            background: none; border: none; color: var(--text-muted); 
-            font-size: 1.2em; cursor: pointer; transition: color 0.3s;
-        }
-        .collapse-btn:hover { color: white; }
-        
-        /* Quando la scheda è chiusa (MA NON siamo in modalità live), nascondi il contenuto */
-        body:not(.live-mode) .preset-card.collapsed .search-box,
-        body:not(.live-mode) .preset-card.collapsed div[id^="results-"],
-        body:not(.live-mode) .preset-card.collapsed .mode-switch,
-        body:not(.live-mode) .preset-card.collapsed .tabs-container,
-        body:not(.live-mode) .preset-card.collapsed .part-controls,
-        body:not(.live-mode) .preset-card.collapsed .chain-container,
-        body:not(.live-mode) .preset-card.collapsed .technical-notes {
-            display: none !important;
-        }
-
-        /* --- SCALETTA LIVE (STELLA) --- */
-        .setlist-btn {
-            position: absolute; top: 15px; right: 75px; 
-            background: none; border: none; font-size: 1.2em; cursor: pointer; transition: 0.3s;
-            filter: grayscale(100%) opacity(0.4); /* Stella spenta */
-        }
-        .setlist-btn.active {
-            filter: grayscale(0%) opacity(1); /* Stella accesa (oro) */
-        }
-        
-        /* MAGIA: Nasconde i brani scartati in Modalità Live (solo se c'è una scaletta attiva) */
-        body.live-mode.has-setlist .preset-card:not(.in-setlist) {
-            display: none !important;
-        }      
-          
+        .nav-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #1a1a1a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 2px solid var(--spark-gold); z-index: 100; }
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-gold { background: var(--spark-gold); color: black; }
+        .btn-live { background: #e67e22; color: white; }
+        body.live-mode .btn-live { background: var(--spark-red); box-shadow: 0 0 15px var(--spark-red); }
     </style>
 </head>
 <body>
 
     <div class="header-bar">
-        <h1>SPARK PRESET INTELLIGENCE</h1>
-        <div class="header-controls">
-            <a href="labs.html" class="btn btn-secondary btn-hide-live" style="background-color: #8e44ad; text-decoration: none;">🧪 Apri Labs</a>
-        
-            <button class="btn btn-secondary btn-hide-live" onclick="exportData()">💾 Esporta</button>
-            <label class="btn btn-secondary btn-hide-live" style="margin: 0;">
-                📂 Importa
-                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
-            </label>
-            <button class="btn btn-hide-live" onclick="addSong()">+ Nuovo Brano</button>
-            <button class="live-toggle-btn" onclick="toggleLiveMode()" id="liveBtn">🎸 Modalità Live</button>
+        <h1>🎸 My Rig</h1>
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-gold" onclick="exportJSON()">📤 Backup</button>
+            <label class="btn btn-gold">📥 Importa <input type="file" id="importFile" hidden onchange="importJSON(event)"></label>
         </div>
     </div>
 
-    <div id="preset-list"></div>
+    <div id="app"></div>
+
+    <div class="nav-footer">
+        <button class="btn btn-gold" onclick="addSong()">➕ Brano</button>
+        <a href="labs.html" class="btn btn-gold" style="text-decoration:none">🧪 Labs</a>
+        <button id="liveBtn" class="btn btn-live" onclick="toggleLiveMode()">🎸 Live Mode</button>
+    </div>
+
+    <script src="catalog.js"></script>
+    <script src="cloud_presets.js"></script>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js');
-            });
-        }
+        let songs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
 
-        const catalog = {
-            "Gate": [
-                { name: "Nessun Pedale", img: "", params: [] },
-                { name: "01 NoisGate", img: "database/1-noisegate/NoiseGate-01-NoisGate.jpg", params: ["Threshold"] }
-            ],
-            "Comp": [
-                { name: "Nessun Pedale", img: "", params: [] },
-                { name: "01 LA Comp", img: "database/2-COMP-WAH/COMP-WAH-01-LA-Comp.jpg", params: ["Sustain", "Level"] },
-                { name: "02 Sustain", img: "database/2-COMP-WAH/COMP-WAH-02-Sustain-Comp.jpg", params: ["Sustain", "Level"] },
-                { name: "03 Red Comp", img: "database/2-COMP-WAH/COMP-WAH-03-Red-Comp.jpg", params: ["Sustain", "Level"] },
-                { name: "04 Bass Comp", img: "database/2-COMP-WAH/COMP-WAH-04-Bass-Comp.jpg", params: ["Comp", "Level"] },
-                { name: "05 Optical", img: "database/2-COMP-WAH/COMP-WAH-05-Optical-Comp.jpg", params: ["Comp", "Level"] }
-            ],
-            "Drive": [
-                { name: "Nessun Pedale", img: "", params: [] },
-                { name: "01 Booster", img: "database/3-Drive/Drive-01-Booster.jpg", params: ["Gain", "Vol"] },
-                { name: "02 Clone Drv", img: "database/3-Drive/Drive-02-Clone-Drive.jpg", params: ["Gain", "Tone"] },
-                { name: "03 Tube Drv", img: "database/3-Drive/Drive-03-Tube-Drive.jpg", params: ["Gain", "Tone"] },
-                { name: "04 Over Drv", img: "database/3-Drive/Drive-04-Over-Drive.jpg", params: ["Gain", "Tone"] },
-                { name: "09 Fuzz Face", img: "database/3-Drive/Drive-09-Fuzz-Face.jpg", params: ["Fuzz", "Vol"] },
-                { name: "10 Black Op", img: "database/3-Drive/Drive-10-Black-Op.jpg", params: ["Gain", "Tone"] },
-                { name: "11 Bass Muff", img: "database/3-Drive/Drive-11-Bass-Muff.jpg", params: ["Sustain", "Tone"] },
-                { name: "12 Guitar Muff", img: "database/3-Drive/Drive-12-Guitar-Muff.jpg", params: ["Sustain", "Tone"] },
-                { name: "13 Bassmaster", img: "database/3-Drive/Drive-13-Bassmaster.jpg", params: ["Vol", "Tone"] },
-                { name: "14 SAB Driver", img: "database/3-Drive/Drive-14-SAB-driver.jpg", params: ["Gain", "Tone"] }
-            ],
-            "Amp": [
-                { name: "Nessun Pedale", img: "", params: [] },
-                { name: "01 Silver 120", img: "database/4-AMP/Amp-01-Silver-120.jpg", params: ["Gain", "Master"] },
-                { name: "02 Black Duo", img: "database/4-AMP/Amp-02-Black-Duo.jpg", params: ["Gain", "Master"] },
-                { name: "03 AD Clean", img: "database/4-AMP/Amp-03-AD-Clean.jpg", params: ["Gain", "Master"] },
-                { name: "04 Match Dc", img: "database/4-AMP/Amp-04-Match-Dc.jpg", params: ["Gain", "Master"] },
-                { name: "05 OSD 50", img: "database/4-AMP/Amp-05-OSD-50.jpg", params: ["Gain", "Master"] },
-                { name: "08 Blues Boy", img: "database/4-AMP/Amp-08-Blues-Boy.jpg", params: ["Gain", "Master"] },
-                { name: "09 Tweed Bass", img: "database/4-AMP/Amp-09-Tweed-Bass.jpg", params: ["Gain", "Master"] },
-                { name: "10 Ac Boost", img: "database/4-AMP/Amp-10-Ac-Boost.jpg", params: ["Gain", "Master"] },
-                { name: "11 Checkmate", img: "database/4-AMP/Amp-11-Checkmate.jpg", params: ["Gain", "Master"] },
-                { name: "12 Two Stone", img: "database/4-AMP/Amp-12-Two-Stone-SP50.jpg", params: ["Gain", "Master"] },
-                { name: "15 Am. Dlx", img: "database/4-AMP/Amp-15-American-Deluxe.jpg", params: ["Gain", "Master"] },
-                { name: "16 Plexiglas", img: "database/4-AMP/Amp-16-Plexiglas.jpg", params: ["Gain", "Master"] },
-                { name: "17 JM45", img: "database/4-AMP/Amp-17-JM45.jpg", params: ["Gain", "Master"] },
-                { name: "18 Lux Verb", img: "database/4-AMP/AMP-18-Lux-Verb.jpg", params: ["Gain", "Master"] },
-                { name: "21 RB 101", img: "database/4-AMP/AMP-21-RB-101.jpg", params: ["Gain", "Master"] },
-                { name: "22 British 30", img: "database/4-AMP/AMP-22-British-30.jpg", params: ["Gain", "Master"] },
-                { name: "23 Am. H.Gain", img: "database/4-AMP/AMP-23-American-High-Gain.jpg", params: ["Gain", "Master"] },
-                { name: "24 SLO 100", img: "database/4-AMP/AMP-24-SLO-100.jpg", params: ["Gain", "Master"] },
-                { name: "25 YJM100", img: "database/4-AMP/AMP-25-YJM100.jpg", params: ["Gain", "Master"] },
-                { name: "26 Treadplate", img: "database/4-AMP/AMP-26-Treadplate.jpg", params: ["Gain", "Master"] },
-                { name: "27 Insane", img: "database/4-AMP/AMP-27-Insane.jpg", params: ["Gain", "Master"] },
-                { name: "28 Insane 6508", img: "database/4-AMP/AMP-28-Insane-6508.jpg", params: ["Gain", "Master"] },
-                { name: "29 SwitchAxe", img: "database/4-AMP/AMP-29-SwitchAxe.jpg", params: ["Gain", "Master"] },
-                { name: "30 Rocker V", img: "database/4-AMP/AMP-30-Rocker-V.jpg", params: ["Gain", "Master"] },
-                { name: "31 BE 101", img: "database/4-AMP/AMP-31-BE-101.jpg", params: ["Gain", "Master"] },
-                { name: "32 Acoustic", img: "database/4-AMP/AMP-32-Pure-Acoustic.jpg", params: ["Gain", "Master"] },
-                { name: "33 Fishboy", img: "database/4-AMP/AMP-33-Fishboy.jpg", params: ["Gain", "Master"] },
-                { name: "34 Jumbo", img: "database/4-AMP/AMP-34-Jumbo.jpg", params: ["Gain", "Master"] },
-                { name: "35 Flat Ac.", img: "database/4-AMP/AMP-35-Flat-Acoustic.jpg", params: ["Gain", "Master"] },
-                { name: "36 RB 800", img: "database/4-AMP/AMP-36-RB-800.jpg", params: ["Gain", "Master"] },
-                { name: "37 Sunny 3000", img: "database/4-AMP/AMP-37-Sunny-3000.jpg", params: ["Gain", "Master"] },
-                { name: "38 W600", img: "database/4-AMP/AMP-38-W600.jpg", params: ["Gain", "Master"] },
-                { name: "39 Hammer 500", img: "database/4-AMP/AMP-39-Hammer-500.jpg", params: ["Gain", "Master"] }
-            ],
-            "Mod": [
-                { name: "Nessun Pedale", img: "", params: [] },
-                { name: "01 Tremolo", img: "database/5-MOD-EQ/MOD-EQ-01-Tremolo.jpg", params: ["Speed", "Depth"] },
-                { name: "02 Chorus", img: "database/5-MOD-EQ/MOD-EQ-02-Chorus.jpg", params: ["Rate", "Depth"] },
-                { name: "03 Flanger", img: "database/5-MOD-EQ/MOD-EQ-03-Flanger.jpg", params: ["Rate", "Depth"] },
-                { name: "04 Phaser", img: "database/5-MOD-EQ/MOD-EQ-04-Phaser.jpg", params: ["Speed", "Depth"] },
-                { name: "05 Vibrato", img: "database/5-MOD-EQ/MOD-EQ-05-Vibrato.jpg", params: ["Rate", "Depth"] },
-                { name: "06 UniVibe", img: "database/5-MOD-EQ/MOD-EQ-06-UniVibe.jpg", params: ["Rate", "Depth"] },
-                { name: "08 Cloner", img: "database/5-MOD-EQ/MOD-EQ-08-Cloner-Chorus.jpg", params: ["Rate", "Depth"] },
-                { name: "09 Classic Vibe", img: "database/5-MOD-EQ/MOD-EQ-09-Classic-Vibe.jpg", params: ["Speed", "Depth"] },
-                { name: "10 Tremolator", img: "database/5-MOD-EQ/MOD-EQ-10-Tremolator.jpg", params: ["Speed", "Depth"] },
-                { name: "11 Trem. Square", img: "database/5-MOD-EQ/MOD-EQ-11-Tremolo-Square.jpg", params: ["Speed", "Depth"] },
-                { name: "12 Guitar EQ", img: "database/5-MOD-EQ/MOD-EQ-12-Guitar-EQ.jpg", params: ["Bass", "Mid", "Treb"] },
-                { name: "13 Bass EQ", img: "database/5-MOD-EQ/MOD-EQ-13-Bass-EQ.jpg", params: ["Bass", "Mid", "Treb"] }
-            ],
-            "Delay": [
-                { name: "Nessun Pedale", img: "", params: [] },
-                { name: "01 Digital", img: "database/6-Delay/Delay-01-Digital-Delay.jpg", params: ["Time", "Feed"] },
-                { name: "02 Echo Fit", img: "database/6-Delay/Delay-02-Echo-Fit.jpg", params: ["Time", "Feed"] },
-                { name: "03 Vintage", img: "database/6-Delay/Delay-03-Vintage-Delay.jpg", params: ["Time", "Feed"] },
-                { name: "04 Reverse", img: "database/6-Delay/Delay-04-Reverse-Delay.jpg", params: ["Time", "Mix"] },
-                { name: "05 Multi Head", img: "database/6-Delay/Delay-05-Multi-Head.jpg", params: ["Time", "Feed"] },
-                { name: "06 Echo Tape", img: "database/6-Delay/Delay-06-Echo-Tape.ipg.jpg", params: ["Time", "Feed"] }
-            ],
-            "Reverb": [
-                { name: "Nessun Pedale", img: "", params: [] },
-                { name: "01 Room A", img: "database/7-Reverb/Reverb-01-Room-Studio-A.jpg", params: ["Level", "Time"] },
-                { name: "02 Chamber", img: "database/7-Reverb/Reverb-02-Chamber.jpg", params: ["Level", "Time"] },
-                { name: "03 Hall Nat.", img: "database/7-Reverb/Reverb-03-Hall-Natural.jpg", params: ["Level", "Time"] },
-                { name: "04 Plate Short", img: "database/7-Reverb/Reverb-04-Plate-Short.jpg", params: ["Level", "Time"] },
-                { name: "05 Hall Amb.", img: "database/7-Reverb/Reverb-05-Hall-Ambient.jpg", params: ["Level", "Time"] },
-                { name: "06 Plate Rich", img: "database/7-Reverb/Reverb-06-Plate-Rich.jpg", params: ["Level", "Time"] },
-                { name: "07 Hall Med.", img: "database/7-Reverb/Reverb-07-Hall-Medium.jpg", params: ["Level", "Time"] },
-                { name: "08 Plate Long", img: "database/7-Reverb/Reverb-08-Plate-Long.jpg", params: ["Level", "Time"] },
-                { name: "09 Room B", img: "database/7-Reverb/Reverb-09-Room-Studio-B.jpg", params: ["Level", "Time"] }
-            ]
-        };
-
-        const defaultChain = [
-            { category: "Gate", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
-            { category: "Comp", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
-            { category: "Drive", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
-            { category: "Amp", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
-            { category: "Mod", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
-            { category: "Delay", name: "Nessun Pedale", img: "", status: "on", paramValues: [] },
-            { category: "Reverb", name: "Nessun Pedale", img: "", status: "on", paramValues: [] }
-        ];
-
-        // DATABASE ESTESO (Top 100)
-        const presetSuggestions = [
-            { title: "Pink Floyd - Comfortably Numb", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"21 RB 101", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"03 Hall Nat."}},
-            { title: "AC/DC - Back in Black", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"Nessun Pedale", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Nirvana - Smells Like Teen Spirit", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"02 Black Duo", Mod:"02 Chorus", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Led Zeppelin - Stairway to Heaven", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
-            { title: "Metallica - Enter Sandman", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Guns N' Roses - Sweet Child O' Mine", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"21 RB 101", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}},
-            { title: "U2 - With Or Without You", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"22 British 30", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"05 Hall Amb."}},
-            { title: "Dire Straits - Sultans of Swing", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
-            { title: "Deep Purple - Smoke on the Water", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "The Police - Every Breath You Take", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"01 Silver 120", Mod:"02 Chorus", Delay:"01 Digital", Reverb:"04 Plate Short"}},
-            { title: "Black Sabbath - Paranoid", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"12 Guitar Muff", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Queen - Bohemian Rhapsody", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
-            { title: "The Rolling Stones - Start Me Up", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"09 Tweed Bass", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Van Halen - Eruption", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"04 Phaser", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
-            { title: "RHCP - Under The Bridge", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
-            // --- ROCK CLASSICO & HARD ROCK ---
-            { title: "Pink Floyd - Comfortably Numb", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"21 RB 101", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"03 Hall Nat."}},
-            { title: "AC/DC - Back in Black", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"Nessun Pedale", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Led Zeppelin - Stairway to Heaven", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
-            { title: "Deep Purple - Smoke on the Water", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Queen - Bohemian Rhapsody", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"22 British 30", Mod:"Nessun Pedale", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
-            { title: "Guns N' Roses - Sweet Child O' Mine", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"21 RB 101", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}},
-            { title: "The Rolling Stones - Start Me Up", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"09 Tweed Bass", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Van Halen - Eruption", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"04 Phaser", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
-            { title: "The Who - Baba O'Riley", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "ZZ Top - La Grange", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"09 Tweed Bass", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-
-            // --- GRUNGE & ALTERNATIVE ---
-            { title: "Nirvana - Smells Like Teen Spirit", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"02 Black Duo", Mod:"02 Chorus", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Nirvana - Come As You Are", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"Nessun Pedale", Amp:"02 Black Duo", Mod:"02 Chorus", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Pearl Jam - Alive", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Radiohead - Creep", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"02 Black Duo", Mod:"02 Chorus", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Foo Fighters - Everlong", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"21 RB 101", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "RHCP - Under The Bridge", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
-            { title: "Soundgarden - Black Hole Sun", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"Nessun Pedale", Amp:"16 Plexiglas", Mod:"05 Vibrato", Delay:"03 Vintage", Reverb:"03 Hall Nat."}},
-            { title: "Muse - Plug In Baby", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Oasis - Wonderwall", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"32 Acoustic", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
-            { title: "The White Stripes - Seven Nation Army", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-
-            // --- METAL & HEAVY ---
-            { title: "Metallica - Enter Sandman", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Metallica - Master of Puppets", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Black Sabbath - Paranoid", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"12 Guitar Muff", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Iron Maiden - The Trooper", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Pantera - Walk", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Slayer - Raining Blood", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Megadeth - Holy Wars", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Judas Priest - Breaking The Law", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Rage Against The Machine - Killing In The Name", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "System of a Down - Toxicity", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"10 Black Op", Amp:"26 Treadplate", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-
-            // --- BLUES, POP & ALT-ROCK ---
-            { title: "Jimi Hendrix - Purple Haze", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"09 Fuzz Face", Amp:"16 Plexiglas", Mod:"06 UniVibe", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "SRV - Pride and Joy", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}},
-            { title: "Dire Straits - Sultans of Swing", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"02 Black Duo", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}},
-            { title: "The Police - Every Breath You Take", chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"Nessun Pedale", Amp:"01 Silver 120", Mod:"02 Chorus", Delay:"01 Digital", Reverb:"04 Plate Short"}},
-            { title: "U2 - Where The Streets Have No Name", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"22 British 30", Mod:"02 Chorus", Delay:"05 Multi Head", Reverb:"05 Hall Amb."}},
-            { title: "The Eagles - Hotel California", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"02 Black Duo", Mod:"02 Chorus", Delay:"01 Digital", Reverb:"03 Hall Nat."}},
-            { title: "Bon Jovi - Livin' On A Prayer", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"21 RB 101", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}},
-            { title: "Coldplay - Yellow", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"04 Over Drv", Amp:"03 AD Clean", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"05 Hall Amb."}},
-            { title: "The Cure - Lovesong", chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"02 Black Duo", Mod:"02 Chorus", Delay:"01 Digital", Reverb:"03 Hall Nat."}},
-            { title: "Eric Clapton - Layla", chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"03 Tube Drv", Amp:"09 Tweed Bass", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"01 Room A"}}
-        ];
-
-        let personalLibrary = JSON.parse(localStorage.getItem('sparkPersonalLibrary')) || [];
-        
-        function migrateToModes(songList) {
-            return songList.map(s => {
-                if (s.parts && s.parts[0] && s.parts[0].modes) return s;
-                let oldParts = s.parts || [ { name: "Accompagnamento", chain: s.chain } ];
-                let newParts = oldParts.map(p => {
-                    return {
-                        name: p.name || "Accompagnamento",
-                        modes: {
-                            cuffie: JSON.parse(JSON.stringify(p.chain || defaultChain)),
-                            input: JSON.parse(JSON.stringify(p.chain || defaultChain))
-                        }
-                    };
-                });
-                return {
-                    title: s.title,
-                    activePartIndex: s.activePartIndex || 0,
-                    activeMode: s.activeMode || 'cuffie',
-                    parts: newParts
-                };
-            });
-        }
-
-        let rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
-        let songs = migrateToModes(rawSongs);
+        function save() { localStorage.setItem('sparkPresetsV7', JSON.stringify(songs)); }
 
         function renderApp() {
-            const container = document.getElementById('preset-list');
-            container.innerHTML = '';
-
-            songs.forEach((song, songIndex) => {
-                const card = document.createElement('div');
-                // Aggiunge le classi se la scheda è chiusa o se è nella scaletta live
-                card.className = `preset-card ${song.isCollapsed ? 'collapsed' : ''} ${song.isSetlist ? 'in-setlist' : ''}`;
-                
-
-                // Attributi per il Drag & Drop
-                card.draggable = true;
-                card.setAttribute("ondragstart", `dragStart(event, ${songIndex})`);
-                card.setAttribute("ondragover", `dragOver(event)`);
-                card.setAttribute("ondrop", `drop(event, ${songIndex})`);
-                card.setAttribute("ondragenter", `dragEnter(event)`);
-                card.setAttribute("ondragleave", `dragLeave(event)`);
-                card.setAttribute("ondragend", `dragEnd(event)`);
-
-                card.innerHTML = `
-                    <div class="drag-handle" title="Tieni premuto per trascinare">☰</div>
-                    <button class="setlist-btn btn-hide-live ${song.isSetlist ? 'active' : ''}" onclick="toggleSetlist(${songIndex})" title="Aggiungi alla Scaletta Live">⭐</button>
-                    <button class="collapse-btn btn-hide-live" onclick="toggleCollapse(${songIndex})">${song.isCollapsed ? '▶' : '▼'}</button>
-                    <button class="delete-btn btn-hide-live" onclick="deleteSong(${songIndex})">✖</button>
+            const container = document.getElementById('app');
+            container.innerHTML = songs.map((song, sIdx) => `
+                <div class="preset-card ${song.activeMode === 'input' ? 'mode-input' : ''}">
+                    <input class="song-title-input" value="${song.title}" onchange="songs[${sIdx}].title=this.value; save()">
                     
-                    <input type="text" class="song-title-input" style="margin-left: 35px; width: calc(100% - 130px);" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
-                    
-                    <div class="action-buttons-container">
-                        <a href="https://open.spotify.com/search/${encodeURIComponent(song.title)}" target="_blank" class="spotify-btn" title="Cerca su Spotify">🎵 Spotify</a>
-                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(song.title + ' backing track guitar')}" target="_blank" class="youtube-btn" title="Cerca Backing Track">▶️ YouTube</a>
-                    </div>
-                    
-                    <input type="text" class="search-box" placeholder="🔍 Cerca suono (es. Pink Floyd, AC/DC)..." onkeyup="searchPreset(${songIndex}, this.value)">
-                    <div id="results-${songIndex}"></div>
-
-                    <div class="mode-switch">
-                        <button class="mode-btn ${song.activeMode === 'cuffie' ? 'active' : ''}" onclick="switchMode(${songIndex}, 'cuffie')">🎧 Setup Cuffie / Mixer</button>
-                        <button class="mode-btn ${song.activeMode === 'input' ? 'active' : ''}" onclick="switchMode(${songIndex}, 'input')">🎸 Setup Fender Input</button>
+                    <div class="mode-selector">
+                        <button class="${song.activeMode === 'cuffie' ? 'active' : ''}" onclick="switchMode(${sIdx}, 'cuffie')">🎧 Cuffie</button>
+                        <button class="${song.activeMode === 'input' ? 'active' : ''}" onclick="switchMode(${sIdx}, 'input')">🎸 Fender Input</button>
                     </div>
 
-                    <div class="tabs-container">
-                        ${song.parts.map((p, pIdx) => `<div class="tab ${song.activePartIndex==pIdx?'active':''}" onclick="switchPart(${songIndex},${pIdx})">${p.name}</div>`).join('')}
-                        <div class="tab add-tab" onclick="addPart(${songIndex})">+ Parte</div>
+                    <div class="chain-container">
+                        ${renderChain(song, sIdx)}
                     </div>
 
-                    <div class="part-controls">
-                        <select class="song-part-select" onchange="updatePartName(${songIndex}, this.value)">
-                            <option value="Accompagnamento" ${song.parts[song.activePartIndex].name === 'Accompagnamento' ? 'selected' : ''}>Accompagnamento</option>
-                            <option value="Assolo" ${song.parts[song.activePartIndex].name === 'Assolo' ? 'selected' : ''}>Assolo</option>
-                            <option value="Intro / Riff" ${song.parts[song.activePartIndex].name === 'Intro / Riff' ? 'selected' : ''}>Intro / Riff</option>
-                            <option value="Clean / Arpeggio" ${song.parts[song.activePartIndex].name === 'Clean / Arpeggio' ? 'selected' : ''}>Clean / Arpeggio</option>
-                        </select>
-                        ${song.parts.length > 1 ? `<button class="btn-delete-part" onclick="deletePart(${songIndex})">Elimina Parte</button>` : ''}
+                    <div class="footer-card">
+                        <textarea placeholder="Note tecniche..." onchange="songs[${sIdx}].notes=this.value; save()">${song.notes || ''}</textarea>
+                        <button class="btn-delete-part" onclick="deleteSong(${sIdx})">🗑️ Elimina</button>
                     </div>
-
-                    <div class="chain-container">${renderChain(song, songIndex)}</div>
-                    
-                    <textarea class="technical-notes" placeholder="📝 Note tecniche (es. Usa pickup al manico, attiva il fuzz nel ritornello...)" onchange="updateNotes(${songIndex}, this.value)">${song.notes || ''}</textarea>
-                `;                
-                container.appendChild(card);
-            });
-            localStorage.setItem('sparkPresetsV7', JSON.stringify(songs));
+                </div>
+            `).join('');
         }
 
-        function renderChain(song, songIndex) {
+        function renderChain(song, sIdx) {
             const activePart = song.parts[song.activePartIndex];
             const currentChain = activePart.modes[song.activeMode];
             
-            return currentChain.map((slot, slotIndex) => {
-                let optionsHTML = catalog[slot.category].map(pedal => 
-                    `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`
-                ).join('');
-
-                let isEmpty = (slot.name === "Nessun Pedale");
-                let dotClass = isEmpty ? "empty" : (slot.status === "on" ? "on" : "off");
-                let imgClass = slot.status === "on" ? "" : "off";
+            return currentChain.map((slot, pIdx) => {
+                const pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
+                const isEmpty = slot.name === "Nessun Pedale";
                 
-                // 1. SPOSTATO QUI: L'app "capisce" quale pedale è PRIMA di cercare l'immagine
-                let pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
+                let imageHTML = isEmpty ? '<div style="height:80px; display:flex; align-items:center; justify-content:center; color:#555">VUOTO</div>' 
+                                      : `<img src="${pedalData.img}" class="pedal-image ${slot.status === 'on' ? '' : 'off'}" onclick="togglePedal(${sIdx}, ${pIdx})">`;
 
-                // 2. ORA DISEGNA L'IMMAGINE SENZA ERRORI
-                let imageHTML = "";
-                if (isEmpty || !pedalData.img) {
-                    imageHTML = `<div class="pedal-empty-box">VUOTO</div>`;
-                } else {
-                    imageHTML = `<img src="${pedalData.img}" class="pedal-image ${imgClass}" alt="${slot.name}" onerror="this.style.opacity='0'">`;
-                }
-
-                // 3. DISEGNA LE MANOPOLE
-                let paramsHTML = '';
-                if (pedalData.params && pedalData.params.length > 0) {
-                    paramsHTML = '<div class="params-container">';
-                    pedalData.params.forEach((paramName, pIndex) => {
-                        let val = slot.paramValues[pIndex] !== undefined ? slot.paramValues[pIndex] : "5";
-                        let valOptions = "";
-                        for(let i=0; i<=10; i++) {
-                            valOptions += `<option value="${i}" ${val == i ? 'selected' : ''}>${i}</option>`;
-                        }
-                        paramsHTML += `
-                            <div class="param-row">
-                                <span class="param-label">${paramName}</span>
-                                <select class="param-val" onchange="updateParamValue(${songIndex}, ${slotIndex}, ${pIndex}, this.value)">
-                                    ${valOptions}
-                                </select>
-                            </div>
-                        `;
-                    });
-                    paramsHTML += '</div>';
-                }
+                let paramsHTML = (pedalData.params || []).map((pName, pValIdx) => `
+                    <div class="param-row">
+                        <span>${pName}</span>
+                        <select class="param-val" onchange="updateParam(${sIdx}, ${pIdx}, ${pValIdx}, this.value)">
+                            ${[...Array(11).keys()].map(v => `<option value="${v}" ${slot.paramValues[pValIdx] == v ? 'selected' : ''}>${v}</option>`).join('')}
+                        </select>
+                    </div>
+                `).join('');
 
                 return `
                     <div class="pedal-slot ${isEmpty ? 'is-empty' : ''} cat-${slot.category.toLowerCase()}">
-                        <span class="pedal-category">${slot.category}</span>
+                        <small>${slot.category}</small>
                         ${imageHTML}
-                        <div class="status-indicator ${dotClass}" onclick="togglePedal(${songIndex}, ${slotIndex})"></div>
-                        <select class="pedal-select" onchange="updatePedal(${songIndex}, ${slotIndex}, this.value)">
-                            ${optionsHTML}
+                        <select onchange="updatePedal(${sIdx}, ${pIdx}, this.value)">
+                            ${catalog[slot.category].map(p => `<option value="${p.name}" ${p.name === slot.name ? 'selected' : ''}>${p.name}</option>`).join('')}
                         </select>
                         ${paramsHTML}
                     </div>
@@ -645,221 +130,71 @@
             }).join('');
         }
 
-        // INTELLIGENZA E RICERCA
-        function searchPreset(songIndex, query) {
-            const resultsContainer = document.getElementById(`results-${songIndex}`);
-            if (query.length < 2) { resultsContainer.innerHTML = ""; return; }
-            const allSuggestions = [...presetSuggestions, ...personalLibrary];
-            const results = allSuggestions.filter(p => p.title.toLowerCase().includes(query.toLowerCase())).slice(0,4);
-            
-            resultsContainer.innerHTML = results.map(p => `
-                <div class="suggestion-item ${p.isUserCreated?'user-suggestion':''}" onclick="applyPreset(${songIndex}, '${p.title.replace(/'/g, "\\'")}')">
-                    ${p.isUserCreated ? '✅ Memoria: ' : '🎸 Suggerito: '} ${p.title}
-                </div>
-            `).join('');
-        }
-
-        function applyPreset(songIndex, title) {
-            const p = [...presetSuggestions, ...personalLibrary].find(x => x.title === title);
-            const currentPart = songs[songIndex].parts[songs[songIndex].activePartIndex];
-            
-            ['cuffie', 'input'].forEach(mode => {
-                currentPart.modes[mode].forEach(slot => {
-                    // Di base, prendiamo il pedale suggerito dal database
-                    let targetPedalName = p.chain[slot.category];
-                    
-                    // LA MAGIA: Se siamo nel setup Fender (input) e lo slot è l'Amp, lo svuotiamo!
-                    if (mode === 'input' && slot.category === 'Amp') {
-                        targetPedalName = "Nessun Pedale";
-                    }
-
-                    const found = catalog[slot.category].find(c => c.name === targetPedalName) || catalog[slot.category][0];
-                    slot.name = found.name; 
-                    slot.img = found.img; 
-                    slot.status = slot.name === "Nessun Pedale" ? "off" : "on";
-                    slot.paramValues = found.params.map(() => "5");
-                });
-            });
-            
-            renderApp();
-        }
-
-        function learn() {
-            songs.forEach(s => {
-                const libName = s.title + " (Salvato)";
-                if(!personalLibrary.find(x => x.title === libName)) {
-                    let c = {}; 
-                    s.parts[0].modes.cuffie.forEach(slot => c[slot.category] = slot.name);
-                    personalLibrary.push({title: libName, chain: c, isUserCreated: true});
-                }
-            });
-            localStorage.setItem('sparkPersonalLibrary', JSON.stringify(personalLibrary));
-        }
-
-        // --- GESTIONE LOGICA ---
-        function switchMode(songIndex, mode) { 
-            const song = songs[songIndex];
-            const activePart = song.parts[song.activePartIndex];
-            
-            // Se passiamo a 'input' e la catena è vuota, copiamo quella delle 'cuffie' come base
-            if (mode === 'input') {
-                const isEmpty = activePart.modes.input.every(slot => slot.name === "Nessun Pedale");
-                if (isEmpty) {
-                    activePart.modes.input = JSON.parse(JSON.stringify(activePart.modes.cuffie));
-                    // Rimuoviamo l'amplificatore dalla modalità input (Setup Fender)
-                    const ampSlot = activePart.modes.input.find(s => s.category === 'Amp');
-                    if (ampSlot) {
-                        ampSlot.name = "Nessun Pedale";
-                        ampSlot.img = "";
-                        ampSlot.status = "off";
-                    }
-                }
+        function switchMode(sIdx, mode) {
+            const song = songs[sIdx];
+            const part = song.parts[0];
+            if (mode === 'input' && part.modes.input.every(s => s.name === "Nessun Pedale")) {
+                part.modes.input = JSON.parse(JSON.stringify(part.modes.cuffie));
+                const amp = part.modes.input.find(s => s.category === 'Amp');
+                if (amp) { amp.name = "Nessun Pedale"; amp.status = "off"; }
             }
-            
-            song.activeMode = mode; 
-            renderApp(); 
-        }
-        function switchPart(songIndex, pIdx) { songs[songIndex].activePartIndex = pIdx; renderApp(); }
-        function updateSongTitle(sIdx, val) { songs[sIdx].title = val; renderApp(); }
-        function updatePartName(sIdx, val) { songs[sIdx].parts[songs[sIdx].activePartIndex].name = val; renderApp(); }
-        
-        function addPart(sIdx) {
-            songs[sIdx].parts.push({ name: "Nuova Parte", modes: { cuffie: JSON.parse(JSON.stringify(defaultChain)), input: JSON.parse(JSON.stringify(defaultChain)) } });
-            songs[sIdx].activePartIndex = songs[sIdx].parts.length - 1;
-            renderApp();
+            song.activeMode = mode;
+            save(); renderApp();
         }
 
-        function deletePart(sIdx) {
-            if(confirm("Eliminare parte?")) { songs[sIdx].parts.splice(songs[sIdx].activePartIndex, 1); songs[sIdx].activePartIndex = 0; renderApp(); }
+        function updatePedal(sIdx, pIdx, name) {
+            songs[sIdx].parts[0].modes[songs[sIdx].activeMode][pIdx].name = name;
+            songs[sIdx].parts[0].modes[songs[sIdx].activeMode][pIdx].status = (name === "Nessun Pedale") ? "off" : "on";
+            save(); renderApp();
         }
 
-        function togglePedal(sIdx, slIdx) {
-            const slot = songs[sIdx].parts[songs[sIdx].activePartIndex].modes[songs[sIdx].activeMode][slIdx];
-            if (slot.name !== "Nessun Pedale") { slot.status = slot.status === "on" ? "off" : "on"; renderApp(); }
+        function togglePedal(sIdx, pIdx) {
+            const slot = songs[sIdx].parts[0].modes[songs[sIdx].activeMode][pIdx];
+            if (slot.name !== "Nessun Pedale") {
+                slot.status = slot.status === 'on' ? 'off' : 'on';
+                save(); renderApp();
+            }
         }
 
-        function updatePedal(sIdx, slIdx, name) {
-            const slot = songs[sIdx].parts[songs[sIdx].activePartIndex].modes[songs[sIdx].activeMode][slIdx];
-            const data = catalog[slot.category].find(p => p.name === name);
-            slot.name = data.name; slot.img = data.img; slot.status = name === "Nessun Pedale" ? "off" : "on";
-            slot.paramValues = data.params.map(() => "5");
-            renderApp();
-        }
-
-        function updateParamValue(sIdx, slIdx, pIdx, val) {
-            songs[sIdx].parts[songs[sIdx].activePartIndex].modes[songs[sIdx].activeMode][slIdx].paramValues[pIdx] = val;
-            localStorage.setItem('sparkPresetsV7', JSON.stringify(songs));
+        function updateParam(sIdx, pIdx, vIdx, val) {
+            songs[sIdx].parts[0].modes[songs[sIdx].activeMode][pIdx].paramValues[vIdx] = val;
+            save();
         }
 
         function addSong() {
-            songs.unshift({ title: "Nuovo Brano", activePartIndex: 0, activeMode: "cuffie", parts: [{ name: "Accompagnamento", modes: { cuffie: JSON.parse(JSON.stringify(defaultChain)), input: JSON.parse(JSON.stringify(defaultChain)) } }] });
-            renderApp();
+            const newSong = {
+                title: "Nuovo Brano", activeMode: "cuffie", activePartIndex: 0,
+                parts: [{ name: "Main", modes: { cuffie: JSON.parse(JSON.stringify(defaultChain)), input: JSON.parse(JSON.stringify(defaultChain)) } }]
+            };
+            songs.unshift(newSong); save(); renderApp();
         }
 
-        function deleteSong(idx) { if(confirm("Eliminare brano?")) { songs.splice(idx, 1); renderApp(); } }
+        function deleteSong(idx) { if(confirm("Eliminare?")) { songs.splice(idx,1); save(); renderApp(); } }
 
-        function exportData() {
-            learn();
-            const blob = new Blob([JSON.stringify(songs, null, 2)], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = "spark_presets_pro.json"; a.click();
-        }
-
-        function importData(e) {
-            const reader = new FileReader();
-            reader.onload = (ev) => { try { songs = migrateToModes(JSON.parse(ev.target.result)); learn(); renderApp(); } catch(err) { alert("Errore file"); } };
-            reader.readAsText(e.target.files[0]);
-        }
-
-        /*FUNZIONA BLOCCO NOTE*/
-
-        function updateNotes(sIdx, val) { 
-            songs[sIdx].notes = val; 
-            localStorage.setItem('sparkPresetsV7', JSON.stringify(songs)); 
-        }
-
-        // --- FUNZIONE SCHEDE A SCOMPARSA ---
-        function toggleCollapse(sIdx) {
-            // Inverte lo stato della canzone (da aperta a chiusa e viceversa)
-            songs[sIdx].isCollapsed = !songs[sIdx].isCollapsed;
-            renderApp();
-        }
-
-        // --- FUNZIONI DRAG & DROP ---
-        let draggedIndex = null;
-
-        function dragStart(e, index) {
-            draggedIndex = index;
-            e.dataTransfer.effectAllowed = 'move';
-            // Un piccolo ritardo permette al browser di generare l'immagine "fantasma" prima di rendere trasparente la scheda
-            setTimeout(() => e.target.classList.add('dragging'), 0);
-        }
-
-        function dragOver(e) {
-            e.preventDefault(); // Necessario per permettere il rilascio (drop)
-            e.dataTransfer.dropEffect = 'move';
-        }
-
-        function dragEnter(e) {
-            e.preventDefault();
-            // Aggiunge la linea verde sopra la scheda su cui stiamo passando
-            if (e.currentTarget.classList.contains('preset-card')) {
-                e.currentTarget.classList.add('drag-over');
-            }
-        }
-
-        function dragLeave(e) {
-            e.currentTarget.classList.remove('drag-over');
-        }
-
-        function drop(e, dropIndex) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('drag-over');
-            
-            // Se stiamo rilasciando la scheda nello stesso punto, annulla
-            if (draggedIndex === null || draggedIndex === dropIndex) return;
-
-            // Rimuove il brano dalla vecchia posizione e lo inserisce nella nuova
-            const itemToMove = songs.splice(draggedIndex, 1)[0];
-            songs.splice(dropIndex, 0, itemToMove);
-            
-            draggedIndex = null;
-            renderApp(); // Ricarica tutto con il nuovo ordine salvandolo in automatico!
-        }
-
-        function dragEnd(e) {
-            e.target.classList.remove('dragging');
-            document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('drag-over'));
-        }
-
-        // --- FUNZIONE MODALITÀ LIVE ---
-        let isLive = false;
         function toggleLiveMode() {
             isLive = !isLive;
-            
-            // Controlla se c'è almeno un brano con la stella accesa
-            const hasStarredSongs = songs.some(s => s.isSetlist);
-            
-            if (isLive) {
-                document.body.classList.add('live-mode');
-                // Se hai preparato la scaletta, attiva il filtro che nasconde le altre!
-                if (hasStarredSongs) document.body.classList.add('has-setlist');
-                
-                document.getElementById('liveBtn').innerHTML = "❌ Esci da Live";
-            } else {
-                document.body.classList.remove('live-mode');
-                document.body.classList.remove('has-setlist');
-                document.getElementById('liveBtn').innerHTML = "🎸 Modalità Live";
-            }
+            document.body.classList.toggle('live-mode', isLive);
+            document.getElementById('liveBtn').innerHTML = isLive ? "❌ Esci" : "🎸 Live Mode";
         }
 
-        // --- FUNZIONE AGGIUNGI A SCALETTA ---
-        function toggleSetlist(sIdx) {
-            songs[sIdx].isSetlist = !songs[sIdx].isSetlist;
-            renderApp();
+        function exportJSON() {
+            const data = JSON.stringify(songs);
+            const blob = new Blob([data], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'backup_spark.json'; a.click();
         }
 
-        window.onload = function() { if(songs.length === 0) addSong(); else renderApp(); };
+        function importJSON(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                songs = JSON.parse(event.target.result);
+                save(); renderApp();
+            };
+            reader.readAsText(file);
+        }
+
+        window.onload = () => { if(songs.length === 0) addSong(); else renderApp(); };
     </script>
 </body>
 </html>
