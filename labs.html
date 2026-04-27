@@ -4,21 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spark Tone Labs - Pro Edition</title>
-    <script src="catalog.js"></script>
+    
     <script src="cloud_presets.js"></script>
+    <script src="catalog.js"></script>
+
     <style>
-        :root { --bg-dark: #121212; --bg-card: #1e1e1e; --text-main: #f0f0f0; --spark-gold: #d4af37; --spark-purple: #8e44ad; --input-bg: #333; }
-        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg-dark); color: var(--text-main); padding: 20px; margin: 0; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--spark-purple); padding-bottom: 15px; margin-bottom: 25px; }
-        .btn-back { background-color: #444; color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; }
-        .labs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .lab-card { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid #333; }
-        h2 { color: var(--spark-gold); font-size: 1.2em; margin-top: 0; }
-        select, button, input { width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: 1px solid #555; background: var(--input-bg); color: white; cursor: pointer; }
-        .btn-magic { background-color: var(--spark-purple); font-weight: bold; border: none; }
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #f0f0f0;
+            --spark-gold: #d4af37;
+            --spark-purple: #8e44ad;
+            --input-bg: #333;
+        }
+
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 20px;
+            margin: 0;
+            padding-bottom: 50px;
+        }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--spark-purple); padding-bottom: 15px; margin-bottom: 25px;
+        }
+
+        .btn-back {
+            background-color: #444; color: white; text-decoration: none;
+            padding: 8px 15px; border-radius: 6px; font-weight: bold;
+        }
+
+        .labs-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;
+        }
+
+        .lab-card {
+            background: var(--bg-card); border-radius: 12px; padding: 20px;
+            border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column;
+        }
+
+        h2 { color: var(--spark-gold); margin-top: 0; font-size: 1.2em; display: flex; align-items: center; gap: 10px; }
+        h3 { color: var(--text-main); font-size: 0.9em; margin-bottom: 5px; margin-top: 15px; }
+
+        select, button, input {
+            width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px;
+            border: 1px solid #555; background: var(--input-bg); color: white; cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .btn-magic { background-color: var(--spark-purple); font-weight: bold; border: none; transition: 0.2s; }
+        .btn-magic:active { transform: scale(0.98); opacity: 0.8; }
+        
         .btn-save { background-color: #2ecc71; color: white; border: none; font-weight: bold; margin-top: 15px; display: none; }
-        .result-box { margin-top: 15px; padding: 15px; background: #111; border-left: 4px solid var(--spark-purple); font-size: 0.9em; }
-        .pedal-tag { display: inline-block; padding: 2px 6px; background: #333; border-radius: 4px; font-size: 0.8em; margin-right: 5px; color: var(--spark-gold); }
+
+        .result-box {
+            margin-top: 15px; padding: 15px; background: #111; border-left: 4px solid var(--spark-purple);
+            font-size: 0.9em; line-height: 1.5;
+        }
+
+        .pedal-tag {
+            display: inline-block; padding: 2px 6px; background: #333; border-radius: 4px;
+            font-size: 0.8em; margin-right: 5px; color: var(--spark-gold); border: 1px solid #444;
+        }
     </style>
 </head>
 <body>
@@ -29,82 +80,156 @@
     </div>
 
     <div class="labs-grid">
+        
         <div class="lab-card">
             <h2>🧙‍♂️ Tone Wizard</h2>
+            <p style="font-size:0.8em; color:#aaa">Basato sui 4 pilastri della Spark Tone Guide.</p>
+            
+            <h3>Punto di partenza:</h3>
             <select id="wizard-intent">
-                <option value="rhythm">Rhythm (Clarity)</option>
-                <option value="lead">Lead (Vocals)</option>
-                <option value="solo">Solo (Sustain)</option>
-                <option value="ambient">Ambient (Texture)</option>
+                <option value="rhythm">Rhythm (Clarity & Consistency)</option>
+                <option value="lead">Lead (Vocals & Cutting)</option>
+                <option value="solo">Solo (Sustain & Liquid)</option>
+                <option value="ambient">Ambient (Texture & Space)</option>
             </select>
-            <input type="text" id="wizard-title" placeholder="Nome brano...">
-            <button class="btn-magic" onclick="runWizard()">✨ Genera</button>
+
+            <input type="text" id="new-song-title" placeholder="Nome brano (es. My New Tone)">
+
+            <button class="btn-magic" onclick="runWizard()">✨ Genera Catena Ottimale</button>
+            
             <div id="wizard-result" class="result-box" style="display:none"></div>
-            <button id="save-wizard-btn" class="btn-save" onclick="saveWizard()">💾 Salva nella Scaletta</button>
+            <button id="save-btn" class="btn-save" onclick="saveToMainApp()">💾 Salva nella Scaletta</button>
         </div>
 
         <div class="lab-card">
             <h2>☁️ Cloud Explorer</h2>
+            <p style="font-size:0.8em; color:#aaa">Cerca setup storici ispirati a GuitarCloud e ToneBridge.</p>
+    
             <input type="text" id="cloud-search" placeholder="🔍 Cerca artista o brano..." onkeyup="searchCloud(this.value)">
-            <div id="cloud-results" class="result-box" style="display:none; max-height:200px; overflow-y:auto"></div>
-            <div id="cloud-preview" class="result-box" style="display:none"></div>
-            <button id="save-cloud-btn" class="btn-save" onclick="saveCloud()">💾 Salva nella Scaletta</button>
+    
+            <div id="cloud-results" class="result-box" style="display:none; max-height: 200px; overflow-y: auto;"></div>
+    
+            <div id="cloud-preview" class="result-box" style="display:none; border-color: var(--spark-gold);"></div>
+    
+            <button id="save-cloud-btn" class="btn-save" onclick="saveCloudToMain()" style="display:none">💾 Salva nella Scaletta</button>
         </div>
+
+        <div class="lab-card">
+            <h2>🚑 SOS Suono (Troubleshoot)</h2>
+            <p style="font-size:0.8em; color:#aaa">Risolvi problemi di mix basati sulla guida (pag. 12-13).</p>
+            
+            <select id="problem">
+                <option value="muddy">Il suono è "impastato" / troppi bassi</option>
+                <option value="thin">Il suono è sottile / gracchiante</option>
+                <option value="harsh">Le alte frequenze danno fastidio</option>
+                <option value="dynamic">Troppi sbalzi di volume</option>
+            </select>
+
+            <button class="btn-magic" style="background-color: #c0392b;" onclick="solveProblem()">🚑 Ottieni Soluzione</button>
+            <div id="problem-result" class="result-box" style="display:none"></div>
+        </div>
+
     </div>
 
     <script>
         const wizardLogic = {
-            rhythm: { gate: "01 NoisGate", comp: "Nessun Pedale", drive: "01 Booster", amp: "16 Plexiglas", mod: "Nessun Pedale", delay: "Nessun Pedale", reverb: "01 Room A", notes: "Mantieni il gain basso." },
-            lead: { gate: "01 NoisGate", comp: "Nessun Pedale", drive: "03 Tube Drv", amp: "21 RB 101", mod: "Nessun Pedale", delay: "01 Digital", reverb: "04 Plate Short", notes: "Medie spinte." },
-            solo: { gate: "01 NoisGate", comp: "01 LA Comp", drive: "12 Guitar Muff", amp: "24 SLO 100", mod: "02 Chorus", delay: "05 Multi Head", reverb: "06 Plate Rich", notes: "Sustain infinito." },
-            ambient: { gate: "01 NoisGate", comp: "05 Optical", drive: "Nessun Pedale", amp: "01 Silver 120", mod: "06 UniVibe", delay: "03 Vintage", reverb: "05 Hall Amb.", notes: "Massima pulizia." }
+            rhythm: { gate: "01 NoisGate", comp: "Nessun Pedale", drive: "01 Booster", amp: "16 Plexiglas", mod: "Nessun Pedale", delay: "Nessun Pedale", reverb: "01 Room A", notes: "Usa poco gain sull'ampli per mantenere la chiarezza degli accordi." },
+            lead: { gate: "01 NoisGate", comp: "Nessun Pedale", drive: "03 Tube Drv", amp: "21 RB 101", mod: "Nessun Pedale", delay: "01 Digital", reverb: "04 Plate Short", notes: "Spingi le medie dell'ampli per bucare il mix." },
+            solo: { gate: "01 NoisGate", comp: "01 LA Comp", drive: "12 Guitar Muff", amp: "24 SLO 100", mod: "02 Chorus", delay: "05 Multi Head", reverb: "06 Plate Rich", notes: "Comp attivo per il sustain, Delay per la profondità." },
+            ambient: { gate: "01 NoisGate", comp: "05 Optical", drive: "Nessun Pedale", amp: "01 Silver 120", mod: "06 UniVibe", delay: "03 Vintage", reverb: "05 Hall Amb.", notes: "Usa l'ampli Silver per la massima pulizia sonora." }
         };
 
-        let currentTone = null;
+        let generatedChain = null;
 
         function runWizard() {
-            const data = wizardLogic[document.getElementById('wizard-intent').value];
-            currentTone = { title: document.getElementById('wizard-title').value || "Wizard Tone", chain: data, notes: data.notes };
-            document.getElementById('wizard-result').innerHTML = `<b>Catena:</b><br>${Object.keys(data).filter(k=>k!='notes').map(k=>`<span class="pedal-tag">${k.toUpperCase()}</span> ${data[k]}`).join('<br>')}`;
-            document.getElementById('wizard-result').style.display = 'block';
-            document.getElementById('save-wizard-btn').style.display = 'block';
+            const intent = document.getElementById('wizard-intent').value;
+            const data = wizardLogic[intent];
+            generatedChain = data;
+
+            let html = `<b>Architettura Suggerita:</b><br><br>`;
+            const cats = ["gate", "comp", "drive", "amp", "mod", "delay", "reverb"];
+            cats.forEach(cat => { html += `<span class="pedal-tag">${cat.toUpperCase()}</span> ${data[cat]}<br>`; });
+            html += `<br><i>💡 ${data.notes}</i>`;
+
+            const res = document.getElementById('wizard-result');
+            res.innerHTML = html; res.style.display = 'block';
+            document.getElementById('save-btn').style.display = 'block';
         }
 
-        function searchCloud(q) {
-            const res = document.getElementById('cloud-results');
-            if(q.length<2) { res.style.display='none'; return; }
-            const filtered = cloudPresets.filter(p => p.title.toLowerCase().includes(q.toLowerCase()));
-            res.innerHTML = filtered.map(p => `<div style="padding:8px; cursor:pointer" onclick='previewCloud(${JSON.stringify(p).replace(/'/g, "&apos;")})'>🎵 ${p.title}</div>`).join('');
-            res.style.display = 'block';
+        function saveToMainApp() {
+            const titleInput = document.getElementById('new-song-title');
+            const title = titleInput.value || "Nuovo Tono Labs";
+            let savedSongs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
+            
+            const categories = ["Gate", "Comp", "Drive", "Amp", "Mod", "Delay", "Reverb"];
+            const newChain = categories.map(cat => ({
+                category: cat, name: generatedChain[cat.toLowerCase()], img: "", status: generatedChain[cat.toLowerCase()] === "Nessun Pedale" ? "off" : "on", paramValues: ["5", "5", "5", "5", "5", "5"]
+            }));
+
+            const newSong = {
+                title: title, activePartIndex: 0, activeMode: "cuffie", notes: generatedChain.notes,
+                parts: [{ name: "Tone Wizard", modes: { cuffie: JSON.parse(JSON.stringify(newChain)), input: JSON.parse(JSON.stringify(newChain)) } }]
+            };
+
+            newSong.parts[0].modes.input.find(s => s.category === 'Amp').name = "Nessun Pedale";
+            savedSongs.unshift(newSong); localStorage.setItem('sparkPresetsV7', JSON.stringify(savedSongs));
+            alert(`✅ "${title}" è stato aggiunto alla tua scaletta principale!`); titleInput.value = "";
         }
 
-        function previewCloud(p) {
-            currentTone = { title: p.title, chain: p.chain, notes: "Importato dal Cloud." };
+        let selectedCloudPreset = null;
+
+        function searchCloud(query) {
+            const resultsDiv = document.getElementById('cloud-results');
+            if (query.length < 2) { resultsDiv.style.display = 'none'; return; }
+            const filtered = cloudPresets.filter(p => p.title.toLowerCase().includes(query.toLowerCase()));
+
+            if (filtered.length > 0) {
+                resultsDiv.innerHTML = filtered.map((p, idx) => `<div style="padding:10px; border-bottom:1px solid #333; cursor:pointer;" onclick="previewCloud(${JSON.stringify(p).replace(/"/g, '&quot;')})">🎵 ${p.title}</div>`).join('');
+                resultsDiv.style.display = 'block';
+            } else { resultsDiv.innerHTML = "<p style='padding:10px; font-size:0.8em;'>Nessun risultato trovato.</p>"; }
+        }
+
+        function previewCloud(preset) {
+            selectedCloudPreset = preset;
             document.getElementById('cloud-results').style.display = 'none';
-            document.getElementById('cloud-preview').innerHTML = Object.keys(p.chain).map(k=>`<span class="pedal-tag">${k.toUpperCase()}</span> ${p.chain[k]}`).join('<br>');
-            document.getElementById('cloud-preview').style.display = 'block';
+            let html = `<b>Catena Identificata:</b><br><br>`;
+            for (let cat in preset.chain) { html += `<span class="pedal-tag">${cat.toUpperCase()}</span> ${preset.chain[cat]}<br>`; }
+            const previewDiv = document.getElementById('cloud-preview'); previewDiv.innerHTML = html; previewDiv.style.display = 'block';
             document.getElementById('save-cloud-btn').style.display = 'block';
         }
 
-        function saveToMain(title, chain, notes) {
-            let songs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
+        function saveCloudToMain() {
+            if (!selectedCloudPreset) return;
+            let savedSongs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
             const categories = ["Gate", "Comp", "Drive", "Amp", "Mod", "Delay", "Reverb"];
-            const newChain = categories.map(cat => {
-                const name = chain[cat] || chain[cat.toLowerCase()] || "Nessun Pedale";
-                return { category: cat, name: name, img: "", status: name==="Nessun Pedale"?"off":"on", paramValues: ["5","5","5","5","5","5"] };
-            });
+            
+            const newChain = categories.map(cat => ({
+                category: cat, name: selectedCloudPreset.chain[cat] || "Nessun Pedale", img: "", status: (selectedCloudPreset.chain[cat] && selectedCloudPreset.chain[cat] !== "Nessun Pedale") ? "on" : "off", paramValues: ["5", "5", "5", "5", "5", "5"]
+            }));
+
             const newSong = {
-                title: title, activeMode: "cuffie", activePartIndex: 0, notes: notes,
-                parts: [{ name: "Import", modes: { cuffie: JSON.parse(JSON.stringify(newChain)), input: JSON.parse(JSON.stringify(newChain)) } }]
+                title: selectedCloudPreset.title, activePartIndex: 0, activeMode: "cuffie", notes: "Preset importato da Cloud Labs.",
+                parts: [{ name: "Cloud Import", modes: { cuffie: JSON.parse(JSON.stringify(newChain)), input: JSON.parse(JSON.stringify(newChain)) } }]
             };
-            // Logica Fender: toglie AMP
-            newSong.parts[0].modes.input.find(s=>s.category==='Amp').name = "Nessun Pedale";
-            songs.unshift(newSong); localStorage.setItem('sparkPresetsV7', JSON.stringify(songs));
-            alert("Salvato!");
+
+            const ampSlot = newSong.parts[0].modes.input.find(s => s.category === 'Amp');
+            if (ampSlot) { ampSlot.name = "Nessun Pedale"; ampSlot.status = "off"; }
+
+            savedSongs.unshift(newSong); localStorage.setItem('sparkPresetsV7', JSON.stringify(savedSongs));
+            alert(`✅ "${selectedCloudPreset.title}" aggiunto correttamente alla scaletta!`);
+            document.getElementById('cloud-preview').style.display = 'none'; document.getElementById('save-cloud-btn').style.display = 'none'; document.getElementById('cloud-search').value = "";
         }
 
-        function saveWizard() { saveToMain(currentTone.title, currentTone.chain, currentTone.notes); }
-        function saveCloud() { saveToMain(currentTone.title, currentTone.chain, currentTone.notes); }
+        function solveProblem() {
+            const prob = document.getElementById('problem').value;
+            const solutions = {
+                muddy: "Abbassa il gain dell'ampli, taglia i bassi estremi nell'EQ e prova a usare un Tube Drive (Gain 0, Vol 10) come filtro.",
+                thin: "Aggiungi un compressore ottico all'inizio e spingi le frequenze medie (800Hz) nell'equalizzatore.",
+                harsh: "Riduci il Presence dell'amplificatore e assicurati di non avere il tono del distorsore troppo aperto.",
+                dynamic: "Usa un compressore LA Comp con sustain moderato per livellare i picchi tra pennate leggere e pesanti."
+            };
+            const res = document.getElementById('problem-result'); res.innerText = solutions[prob]; res.style.display = 'block';
+        }
     </script>
 </body>
 </html>
