@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spark Tone Labs - Pro Edition</title>
+    <title>Spark Tone Labs - Pro Edition (Full PDF Integrated)</title>
     
     <script src="cloud_presets.js"></script>
     <script src="catalog.js"></script>
@@ -13,13 +13,16 @@
             --bg-dark: #121212;
             --bg-card: #1e1e1e;
             --text-main: #f0f0f0;
+            --text-muted: #aaaaaa;
             --spark-gold: #d4af37;
             --spark-purple: #8e44ad;
             --input-bg: #333;
+            --border-color: #2a2a2a;
+            --tip-bg: #2d2615;
         }
 
         body {
-            font-family: -apple-system, system-ui, sans-serif;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
             padding: 20px;
@@ -32,204 +35,612 @@
             border-bottom: 2px solid var(--spark-purple); padding-bottom: 15px; margin-bottom: 25px;
         }
 
+        .header h1 { margin: 0; font-size: 1.8rem; }
+
         .btn-back {
             background-color: #444; color: white; text-decoration: none;
-            padding: 8px 15px; border-radius: 6px; font-weight: bold;
+            padding: 8px 15px; border-radius: 6px; font-weight: bold; transition: background 0.2s;
         }
+        .btn-back:hover { background-color: #555; }
 
-        .labs-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;
-        }
+        .labs-layout { display: grid; grid-template-columns: 1fr; gap: 25px; }
+        @media(min-width: 1024px) { .labs-layout { grid-template-columns: 320px 1fr; } }
 
-        .lab-card {
-            background: var(--bg-card); border-radius: 12px; padding: 20px;
-            border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            display: flex; flex-direction: column;
-        }
+        .sidebar-tools { display: flex; flex-direction: column; gap: 20px; }
 
-        h2 { color: var(--spark-gold); margin-top: 0; font-size: 1.2em; display: flex; align-items: center; gap: 10px; }
-        h3 { color: var(--text-main); font-size: 0.9em; margin-bottom: 5px; margin-top: 15px; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; }
+        .card h2 { margin-top: 0; font-size: 1.2rem; color: var(--spark-gold); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 15px; }
 
-        select, button, input {
-            width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px;
-            border: 1px solid #555; background: var(--input-bg); color: white; cursor: pointer;
-            box-sizing: border-box;
-        }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
+        select, input { width: 100%; background-color: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px; border-radius: 6px; box-sizing: border-box; margin-bottom: 15px; font-size: 1rem; }
 
-        .btn-magic { background-color: var(--spark-purple); font-weight: bold; border: none; transition: 0.2s; }
-        .btn-magic:active { transform: scale(0.98); opacity: 0.8; }
+        .btn-action { width: 100%; background-color: var(--spark-purple); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+        .problem-res { background-color: #252525; border-left: 4px solid var(--spark-purple); padding: 12px; border-radius: 4px; font-size: 0.95rem; line-height: 1.4; display: none; margin-top: 10px; }
+
+        .encyclopedia-nav { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        .nav-tab { background-color: #222; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .nav-tab.active, .nav-tab:hover { background-color: var(--spark-purple); color: white; border-color: var(--spark-purple); }
+
+        .pedal-catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .pedal-card { background-color: #252525; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; border-top: 4px solid var(--spark-gold); }
+
+        .pedal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .pedal-title { margin: 0; font-size: 1.1rem; color: white; }
         
-        .btn-save { background-color: #2ecc71; color: white; border: none; font-weight: bold; margin-top: 15px; display: none; }
+        .pedal-img-container { text-align: center; background: #121212; padding: 10px; border-radius: 6px; margin-bottom: 12px; min-height: 100px; display: flex; align-items: center; justify-content: center; }
+        .pedal-img { max-width: 100%; max-height: 90px; object-fit: contain; }
 
-        .result-box {
-            margin-top: 15px; padding: 15px; background: #111; border-left: 4px solid var(--spark-purple);
-            font-size: 0.9em; line-height: 1.5;
-        }
+        .knobs-container { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+        .knob-badge { background-color: #333; color: var(--spark-gold); font-size: 0.75rem; padding: 3px 6px; border-radius: 4px; border: 1px solid #444; font-weight: bold; }
 
-        .pedal-tag {
-            display: inline-block; padding: 2px 6px; background: #333; border-radius: 4px;
-            font-size: 0.8em; margin-right: 5px; color: var(--spark-gold); border: 1px solid #444;
-        }
+        .editable-desc { border: 1px dashed transparent; padding: 10px; border-radius: 6px; background-color: rgba(0,0,0,0.15); font-size: 0.9rem; line-height: 1.5; color: #ddd; flex-grow: 1; min-height: 80px; transition: all 0.2s; }
+        .editable-desc:hover { border-color: var(--spark-gold); background-color: rgba(212, 175, 55, 0.03); cursor: text; }
+        .editable-desc:focus { border-color: var(--spark-purple); background-color: rgba(142, 68, 173, 0.08); outline: none; }
+        
+        .quick-tip { background-color: var(--tip-bg); border-left: 3px solid var(--spark-gold); padding: 10px; margin-top: 10px; font-size: 0.85rem; border-radius: 0 4px 4px 0; }
+        .quick-tip strong { color: var(--spark-gold); }
+        
+        hr { border: 0; height: 1px; background: var(--border-color); margin: 15px 0; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>🧪 Tone Labs</h1>
-        <a href="index.html" class="btn-back">⬅ Torna alla Scaletta</a>
+        <h1>Spark Tone Labs <span style="color: var(--spark-gold); font-size: 1rem;">Full Encyclopedia</span></h1>
+        <a href="index.html" class="btn-back">← Torna all'Editor</a>
     </div>
 
-    <div class="labs-grid">
+    <div class="labs-layout">
         
-        <div class="lab-card">
-            <h2>🧙‍♂️ Tone Wizard</h2>
-            <p style="font-size:0.8em; color:#aaa">Basato sui 4 pilastri della Spark Tone Guide.</p>
-            
-            <h3>Punto di partenza:</h3>
-            <select id="wizard-intent">
-                <option value="rhythm">Rhythm (Clarity & Consistency)</option>
-                <option value="lead">Lead (Vocals & Cutting)</option>
-                <option value="solo">Solo (Sustain & Liquid)</option>
-                <option value="ambient">Ambient (Texture & Space)</option>
-            </select>
+        <div class="sidebar-tools">
+            <div class="card">
+                <h2>Cloud Preset Finder</h2>
+                <input type="text" id="cloud-search" placeholder="Cerca artista o brano..." oninput="searchCloud()">
+                <div id="cloud-preview" style="display:none; background:#252525; padding:12px; border-radius:6px; margin-bottom:15px;">
+                    <h4 id="preview-title" style="margin:0 0 8px 0; color:var(--spark-gold);"></h4>
+                    <p id="preview-details" style="margin:0; font-size:0.85rem; color:var(--text-muted);"></p>
+                </div>
+                <button id="save-cloud-btn" class="btn-action" style="display:none;" onclick="importCloudPreset()">Salva nella Scaletta</button>
+            </div>
 
-            <input type="text" id="new-song-title" placeholder="Nome brano (es. My New Tone)">
-
-            <button class="btn-magic" onclick="runWizard()">✨ Genera Catena Ottimale</button>
-            
-            <div id="wizard-result" class="result-box" style="display:none"></div>
-            <button id="save-btn" class="btn-save" onclick="saveToMainApp()">💾 Salva nella Scaletta</button>
+            <div class="card">
+                <h2>Risoluzione Problemi (Da Manuale Spark)</h2>
+                <select id="problem" onchange="solveProblem()">
+                    <option value="">-- Seleziona un problema --</option>
+                    <option value="muddy_rhythm">Ritmica impastata (accordi non definiti)</option>
+                    <option value="weak_lead">Assolo debole (sepolto dai piatti/basso)</option>
+                    <option value="laggy_metal">Riff metal veloci in ritardo (laggy)</option>
+                    <option value="ice_pick">Suono troppo tagliente (fatica per le orecchie)</option>
+                    <option value="ambient_mud">Accordi ambient distorti e dissonanti</option>
+                    <option value="hum_singlecoil">Eccessivo ronzio (Hum) con i Single Coil</option>
+                </select>
+                <div id="problem-result" class="problem-res"></div>
+            </div>
         </div>
 
-        <div class="lab-card">
-            <h2>☁️ Cloud Explorer</h2>
-            <p style="font-size:0.8em; color:#aaa">Cerca setup storici ispirati a GuitarCloud e ToneBridge.</p>
-    
-            <input type="text" id="cloud-search" placeholder="🔍 Cerca artista o brano..." onkeyup="searchCloud(this.value)">
-    
-            <div id="cloud-results" class="result-box" style="display:none; max-height: 200px; overflow-y: auto;"></div>
-    
-            <div id="cloud-preview" class="result-box" style="display:none; border-color: var(--spark-gold);"></div>
-    
-            <button id="save-cloud-btn" class="btn-save" onclick="saveCloudToMain()" style="display:none">💾 Salva nella Scaletta</button>
-        </div>
+        <div class="card">
+            <h2>L'Enciclopedia Assoluta Spark (Traduzione Completa)</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">
+                Tutte le descrizioni, i consigli e i parametri provengono meticolosamente dalla <em>Spark Tone Guide</em>.
+            </p>
 
-        <div class="lab-card">
-            <h2>🚑 SOS Suono (Troubleshoot)</h2>
-            <p style="font-size:0.8em; color:#aaa">Risolvi problemi di mix basati sulla guida (pag. 12-13).</p>
+            <div id="encyclopedia-tabs" class="encyclopedia-nav">
+                </div>
             
-            <select id="problem">
-                <option value="muddy">Il suono è "impastato" / troppi bassi</option>
-                <option value="thin">Il suono è sottile / gracchiante</option>
-                <option value="harsh">Le alte frequenze danno fastidio</option>
-                <option value="dynamic">Troppi sbalzi di volume</option>
-            </select>
-
-            <button class="btn-magic" style="background-color: #c0392b;" onclick="solveProblem()">🚑 Ottieni Soluzione</button>
-            <div id="problem-result" class="result-box" style="display:none"></div>
+            <div id="catalog-pedals-area" class="pedal-catalog-grid"></div>
+            <div id="guide-tips-area" style="display:none;"></div>
         </div>
-
     </div>
 
     <script>
-        const wizardLogic = {
-            rhythm: { gate: "01 NoisGate", comp: "Nessun Pedale", drive: "01 Booster", amp: "16 Plexiglas", mod: "Nessun Pedale", delay: "Nessun Pedale", reverb: "01 Room A", notes: "Usa poco gain sull'ampli per mantenere la chiarezza degli accordi." },
-            lead: { gate: "01 NoisGate", comp: "Nessun Pedale", drive: "03 Tube Drv", amp: "21 RB 101", mod: "Nessun Pedale", delay: "01 Digital", reverb: "04 Plate Short", notes: "Spingi le medie dell'ampli per bucare il mix." },
-            solo: { gate: "01 NoisGate", comp: "01 LA Comp", drive: "12 Guitar Muff", amp: "24 SLO 100", mod: "02 Chorus", delay: "05 Multi Head", reverb: "06 Plate Rich", notes: "Comp attivo per il sustain, Delay per la profondità." },
-            ambient: { gate: "01 NoisGate", comp: "05 Optical", drive: "Nessun Pedale", amp: "01 Silver 120", mod: "06 UniVibe", delay: "03 Vintage", reverb: "05 Hall Amb.", notes: "Usa l'ampli Silver per la massima pulizia sonora." }
+        // TRADUZIONE CERTOSINA DI OGNI SINGOLO EFFETTO, CONTROLLO E CONSIGLIO DAL PDF
+        const pdfDescriptions = {
+            
+            // ==========================================
+            // GATE
+            // ==========================================
+            "01 NoisGate": `<strong>Cos'è:</strong> Agisce come un "addetto alla sicurezza" per il tuo segnale, lasciando passare il suono solo quando suoni. Rimane chiuso per bloccare fastidiosi ronzii e sibili durante i silenzi.<br><hr>
+                            <strong>Spiegazione Controlli:</strong><br>
+                            - <strong>Threshold (Soglia):</strong> La "linea sulla sabbia". Determina quanto deve essere forte un suono prima di essere ascoltato. Se troppo alta, taglierà la coda del sustain delle note.<br>
+                            - <strong>Decay:</strong> Decide come si chiude il gate. Un decadimento veloce serve per riff metal stretti e ritmici (stutter/djent); uno lento permette agli assoli blues o classic rock di svanire in modo naturale.`,
+
+            // ==========================================
+            // COMPRESSORS E WAH
+            // ==========================================
+            "01 LA Comp": `<strong>Basato su:</strong> Teletronix LA-2A.<br>
+                           <strong>Uso:</strong> Aggiunge un calore morbido e naturale in stile studio. Bilancia gentilmente il tuo volume senza sembrare un ovvio pedale effetto.<br>
+                           <strong>Generi:</strong> Blues, Jazz, Pop, Ballate Pulite.<br><hr>
+                           <div class="quick-tip"><strong>Consiglio (Volume Balancing):</strong> Usa il controllo "Level" per ottenere l'"Unity Gain" (stesso volume sia da acceso che da spento) o alzalo oltre per usarlo come un "Solo Boost" che taglia il mix.</div>`,
+            
+            "02 Sustain": `<strong>Basato su:</strong> Boss CS-3.<br>
+                           <strong>Uso:</strong> Famoso per tenere le note per lungo tempo (sustain infinito) aggiungendo all'inizio di ogni pennata uno "schiocco" percussivo (click).<br>
+                           <strong>Generi:</strong> Pop/Rock anni '80, Funk, Assoli Rock.<br><hr>
+                           <strong>Controlli:</strong> Un <strong>Attack</strong> lento lascia passare il "crack" iniziale del plettro prima di comprimere; un attacco veloce afferra il suono all'istante, lisciando l'esecuzione.`,
+            
+            "03 Red Comp": `<strong>Basato su:</strong> MXR Dyna Comp.<br>
+                           <strong>Uso:</strong> Crea un effetto "squash" estremo. Schiaccia pesantemente il segnale rendendolo compatto, essenziale per il suono scattante del Country.<br>
+                           <strong>Generi:</strong> Country (Chicken Pickin'), Funk, Classic Rock.`,
+            
+            "04 Bass Comp": `<strong>Basato su:</strong> EBS MultiComp.<br>
+                             <strong>Uso:</strong> Costruito per gestire le basse frequenze. Mantiene il suono di chitarre ribassate (Drop Tunings, 7/8 corde) o bassi estremamente stabile senza assottigliare gli acuti.<br>
+                             <div class="quick-tip"><strong>Consiglio Multi-Band:</strong> Sostituiscilo ai comp standard se usi Humbucker molto spinti per stringere le corde basse "rimbombanti" (boomy) lasciando aperti i cantini.</div>`,
+            
+            "05 Optical": `<strong>Basato su:</strong> BBE Opto Stomp.<br>
+                           <strong>Uso:</strong> Completamente "trasparente". Controlla i picchi di volume per mantenere l'esecuzione livellata senza alterare in alcun modo il sapore originale del tono.<br>
+                           <strong>Generi:</strong> Acustica, Folk, Jazz, Indie.`,
+            
+            "J.H. Legendary Wah": `<strong>Basato su:</strong> Vox 846 (Il Wah di Jimi Hendrix).<br>
+                                   <strong>Uso:</strong> Spazza un picco di frequenza mimando una voce umana. Usa l'Auto Mode per sweep ritmici sensibili alla forza della pennata o posizionalo fisso (cocked) per un "mid-boost" nasale e tagliente.`,
+
+            // ==========================================
+            // DRIVE E FUZZ
+            // ==========================================
+            "01 Booster": `<strong>Basato su:</strong> MXR Micro Amp.<br>
+                           <strong>Uso:</strong> Clean boost puro. Aggiunge chiarezza, volume e corpo senza colorare il tuo tono.<br>
+                           <strong>Generi:</strong> Pop, Funk, Country, Jazz.<br><hr>
+                           <div class="quick-tip"><strong>Consiglio:</strong> Usalo davanti a un ampli valvolare per farlo saturare naturalmente o per alzare gli assoli sopra il mix.</div>`,
+            
+            "02 Clone Drv": `<strong>Basato su:</strong> Klon Centaur.<br>
+                             <strong>Uso:</strong> Overdrive "Trasparente" leggendario. Aggiunge grinta, brillantezza e sensibilità tattile preservando il carattere dell'amplificatore.<br>
+                             <strong>Generi:</strong> Indie, Alt-Rock, Blues, Country.`,
+            
+            "03 Tube Drv": `<strong>Basato su:</strong> Ibanez Tube Screamer.<br>
+                            <strong>Uso:</strong> Lo standard dell'industria. Stringe gli ampli high-gain flaccidi fornendo medie vocali ("mid-hump") che aiutano i lead a tagliare un mix denso.<br>
+                            <strong>Generi:</strong> Blues, Rock, Metal, Pop.<br><hr>
+                            <div class="quick-tip"><strong>Consiglio Gain Stacking:</strong> Per il metal moderno, imposta il Drive a 0 e il Level a 10 davanti a un ampli high-gain per tagliare i bassi impastati e stringere il punch ritmico.</div>`,
+            
+            "04 Over Drv": `<strong>Basato su:</strong> Boss OD-1.<br>
+                            <strong>Uso:</strong> Simile al Tube Drive ma con un clipping asimmetrico per un crunch leggermente più tagliente e grintoso. Ottimo per spingere ampli stile Marshall.<br>
+                            <strong>Generi:</strong> Classic Rock, 80s Rock, Punk, Blues.`,
+            
+            "09 Fuzz Face": `<strong>Basato su:</strong> Dallas Arbiter Fuzz Face.<br>
+                             <strong>Uso:</strong> Fuzz vintage: saturo, lanoso e selvaggio.<br>
+                             <div class="quick-tip"><strong>Il Segreto:</strong> Risponde dinamicamente alla chitarra. Abbassa il volume sul tuo strumento per puliti cristallini, alzalo per la saturazione caotica totale.</div>`,
+            
+            "10 Black Op": `<strong>Basato su:</strong> ProCo RAT.<br>
+                            <strong>Uso:</strong> Estremamente versatile. La manopola "Filter" permette di variare da un leggero overdrive fino a un muro di rumore quasi fuzz.<br>
+                            <strong>Generi:</strong> Grunge, Post-Punk, Garage, Indie.`,
+            
+            "11 Bass Muff": `<strong>Basato su:</strong> EHX Bass Big Muff Pi.<br>
+                             <strong>Uso:</strong> Un Big Muff sintonizzato in modo specifico per preservare le frequenze basse. Tono saturo e cremoso che non sparisce nel mix.`,
+            
+            "12 Guitar Muff": `<strong>Basato su:</strong> EHX Big Muff Pi.<br>
+                               <strong>Uso:</strong> Sustain massiccio, simile a un violino, con fondo spesso. Scava brutalmente i medi creando un "muro di suono" gigante.<br>
+                               <strong>Generi:</strong> Shoegaze, Stoner Rock, 90s Alt, Grunge.`,
+            
+            "13 Bassmaster": `<strong>Basato su:</strong> Maestro Brassmaster.<br>
+                              <strong>Uso:</strong> Fuzz aggressivo per basso. Mantiene frequenze basse enormi per riff pesanti e aggiunge una distorsione "all'ottava superiore" unica.`,
+            
+            "14 SAB Driver": `<strong>Basato su:</strong> SansAmp Bass Driver DI.<br>
+                              <strong>Uso:</strong> Circuito di modellazione analogica. Offre toni di distorsione densi "direct-to-console" famosi nei dischi alternative anni '90.`,
+            
+            "J.H. Axle Fuzz": `<strong>Basato su:</strong> Axis Fuzz.<br>
+                               <strong>Uso:</strong> Fuzz al silicio high-gain con alti pungenti. Progettato per farsi strada facilmente in un mix denso con un'articolazione nitida e aggressiva.`,
+            
+            "J.H. Super Fuzz": `<strong>Basato su:</strong> Tone Bender MkII.<br>
+                                <strong>Uso:</strong> Più stretto e focalizzato per il rock rispetto al Fuzz Face. Fornisce un sustain infinito per il riffing pesante.`,
+            
+            "J.H. Octave Fuzz": `<strong>Basato su:</strong> Octavia.<br>
+                                 <strong>Uso:</strong> Aggiunge una nota alta stile synth (ottava superiore) sopra l'esecuzione. Funziona meglio sul pickup al manico sopra il 12° tasto per suoni urlanti alieni.`,
+            
+            "J.H. Fuzz Zone": `<strong>Basato su:</strong> Maestro FZ-1.<br>
+                               <strong>Uso:</strong> Il suono di "Satisfaction". Ronzante, staccato e "gated" con un sustain brevissimo. Simula la texture retrò di un altoparlante rotto.`,
+
+            // ==========================================
+            // AMPS (CLEAN, CRUNCH, HIGH GAIN)
+            // ==========================================
+            "01 Silver 120": `<strong>Basato su:</strong> Roland JC-120 (Stato Solido).<br>
+                              <strong>Uso:</strong> Leggendario per la sua cristallina immensa headroom ultra-pulita e per il chorus stereo 3D. Non va mai in distorsione, la perfetta piattaforma per pedali.<br>
+                              <strong>Generi:</strong> Jazz, New Wave, Funk, Shoegaze.`,
+            
+            "02 Black Duo": `<strong>Basato su:</strong> Fender Twin Reverb.<br>
+                             <strong>Uso:</strong> Lo standard d'oro del tono valvolare pulito. Noto per i medi scavati, gli alti scintillanti e l'enorme headroom che rimane pulito anche ad alto volume.`,
+            
+            "03 AD Clean": `<strong>Basato su:</strong> Orange AD30.<br>
+                            <strong>Uso:</strong> Un tono pulito britannico più scuro e pastoso di un Vox. Offre una densa gamma media e una sensazione "spugnosa" che si rompe dolcemente se spinta.`,
+            
+            "04 Match Dc": `<strong>Basato su:</strong> Matchless DC30.<br>
+                            <strong>Uso:</strong> Tono boutique di Classe A con una reattività tagliente come un rasoio. L'equalizzatore altamente interattivo consente puliti squillanti o overdrive ricchi di armoniche.`,
+            
+            "05 OSD 50": `<strong>Basato su:</strong> Dumble ODS 50.<br>
+                          <strong>Uso:</strong> Il "Santo Graal" degli amplificatori. Celebre per il suo sustain fiorente, sensibile al tocco e per i suoi medi dolci simili a una voce che cantano senza asprezza.`,
+            
+            "08 Blues Boy": `<strong>Basato su:</strong> Fender Blues Junior.<br>
+                             <strong>Uso:</strong> Scatolare e incisivo con una spessa frequenza media che va in breakup precocemente. Perfetto per locali e grintosi toni blues.`,
+            
+            "09 Tweed Bass": `<strong>Basato su:</strong> Fender Bassman.<br>
+                              <strong>Uso:</strong> Il "nonno del Marshall". Drive organico e legnoso con dinamica sensibile al tocco: si ripulisce giocando col volume della chitarra.`,
+            
+            "10 Ac Boost": `<strong>Basato su:</strong> Vox AC30.<br>
+                            <strong>Uso:</strong> Definisce il "British Chime". Alti vetrosi e un ruggito complesso sui medi che taglia ogni mix. Dispone del caratteristico scintillio "Top Boost".`,
+            
+            "11 Checkmate": `<strong>Basato su:</strong> Teisco Checkmate.<br>
+                             <strong>Uso:</strong> Eccentrico ampli giapponese anni '60. Distorsione "trash", sottile e fragile che aggiunge carattere unico allo stile retro (Garage Rock, Lo-Fi).`,
+            
+            "12 Two Stone": `<strong>Basato su:</strong> Two-Rock Studio Pro 50.<br>
+                             <strong>Uso:</strong> Drive e pulito ad altissima fedeltà. Progettato per la massima chiarezza e articolazione, lasciando brillare il vero suono di dita e chitarra.`,
+            
+            "15 Am. Dlx": `<strong>Basato su:</strong> Fender Tweed Deluxe.<br>
+                           <strong>Uso:</strong> Il ringhio "Tweed". Distorsione sciolta e compressa famosa per il tipico "sag" in stile Neil Young.`,
+            
+            "16 Plexiglas": `<strong>Basato su:</strong> Marshall Super Lead 100.<br>
+                             <strong>Uso:</strong> Il suono del rock and roll. Medio-alti aggressivi e un crunch stretto che definisce le chitarre hard rock anni '70/'80.`,
+            
+            "17 JM45": `<strong>Basato su:</strong> Marshall JTM45.<br>
+                        <strong>Uso:</strong> Caldo, rotondo e blues. Attacco più morbido e un overdrive "cremoso" (fantastico con gli Humbucker stile AC/DC).`,
+            
+            "18 Lux Verb": `<strong>Basato su:</strong> Fender Deluxe Reverb.<br>
+                            <strong>Uso:</strong> Puliti brillanti ideali per single-coil e una fantastica compressione valvolare in stile Blues se spinti ad alti volumi.`,
+            
+            "21 RB 101": `<strong>Basato su:</strong> Bogner Ecstasy.<br>
+                          <strong>Uso:</strong> La modifica definitiva del suono britannico. Distorsione gommosa, scura e liquida con sustain infinito per una sensazione di esecuzione liscia e raffinata.`,
+            
+            "22 British 30": `<strong>Basato su:</strong> Orange (Crunch).<br>
+                              <strong>Uso:</strong> Grinta britannica che risulta più scura e "fuzzy" di un Marshall o Vox. Medio-bassi spessi e texture di distorsione granulare.`,
+            
+            "23 Am. H.Gain": `<strong>Basato su:</strong> Mesa Boogie Mark IV.<br>
+                              <strong>Uso:</strong> Il suono "California Lead". Bassi stretti, medi cantanti e l'iconico "scoop a V" dell'EQ perfetto per il Thrash Metal.`,
+            
+            "24 SLO 100": `<strong>Basato su:</strong> Soldano SLO-100.<br>
+                           <strong>Uso:</strong> Il primo vero ampli high-gain boutique. Famoso per chiarezza e articolazione a livelli di gain estremi, colmando il divario tra Van Halen e il Metal.`,
+            
+            "25 YJM100": `<strong>Basato su:</strong> Marshall YJM100.<br>
+                          <strong>Uso:</strong> La Plexi signature di Yngwie Malmsteen. Aggiunge booster integrato e noise gate per suonare ad alta velocità neoclassica in modo fluido.`,
+            
+            "26 Treadplate": `<strong>Basato su:</strong> Mesa Boogie Dual Rectifier.<br>
+                              <strong>Uso:</strong> Il muro del suono. Rombo dei bassi massiccio e sciolto abbinato a un finale alto frizzante che ha definito l'hard rock anni '90 e Nu-Metal.`,
+            
+            "27 Insane": `<strong>Basato su:</strong> Peavey 5150 / EVH.<br>
+                          <strong>Uso:</strong> Estremamente compresso, saturo e serrato. Progettato per la moderna precisione metal dove ogni palm mute deve essere percussivo e chiaro.`,
+            
+            "28 Insane 6508": `<strong>Basato su:</strong> Peavey 6505.<br>
+                               <strong>Uso:</strong> Il suono del metal moderno. Noto per il suo ringhio crudo e aggressivo sui medi che attraversa in modo potente i mix più pesanti (Death Metal/Metalcore).`,
+            
+            "29 SwitchAxe": `<strong>Basato su:</strong> Hughes & Kettner TriAmp.<br>
+                             <strong>Uso:</strong> Ampli valvolare programmabile noto per versatilità e chiarezza hi-fi. Offre un suono high-gain moderno e processato.`,
+            
+            "30 Rocker V": `<strong>Basato su:</strong> Orange Rockerverb.<br>
+                            <strong>Uso:</strong> High gain denso, sfocato e scuro. Manca del 'frizz' americano, sostituendolo con un massiccio muro di saturazione sui medio-bassi (Doom/Stoner).`,
+            
+            "31 BE 101": `<strong>Basato su:</strong> Friedman BE-100.<br>
+                          <strong>Uso:</strong> L'ultima "Hot-Rodded Plexi". Prende il ruggito britannico e vi aggiunge precisione e un basso rifinito ideale per il rock da stadio (Hair Metal 80s).`,
+
+            // ==========================================
+            // AMPS (ACOUSTIC & BASS)
+            // ==========================================
+            "32 Acoustic": `<strong>Amplificatore:</strong> Pure Acoustic.<br>
+                            <strong>Uso:</strong> Preamplificatore acustico trasparente per amplificare i pickup piezoelettrici senza colorare il tono in modo significativo.`,
+            
+            "33 Fishboy": `<strong>Basato su:</strong> Fishman Acoustic Amp.<br>
+                           <strong>Uso:</strong> Lo standard per suonare acustici dal vivo. Cattura la naturale risonanza del legno fornendo un'amplificazione pulita e resistente ai feedback.`,
+            
+            "34 Jumbo": `<strong>Amplificatore:</strong> Acoustic Jumbo.<br>
+                         <strong>Uso:</strong> Simula l'enorme risonanza del corpo e la risposta dei bassi di una chitarra acustica Jumbo (es. Gibson J-200).`,
+            
+            "35 Flat Ac.": `<strong>Amplificatore:</strong> Flat Acoustic.<br>
+                            <strong>Uso:</strong> Percorso del segnale senza colorazioni (piatto), destinato a suonare come una chitarra collegata direttamente alla console di mixaggio in studio.`,
+            
+            "36 RB 800": `<strong>Basato su:</strong> Amplificatore Standard per Basso.<br>
+                          <strong>Uso:</strong> Tono solido e percussivo, un cavallo di battaglia per bassisti rock, metal e funk.`,
+            
+            "37 Sunny 3000": `<strong>Basato su:</strong> Testata valvolare massiccia per Basso.<br>
+                              <strong>Uso:</strong> Headroom valvolare mostruosa, genera un muro di bassi mastodontico e caldo.`,
+            
+            "38 W600": `<strong>Basato su:</strong> Amplificatore moderno per Basso.<br>
+                        <strong>Uso:</strong> Suono "Hi-Fi" e definito, ideale per tecniche moderne come slap e tapping complessi.`,
+            
+            "39 Hammer 500": `<strong>Basato su:</strong> Testata Boutique per Basso.<br>
+                              <strong>Uso:</strong> Caldo, rotondo e vintage. Fornisce medie spesse che siedono magnificamente nel mix.`,
+
+            // ==========================================
+            // AMPS (JIMI HENDRIX EXPANSION)
+            // ==========================================
+            "J.H. Super 100": `<strong>Basato su:</strong> Marshall JTM 100 Super Lead.<br>
+                               <strong>Uso:</strong> Il tono di Woodstock. Un circuito plexi aggressivamente luminoso su misura per farsi strada in un mix denso con brucianti toni solisti.`,
+            
+            "J.H. Tone City 100": `<strong>Basato su:</strong> Sound City 100.<br>
+                                   <strong>Uso:</strong> Precursore di Hiwatt. Famoso per l'enorme headroom pulita che si trasforma in un denso muro di suono distorto (Stoner Rock, Psych).`,
+            
+            "J.H. D-Show Master": `<strong>Basato su:</strong> Fender Dual Showman.<br>
+                                   <strong>Uso:</strong> La "tela pulita" di Jimi. Estremamente pulito e forte con un'immensa spinta sui bassi, pensato per i grandi pedali fuzz.`,
+            
+            "J.H. Bass Master": `<strong>Basato su:</strong> Fender Bassman (Era successiva).<br>
+                                 <strong>Uso:</strong> Più rigido e pulito della versione Tweed. Offre una piattaforma tesa e incisiva adatta ai pedali fuzz per Funk e Soul.`,
+            
+            "J.H. Sun 100S": `<strong>Basato su:</strong> Sunn 100s.<br>
+                              <strong>Uso:</strong> Costruito sui circuiti hi-fi Dynaco. Ha una riserva massiccia di headroom che diventa tonante e spessa se spinta al limite.`,
+            
+            "J.H. 45/100": `<strong>Basato su:</strong> Marshall JTM 45/100.<br>
+                            <strong>Uso:</strong> Il primo suono del classico Marshall stack. Più pulito e caldo, vanta bassi flaccidi e organici e un fluente sustain sugli alti (Classic Rock anni '60).`,
+
+            // ==========================================
+            // MODULATION & EQ
+            // ==========================================
+            "01 Tremolo": `<strong>Effetto:</strong> Tremolo Ottico / Bias.<br>
+                           <strong>Uso:</strong> Modulazione di ampiezza. Un morbido tremolo a onda sinusoidale che alza e abbassa delicatamente il volume, simulando gli ampli valvolari anni '50.`,
+            
+            "02 Chorus": `<strong>Effetto:</strong> Digital Chorus Stereo.<br>
+                          <strong>Uso:</strong> Cristallino e largo (Hi-Fi). Modula solamente le alte frequenze per aggiungere profondità scintillante preservando intatto il corpo delle note basse.`,
+            
+            "03 Flanger": `<strong>Basato su:</strong> EHX Electric Mistress.<br>
+                           <strong>Uso:</strong> Metallico e filtrato a pettine. Usa un piccolissimo ritardo con feedback per creare armoniche metalliche simili a un aereo a reazione in decollo.`,
+            
+            "04 Phaser": `<strong>Basato su:</strong> MXR Phase 100.<br>
+                          <strong>Uso:</strong> Vocale e risonante. Genera notch di frequenza fornendo un "whoosh" morbido e simile ad una voce umana per Funk e Reggae.`,
+            
+            "05 Vibrato": `<strong>Effetto:</strong> Pitch Vibrato.<br>
+                           <strong>Uso:</strong> Vera modulazione dell'intonazione. Fa vibrare il pitch su e giù creando un effetto "mal di mare" o simile a quello di un disco in vinile fuso (Lo-Fi/Indie).`,
+            
+            "06 UniVibe": `<strong>Effetto:</strong> Shin-ei Uni-Vibe (Ottico).<br>
+                           <strong>Uso:</strong> Ricrea l'effetto rotary speaker con un "thumping" sui bassi. Aggiunge una pulsazione "chewy" imprescindibile per gli assoli Blues e psichedelici.`,
+            
+            "08 Cloner": `<strong>Basato su:</strong> EHX Small Clone (Chorus analogico).<br>
+                          <strong>Uso:</strong> Lussureggiante e acquoso. Crea un ricco effetto di raddoppio scordato mescolando un segnale ritardato con l'originale (Nirvana, Grunge).`,
+            
+            "09 Classic Vibe": `<strong>Effetto:</strong> Classic Vibe.<br>
+                                <strong>Uso:</strong> Versione alternativa in stile vintage per pulsazioni organiche e profonde.`,
+            
+            "10 Tremolator": `<strong>Basato su:</strong> Demeter TRM-1.<br>
+                              <strong>Uso:</strong> Tremolo a onda triangolare. Noto per la straordinaria trasparenza, offre una salita e discesa più acuta e tagliente.<br>
+                              <div class="quick-tip"><strong>Il Tasto BPM:</strong> Usalo per sincronizzare il taglio di volume al metronomo per riff percussivi moderni.</div>`,
+            
+            "11 Trem. Square": `<strong>Effetto:</strong> Tremolo a Onda Quadra.<br>
+                                <strong>Uso:</strong> Usa un'onda quadra per passare istantaneamente il volume dal 100% allo 0% (effetto "mitragliatrice").<br>
+                                <div class="quick-tip"><strong>Consiglio:</strong> La natura precisa "on/off" dei pickup attivi rende i suoni del tremolo a onda quadra incredibilmente nitidi e ritmici.</div>`,
+            
+            "12 Guitar EQ": `<strong>Effetto:</strong> Equalizzatore a 6 bande (Chitarra).<br>
+                             <strong>Uso:</strong> Strumento chirurgico. Taglia i 100/200Hz per il "De-Boom" (ridurre il fango), alza 800/1.6kHz per il "Lead Cut" per bucare il mix, o crea uno "Scoop a V" abbassando i 400Hz per il metal.`,
+            
+            "13 Bass EQ": `<strong>Effetto:</strong> Equalizzatore per Basso.<br>
+                           <strong>Uso:</strong> Frequenze ottimizzate (50Hz - 4.5kHz) per scolpire il basso senza interferire con la grancassa.`,
+            
+            "J.H. Legendary Vibe": `<strong>Effetto:</strong> UniVibe (Studio Mod).<br>
+                                    <strong>Uso:</strong> La versione "Studio Quality" del circuito Vibe. Ha un rumore di fondo ridotto e un battito hi-fi, trasparente e più chiaro rispetto all'originale.`,
+            
+            "J.H. Micro Vibe": `<strong>Effetto:</strong> Compact UniVibe.<br>
+                                <strong>Uso:</strong> Pulsazioni calde in formato ristretto per modulazioni avvolgenti.`,
+
+            // ==========================================
+            // DELAY
+            // ==========================================
+            "01 Digital": `<strong>Effetto:</strong> Digital Delay.<br>
+                           <strong>Uso:</strong> Le ripetizioni sono copie ritmiche perfette dell'ingresso. Non si scuriscono o distorcono mentre svaniscono, fornendo un suono moderno e ad alta fedeltà.`,
+            
+            "02 Echo Fit": `<strong>Effetto:</strong> Compact Delay.<br>
+                            <strong>Uso:</strong> Eco essenziale. Ottimo per slapback rapidi senza ingombrare il preset.`,
+            
+            "03 Vintage": `<strong>Basato su:</strong> Boss DM-2 (Analog Delay).<br>
+                           <strong>Uso:</strong> Scuro e in decadimento. Basato su chip analogici, ogni ripetizione diventa più oscura e soffice, posizionandosi naturalmente "dietro" l'esecuzione della chitarra.`,
+            
+            "04 Reverse": `<strong>Effetto:</strong> Reverse Delay.<br>
+                           <strong>Uso:</strong> Registra la tua frase e la riproduce alla rovescia, permettendo alla ripetizione di gonfiarsi nella nota successiva per un'atmosfera psichedelica e aliena.`,
+            
+            "05 Multi Head": `<strong>Basato su:</strong> Roland Space Echo (Tape Delay).<br>
+                              <strong>Uso:</strong> Ritmico e speziato. Imita molte testine attive su un nastro per ottenere echi che "galoppano" anziché una sequenza d'impulso semplice (Pink Floyd).`,
+            
+            "06 Echo Tape": `<strong>Effetto:</strong> Classic Tape Delay.<br>
+                             <strong>Uso:</strong> Scuro e riscaldante. Ogni ritardo degrada e perde alte frequenze imitando i nastri magnetici. Con tempi bassi (80-150ms) crea il perfetto "Slapback" per il Rockabilly.`,
+
+            // ==========================================
+            // REVERB
+            // ==========================================
+            "01 Room A": `<strong>Spazio:</strong> Stanza Piccola (Room Studio A).<br>
+                          <strong>Uso:</strong> Dà dimensione e "aria" al tuo tono senza sfocare la separazione tra le note. Non spinge la chitarra all'indietro. Usalo come "always-on" per le ritmiche funk e metal.`,
+            
+            "02 Chamber": `<strong>Spazio:</strong> Camera d'eco (Chamber).<br>
+                           <strong>Uso:</strong> Densità organica in stile studio vintage con colorazioni medie distintive. Appare più folto di una Room pur restando meno invasivo di una Hall. Ideale per vecchi R&B e Blues.`,
+            
+            "03 Hall Nat.": `<strong>Spazio:</strong> Concert Hall Naturale.<br>
+                             <strong>Uso:</strong> Acustica 3D che posiziona la chitarra in "secondo piano". Permette di far fiorire le note lunghe. <strong>Attenzione:</strong> Impasta se usato su riff ritmici veloci.`,
+            
+            "04 Plate Short": `<strong>Spazio:</strong> Piastra metallica corta.<br>
+                               <strong>Uso:</strong> "Splash" freddo, corto e istantaneo. Conferisce colore ed eccitazione brillante a ritmi secchi (Surf, New Wave) senza aggiungere scie fangose alle ritmiche frenetiche.`,
+            
+            "05 Hall Amb.": `<strong>Spazio:</strong> Hall enorme e modulata (Ambient).<br>
+                             <strong>Uso:</strong> Fatto per generare textures cinematografiche. Gonfiandosi lentamente diventa un vero pad sintetico fluttuante dietro la chitarra (Post-Rock, Shoegaze).`,
+            
+            "06 Plate Rich": `<strong>Spazio:</strong> Piastra ricca.<br>
+                              <strong>Uso:</strong> Fa tagliare dolcemente il mix ai lead solisti tramite riflessi caldi e metallici. Aumenta la presenza senza appesantire i bassi, mantenendo l'efficacia della melodia.`,
+            
+            "07 Hall Med.": `<strong>Spazio:</strong> Hall Standard (Medium).<br>
+                             <strong>Uso:</strong> Il collante di congiunzione essenziale. Avvolge l'immagine centrale evitando di sembrare finto, infondendo corposità al rock o a sezioni pop ritmate.`,
+            
+            "08 Plate Long": `<strong>Spazio:</strong> Piastra vintage lunga (Reflection).<br>
+                              <strong>Uso:</strong> Riflessioni infinite per muri atmosferici. Evita la dispersione caotica della Hall per un approccio onirico da Dream Pop e slow Blues.`,
+            
+            "09 Room B": `<strong>Spazio:</strong> Stanza morta (Room Studio B).<br>
+                          <strong>Uso:</strong> Usalo per le pennate rapide moderne o tecniche percussive (funk, djent). Costruito con decadimento zero e altissimo smorzamento (damping) per toni secchi.`,
+            
+            "Classic Plate": `<strong>Spazio:</strong> Piastra Originale Classica.<br>
+                              <strong>Uso:</strong> Mantiene fermo il risultato sonoro senza impasticciarla. Lo standard d'oro per posizionarsi in cima in assoli Classic Rock senza rendere fangosi i tom della batteria.`,
+            
+            "Holy Grail": `<strong>Spazio:</strong> Hall/Spring (Mix generico).<br>
+                           <strong>Uso:</strong> Perfetto bilanciamento. Spazialità neutra aggiuntiva che avvolge docilmente l'attacco dell'amplificatore e assicura uniformità ritmica al rock contemporaneo.`
         };
 
-        let generatedChain = null;
+        // CONTENUTI SPECIALI DELLA GUIDA PDF (TIPS & WORKFLOWS)
+        const guideTipsHTML = `
+            <h3>Architettura del Tono: I Pilastri (Da Manuale Spark)</h3>
+            <p><strong>Rhythm Guitar:</strong> L'obiettivo è la <em>chiarezza prima della saturazione</em>. Usa un overdrive come il Tube Drive (Gain 0, Level 7) come filtro per tagliare le frequenze sub-basse (sotto i 100Hz) che altrimenti "impasterebbero" con il basso della traccia. Non usare riverberi Hall giganti per la ritmica, usa uno spring o una Room con decadimento basso.</p>
+            <p><strong>Lead Guitar:</strong> Dominanza delle Medie. Usa il Guitar EQ per spingere le frequenze tra 800Hz e 1.6kHz. Usa un Digital Delay abbassando il mix per aggiungere un "alone" (halo) attorno alle note senza renderle confuse.</p>
+            <p><strong>Solo Guitar:</strong> Massimo Sustain. Usa un Sustain Comp (alta compressione) all'inizio per livellare l'attacco. Riduci gli alti estremi (3.2kHz) per evitare l'effetto fastidioso "ice-pick" alle orecchie.</p>
+            <p><strong>Ambient Guitar:</strong> Scegli ampli ultra puliti come il Silver 120 per non distorcere le complesse code dei delay. Spegni il Noise Gate e posiziona modulazioni (Chorus, Flanger) per dare vita a tappeti sintetici infiniti.</p>
+            <hr>
+            <h3>Guida ai Pickup & Gain Staging</h3>
+            <ul>
+                <li><strong>Humbucker:</strong> Essendo potenti e gonfi sui bassi, abbassa i bassi (Bass EQ a 3.0) sull'ampli o usa un compressore multibanda (Bass Comp) per contenere le frequenze gravi senza soffocare gli acuti.</li>
+                <li><strong>Single Coil:</strong> Essendo più "magri", aggiungi un compressore Sustain Comp per ingrossare il suono, o un Booster pulito per spingere virtualmente le valvole senza perdere la brillantezza "a campana". Usa il Noise Gate per bloccare il rumore "60-cycle hum".</li>
+                <li><strong>Attivi:</strong> Emettono un segnale enorme. Abbassa il Gain dell'amplificatore del 20-30% o abbassa il "Level" del tuo pedale overdrive per evitare che il preamp digitale si ingolfi e cracchi. Usa l'Optical Comp per ammorbidire la loro natura asettica.</li>
+            </ul>
+        `;
 
-        function runWizard() {
-            const intent = document.getElementById('wizard-intent').value;
-            const data = wizardLogic[intent];
-            generatedChain = data;
+        // INIZIALIZZAZIONE INTERFACCIA
+        function initEncyclopedia() {
+            const tabsContainer = document.getElementById('encyclopedia-tabs');
+            tabsContainer.innerHTML = '';
 
-            let html = `<b>Architettura Suggerita:</b><br><br>`;
-            const cats = ["gate", "comp", "drive", "amp", "mod", "delay", "reverb"];
-            cats.forEach(cat => { html += `<span class="pedal-tag">${cat.toUpperCase()}</span> ${data[cat]}<br>`; });
-            html += `<br><i>💡 ${data.notes}</i>`;
+            // Estrae dinamicamente tutte le categorie da catalog.js
+            Object.keys(catalog).forEach((category, index) => {
+                const tab = document.createElement('div');
+                tab.className = `nav-tab ${index === 0 ? 'active' : ''}`;
+                tab.innerText = category;
+                tab.onclick = () => {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    renderCategoryPedals(category);
+                };
+                tabsContainer.appendChild(tab);
+            });
 
-            const res = document.getElementById('wizard-result');
-            res.innerHTML = html; res.style.display = 'block';
-            document.getElementById('save-btn').style.display = 'block';
-        }
-
-        function saveToMainApp() {
-            const titleInput = document.getElementById('new-song-title');
-            const title = titleInput.value || "Nuovo Tono Labs";
-            let savedSongs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
-            
-            const categories = ["Gate", "Comp", "Drive", "Amp", "Mod", "Delay", "Reverb"];
-            const newChain = categories.map(cat => ({
-                category: cat, name: generatedChain[cat.toLowerCase()], img: "", status: generatedChain[cat.toLowerCase()] === "Nessun Pedale" ? "off" : "on", paramValues: ["5", "5", "5", "5", "5", "5"]
-            }));
-
-            const newSong = {
-                title: title, activePartIndex: 0, activeMode: "cuffie", notes: generatedChain.notes,
-                parts: [{ name: "Tone Wizard", modes: { cuffie: JSON.parse(JSON.stringify(newChain)), input: JSON.parse(JSON.stringify(newChain)) } }]
+            // Tab Speciale Manuale PDF
+            const tipTab = document.createElement('div');
+            tipTab.className = `nav-tab`;
+            tipTab.innerText = "📘 Manuale & Tips";
+            tipTab.style.backgroundColor = "var(--spark-gold)";
+            tipTab.style.color = "#000";
+            tipTab.onclick = () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tipTab.classList.add('active');
+                document.getElementById('catalog-pedals-area').style.display = 'none';
+                
+                const tipsArea = document.getElementById('guide-tips-area');
+                tipsArea.innerHTML = guideTipsHTML;
+                tipsArea.style.display = 'block';
             };
+            tabsContainer.appendChild(tipTab);
 
-            newSong.parts[0].modes.input.find(s => s.category === 'Amp').name = "Nessun Pedale";
-            savedSongs.unshift(newSong); localStorage.setItem('sparkPresetsV7', JSON.stringify(savedSongs));
-            alert(`✅ "${title}" è stato aggiunto alla tua scaletta principale!`); titleInput.value = "";
+            renderCategoryPedals(Object.keys(catalog)[0]);
         }
 
+        function renderCategoryPedals(category) {
+            const container = document.getElementById('catalog-pedals-area');
+            const tipsArea = document.getElementById('guide-tips-area');
+            
+            container.style.display = 'grid';
+            tipsArea.style.display = 'none';
+            container.innerHTML = '';
+
+            const pedals = catalog[category];
+            pedals.forEach(pedal => {
+                if (pedal.name === "Nessun Pedale") return;
+
+                const card = document.createElement('div');
+                card.className = 'pedal-card';
+
+                let imgHTML = '';
+                if (pedal.img) {
+                    imgHTML = `
+                        <div class="pedal-img-container">
+                            <img src="${pedal.img}" class="pedal-img" alt="${pedal.name}" onerror="this.style.display='none'; this.parentNode.innerText='[Immagine]';">
+                        </div>`;
+                }
+
+                let knobsHTML = '';
+                if (pedal.params && pedal.params.length > 0) {
+                    knobsHTML = `<div class="knobs-container">`;
+                    pedal.params.forEach(param => {
+                        knobsHTML += `<span class="knob-badge">${param}</span>`;
+                    });
+                    knobsHTML += `</div>`;
+                }
+
+                const savedDesc = pdfDescriptions[pedal.name] || `<strong>${pedal.name}</strong><br><em>Aggiungi appunti personali o seleziona un altro pedale mappato.</em>`;
+
+                card.innerHTML = `
+                    <div class="pedal-header">
+                        <h3 class="pedal-title">${pedal.name}</h3>
+                        <span style="font-size:0.75rem; color:var(--spark-gold); font-weight:bold;">${category}</span>
+                    </div>
+                    ${imgHTML}
+                    <div style="margin-bottom: 8px;">
+                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Controlli Disponibili (App):</span><br>
+                        ${knobsHTML}
+                    </div>
+                    <div class="editable-desc" contenteditable="true" spellcheck="false" onblur="updateLocalNote('${pedal.name}', this.innerHTML)">
+                        ${savedDesc}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function updateLocalNote(pedalName, htmlContent) {
+            pdfDescriptions[pedalName] = htmlContent;
+        }
+
+        // -------------------------------------------------------------
+        // FUNZIONI ORIGINALI (Cloud & Risoluzione Problemi PDF)
+        // -------------------------------------------------------------
         let selectedCloudPreset = null;
 
-        function searchCloud(query) {
-            const resultsDiv = document.getElementById('cloud-results');
-            if (query.length < 2) { resultsDiv.style.display = 'none'; return; }
-            const filtered = cloudPresets.filter(p => p.title.toLowerCase().includes(query.toLowerCase()));
+        function searchCloud() {
+            const query = document.getElementById('cloud-search').value.toLowerCase();
+            const preview = document.getElementById('cloud-preview');
+            const saveBtn = document.getElementById('save-cloud-btn');
+            
+            if (!query) { preview.style.display = 'none'; saveBtn.style.display = 'none'; return; }
 
-            if (filtered.length > 0) {
-                resultsDiv.innerHTML = filtered.map((p, idx) => `<div style="padding:10px; border-bottom:1px solid #333; cursor:pointer;" onclick="previewCloud(${JSON.stringify(p).replace(/"/g, '&quot;')})">🎵 ${p.title}</div>`).join('');
-                resultsDiv.style.display = 'block';
-            } else { resultsDiv.innerHTML = "<p style='padding:10px; font-size:0.8em;'>Nessun risultato trovato.</p>"; }
+            const found = cloudPresets.find(p => p.title.toLowerCase().includes(query));
+            if (found) {
+                selectedCloudPreset = found;
+                document.getElementById('preview-title').innerText = found.title;
+                document.getElementById('preview-details').innerText = `Amp: ${found.chain.Amp} | Drive: ${found.chain.Drive}`;
+                preview.style.display = 'block'; saveBtn.style.display = 'block';
+            } else {
+                document.getElementById('preview-title').innerText = "Nessun preset trovato";
+                document.getElementById('preview-details').innerText = "Cerca un altro brano o artista.";
+                preview.style.display = 'block'; saveBtn.style.display = 'none';
+            }
         }
 
-        function previewCloud(preset) {
-            selectedCloudPreset = preset;
-            document.getElementById('cloud-results').style.display = 'none';
-            let html = `<b>Catena Identificata:</b><br><br>`;
-            for (let cat in preset.chain) { html += `<span class="pedal-tag">${cat.toUpperCase()}</span> ${preset.chain[cat]}<br>`; }
-            const previewDiv = document.getElementById('cloud-preview'); previewDiv.innerHTML = html; previewDiv.style.display = 'block';
-            document.getElementById('save-cloud-btn').style.display = 'block';
-        }
-
-        function saveCloudToMain() {
+        function importCloudPreset() {
             if (!selectedCloudPreset) return;
             let savedSongs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
-            const categories = ["Gate", "Comp", "Drive", "Amp", "Mod", "Delay", "Reverb"];
             
-            const newChain = categories.map(cat => ({
-                category: cat, name: selectedCloudPreset.chain[cat] || "Nessun Pedale", img: "", status: (selectedCloudPreset.chain[cat] && selectedCloudPreset.chain[cat] !== "Nessun Pedale") ? "on" : "off", paramValues: ["5", "5", "5", "5", "5", "5"]
-            }));
+            const newChain = [];
+            Object.keys(selectedCloudPreset.chain).forEach(cat => {
+                newChain.push({
+                    category: cat,
+                    name: selectedCloudPreset.chain[cat],
+                    status: selectedCloudPreset.chain[cat] === "Nessun Pedale" ? "off" : "on",
+                    paramValues: [50, 50, 50, 50, 50, 50]
+                });
+            });
 
             const newSong = {
-                title: selectedCloudPreset.title, activePartIndex: 0, activeMode: "cuffie", notes: "Preset importato da Cloud Labs.",
-                parts: [{ name: "Cloud Import", modes: { cuffie: JSON.parse(JSON.stringify(newChain)), input: JSON.parse(JSON.stringify(newChain)) } }]
+                title: selectedCloudPreset.title,
+                isSetlist: false,
+                parts: [{ name: "Main", modes: { current: "input", backup: JSON.parse(JSON.stringify(newChain)), input: JSON.parse(JSON.stringify(newChain)) } }]
             };
 
-            const ampSlot = newSong.parts[0].modes.input.find(s => s.category === 'Amp');
-            if (ampSlot) { ampSlot.name = "Nessun Pedale"; ampSlot.status = "off"; }
-
-            savedSongs.unshift(newSong); localStorage.setItem('sparkPresetsV7', JSON.stringify(savedSongs));
+            savedSongs.unshift(newSong);
+            localStorage.setItem('sparkPresetsV7', JSON.stringify(savedSongs));
+            
             alert(`✅ "${selectedCloudPreset.title}" aggiunto correttamente alla scaletta!`);
-            document.getElementById('cloud-preview').style.display = 'none'; document.getElementById('save-cloud-btn').style.display = 'none'; document.getElementById('cloud-search').value = "";
+            document.getElementById('cloud-search').value = ""; searchCloud();
         }
 
         function solveProblem() {
             const prob = document.getElementById('problem').value;
             const solutions = {
-                muddy: "Abbassa il gain dell'ampli, taglia i bassi estremi nell'EQ e prova a usare un Tube Drive (Gain 0, Vol 10) come filtro.",
-                thin: "Aggiungi un compressore ottico all'inizio e spingi le frequenze medie (800Hz) nell'equalizzatore.",
-                harsh: "Riduci il Presence dell'amplificatore e assicurati di non avere il tono del distorsore troppo aperto.",
-                dynamic: "Usa un compressore LA Comp con sustain moderato per livellare i picchi tra pennate leggere e pesanti."
+                muddy_rhythm: "La saturazione alta distrugge la separazione delle corde. Riduci il gain dell'ampli e taglia i bassi. Usa un Tube Drive con Gain a 0 come filtro passa-alto.",
+                weak_lead: "Aumenta le frequenze medie (tra 800Hz e 1.6kHz) con l'EQ. Non scavare mai le medie (no scoop), altrimenti sparirai dietro i piatti e il basso.",
+                laggy_metal: "Passa da ampli vintage a modelli ad alto guadagno come Treadplate o BE 101. I modelli vintage hanno troppo 'tube sag' (compressione valvolare lenta) per ritmiche veloci in muting.",
+                ice_pick: "Arretra le manopole Treble e Presence. La distorsione ad alto guadagno genera armoniche altissime fastidiose. Usa il Guitar EQ tagliando i 3.2kHz.",
+                ambient_mud: "Passa a un ampli ultra-pulito come il Silver 120. Se sommi troppi delay e reverb in un ampli che 'satina' naturalmente le valvole, otterrai solo rumore dissonante.",
+                hum_singlecoil: "Alza il Threshold del Noise Gate per bloccare il rumore '60-cycle'. Se il suono perde corpo, aggiungi il Sustain Comp all'inizio della catena per ingrossarlo."
             };
-            const res = document.getElementById('problem-result'); res.innerText = solutions[prob]; res.style.display = 'block';
+            const res = document.getElementById('problem-result'); 
+            if(prob) {
+                res.innerHTML = solutions[prob]; res.style.display = 'block';
+            } else {
+                res.style.display = 'none';
+            }
         }
+
+        window.onload = () => { initEncyclopedia(); };
     </script>
 </body>
 </html>
