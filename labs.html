@@ -7,6 +7,9 @@
     
     <script src="cloud_presets.js"></script>
     <script src="catalog.js"></script>
+    <script src="pedal_info.js"></script>
+    <script src="validator.js"></script>
+    <script src="ai_engine.js"></script>
 
     <style>
         :root {
@@ -102,6 +105,19 @@
                     <p id="preview-details" style="margin:0; font-size:0.85rem; color:var(--text-muted);"></p>
                 </div>
                 <button id="save-cloud-btn" class="btn-action" style="display:none;" onclick="importCloudPreset()">Salva nella Scaletta</button>
+            </div>
+
+            <div class="card">
+                <h2>Assistente AI sul tuo preset</h2>
+                <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0">Descrivi il problema con parole tue e l'AI corregge la parte che scegli (la modifica si può controllare prima di applicarla).</p>
+                <label for="ai-song">Brano</label>
+                <select id="ai-song" onchange="fillAiParts()"></select>
+                <label for="ai-part">Parte</label>
+                <select id="ai-part"></select>
+                <label for="ai-problem">Problema</label>
+                <input type="text" id="ai-problem" placeholder="Es. il suono è impastato negli accordi veloci">
+                <button class="btn-action" onclick="askAiFix()">🔧 Chiedi all'AI</button>
+                <div id="ai-fix-msg" style="font-size:0.85rem;color:var(--text-muted);margin-top:8px"></div>
             </div>
 
             <div class="card">
@@ -599,20 +615,23 @@
             if (!selectedCloudPreset) return;
             let savedSongs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
             
-            const newChain = [];
-            Object.keys(selectedCloudPreset.chain).forEach(cat => {
-                newChain.push({
-                    category: cat,
-                    name: selectedCloudPreset.chain[cat],
-                    status: selectedCloudPreset.chain[cat] === "Nessun Pedale" ? "off" : "on",
-                    paramValues: [50, 50, 50, 50, 50, 50]
-                });
+            // stesso formato dell'editor: modes.cuffie / modes.input, valori 0-10 come stringhe
+            const newChain = Object.keys(selectedCloudPreset.chain).map(cat => {
+                const pedals = catalog[cat] || [];
+                const data = pedals.find(p => p.name === selectedCloudPreset.chain[cat]) || pedals[0] || { name: "Nessun Pedale", img: "", params: [] };
+                const none = data.name === "Nessun Pedale";
+                return { category: cat, name: data.name, img: data.img, status: none ? "off" : "on", paramValues: (data.params || []).map(() => "5") };
             });
+            const inputChain = JSON.parse(JSON.stringify(newChain));
+            const amp = inputChain.find(s => s.category === "Amp");
+            if (amp) { amp.name = "Nessun Pedale"; amp.img = ""; amp.status = "off"; amp.paramValues = []; }
 
             const newSong = {
                 title: selectedCloudPreset.title,
                 isSetlist: false,
-                parts: [{ name: "Main", modes: { current: "input", backup: JSON.parse(JSON.stringify(newChain)), input: JSON.parse(JSON.stringify(newChain)) } }]
+                activePartIndex: 0,
+                activeMode: "cuffie",
+                parts: [{ name: "Accompagnamento", modes: { cuffie: newChain, input: inputChain } }]
             };
 
             savedSongs.unshift(newSong);
@@ -640,7 +659,42 @@
             }
         }
 
-        window.onload = () => { initEncyclopedia(); };
+        // ---- Assistente AI: lavora sui brani salvati dall'editor ----
+        function labsSongs() { try { return JSON.parse(localStorage.getItem('sparkPresetsV7')) || []; } catch (e) { return []; } }
+        function fillAiSongs() {
+            const list = labsSongs(), sel = document.getElementById('ai-song');
+            sel.innerHTML = list.length ? list.map((s, i) => `<option value="${i}">${String(s.title || 'Senza titolo').replace(/[<&]/g, '')}</option>`).join('') : '<option value="">Nessun brano salvato</option>';
+            fillAiParts();
+        }
+        function fillAiParts() {
+            const list = labsSongs(), s = list[Number(document.getElementById('ai-song').value)];
+            document.getElementById('ai-part').innerHTML = s && s.parts ? s.parts.map((p, i) => `<option value="${i}">${String(p.name || 'Parte').replace(/[<&]/g, '')}</option>`).join('') : '';
+        }
+        function askAiFix() {
+            const msg = document.getElementById('ai-fix-msg'), list = labsSongs();
+            const si = Number(document.getElementById('ai-song').value), pi = Number(document.getElementById('ai-part').value);
+            const song = list[si], part = song && song.parts && song.parts[pi];
+            const slots = part && part.modes && (part.modes.cuffie || part.modes.input);
+            if (!part || !slots) { msg.textContent = 'Apri prima l\'editor e crea o importa un brano.'; return; }
+            const problem = document.getElementById('ai-problem').value.trim();
+            if (!problem) { msg.textContent = 'Descrivi il problema.'; return; }
+            msg.textContent = '';
+            SparkAI.openGenerator({
+                heading: '🔧 Assistente AI', title: song.title, currentSlots: slots, currentPartName: part.name,
+                prefill: 'Problema da risolvere: ' + problem, forceScope: 'active-part', forceLabel: 'Correggi la parte «' + part.name + '»',
+                onApply: (result) => {
+                    const fresh = labsSongs(), t = fresh[si];
+                    if (!t || !t.parts[pi]) return;
+                    const cuffie = JSON.parse(JSON.stringify(result.parts[0].slots)), input = JSON.parse(JSON.stringify(result.parts[0].slots));
+                    const amp = input.find(x => x.category === 'Amp'); if (amp) { amp.name = 'Nessun Pedale'; amp.img = ''; amp.status = 'off'; amp.paramValues = []; }
+                    t.parts[pi].modes = { cuffie, input };
+                    localStorage.setItem('sparkPresetsV7', JSON.stringify(fresh));
+                    msg.textContent = '✅ Modifica applicata: la trovi nell\'editor.';
+                }
+            });
+        }
+
+        window.onload = () => { initEncyclopedia(); fillAiSongs(); };
     </script>
 </body>
 </html>

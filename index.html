@@ -6,11 +6,11 @@
     <title>Spark Preset Editor Intelligence</title>
 
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icon-192.png">
-    <link rel="apple-touch-icon" href="icon-512.png">
-    
+    <link rel="icon" type="image/png" href="icona-192.png">
+    <link rel="apple-touch-icon" href="icona-512.png">
+
     <style>
-        /* ESTETICA ORIGINALE MANTENUTA INTATTA */
+        /* ESTETICA ORIGINALE MANTENUTA */
         :root {
             --bg-dark: #121212;
             --bg-card: #1e1e1e;
@@ -20,6 +20,7 @@
             --spark-red: #c0392b;
             --pedal-bg: #2a2a2a;
             --input-bg: #333333;
+            color-scheme: dark;
         }
 
         body {
@@ -27,55 +28,64 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             margin: 0;
-            padding: 15px;
-            padding-bottom: 90px;
+            padding-block: 15px 90px;
+            padding-left: max(16px, env(safe-area-inset-left, 0px));
+            padding-right: max(16px, env(safe-area-inset-right, 0px));
         }
 
         .header-bar {
             display: flex; flex-direction: column; align-items: center; gap: 15px;
-            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--spark-gold);
+            margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid var(--spark-gold);
         }
-
         h1 { color: var(--spark-gold); margin: 0; font-size: 1.5em; font-weight: 800; letter-spacing: 1px; text-align: center; }
-
-        .header-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+        .header-controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%; }
 
         .btn {
             background-color: var(--spark-gold); color: #000; border: none;
-            padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer;
+            padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;
             display: inline-block; text-align: center; font-size: 0.9em;
         }
         .btn:active { opacity: 0.8; }
+        .btn:disabled { opacity: 0.35; cursor: default; }
         .btn-secondary { background-color: #444; color: white; }
+        .btn-ai { background: linear-gradient(135deg, #8e44ad, #6c3483); color: #fff; }
+
+        .toolbar { margin-bottom: 15px; }
+        .tag-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+        .tag-chip { background: #2a2a2a; border: 1px solid #555; color: var(--text-muted); border-radius: 12px; padding: 3px 10px; font-size: 0.78em; cursor: pointer; }
+        .tag-chip.active { background: var(--spark-gold); color: #000; border-color: var(--spark-gold); font-weight: bold; }
+        .empty-msg { text-align: center; color: var(--text-muted); padding: 30px 10px; }
 
         .preset-card {
             background-color: var(--bg-card); border: 1px solid #333; border-radius: 12px;
-            padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative;
+            padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative; min-width: 0;
         }
-
         .song-title-input {
-            width: 85%; background: transparent; border: none; color: var(--spark-gold); 
-            font-size: 1.5em; font-weight: bold; margin-bottom: 15px; outline: none; 
+            width: 85%; background: transparent; border: none; color: var(--spark-gold);
+            font-size: 1.5em; font-weight: bold; margin-bottom: 15px; outline: none;
             border-bottom: 1px dashed #555; padding-bottom: 5px;
         }
+        .delete-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--spark-red); font-size: 1.5em; cursor: pointer; }
 
-        .delete-btn {
-            position: absolute; top: 15px; right: 15px; background: none; border: none; 
-            color: var(--spark-red); font-size: 1.5em; cursor: pointer;
-        }
-
-        .action-buttons-container { display: flex; gap: 10px; margin-left: 35px; margin-bottom: 15px; flex-wrap: wrap; }
-        .spotify-btn, .youtube-btn {
-            color: white; border: none; padding: 6px 12px; border-radius: 12px; 
-            font-size: 0.8em; font-weight: bold; text-decoration: none; transition: opacity 0.2s; display: inline-block; text-align: center;
+        .action-buttons-container { display: flex; gap: 10px; margin-left: 35px; margin-bottom: 12px; flex-wrap: wrap; }
+        .spotify-btn, .youtube-btn, .ai-btn, .share-btn {
+            color: white; border: none; padding: 6px 12px; border-radius: 12px;
+            font-size: 0.8em; font-weight: bold; text-decoration: none; transition: opacity 0.2s; display: inline-block; text-align: center; cursor: pointer;
         }
         .spotify-btn { background-color: #1DB954; }
         .youtube-btn { background-color: #FF0000; }
-        .spotify-btn:hover, .youtube-btn:hover { opacity: 0.8; }
+        .ai-btn { background: linear-gradient(135deg, #8e44ad, #6c3483); }
+        .share-btn { background: #2c3e50; }
+        .spotify-btn:hover, .youtube-btn:hover, .ai-btn:hover, .share-btn:hover { opacity: 0.8; }
+
+        .tags-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 0 0 12px 35px; }
+        .song-tag { background: rgba(212,175,55,0.12); border: 1px solid #6b5a1d; color: var(--spark-gold); border-radius: 10px; padding: 2px 4px 2px 9px; font-size: 0.75em; }
+        .song-tag button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1em; padding: 0 4px; }
+        .tag-input { background: transparent; border: 1px dashed #555; color: var(--text-main); border-radius: 10px; padding: 3px 9px; font-size: 0.75em; width: 90px; outline: none; }
+        .tag-input:focus { border-color: var(--spark-gold); }
 
         .drag-handle { position: absolute; top: 15px; left: 15px; cursor: grab; font-size: 1.6em; color: var(--spark-gold); user-select: none; }
         .drag-handle:active { cursor: grabbing; }
-        
         .preset-card.dragging { opacity: 0.4; border: 2px dashed var(--spark-gold); }
         .preset-card.drag-over { border-top: 4px solid #2ecc71; }
 
@@ -85,37 +95,38 @@
             font-family: inherit; font-size: 0.85em; resize: vertical; box-sizing: border-box; transition: 0.3s;
         }
         .technical-notes:focus { outline: none; border-color: var(--spark-gold); color: var(--text-main); }
-        
+
         .search-box {
-            width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444; 
+            width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #444;
             background: #111; color: white; font-size: 0.9em; box-sizing: border-box;
         }
-        .suggestion-item {
-            padding: 12px; background: #252525; margin-top: 5px; border-radius: 8px; cursor: pointer; 
-            font-size: 0.85em; border: 1px solid var(--spark-gold); color: var(--spark-gold); font-weight: bold;
-        }
+        .toolbar .search-box { margin: 0; }
+        .suggestion-item { padding: 12px; background: #252525; margin-top: 5px; border-radius: 8px; cursor: pointer; font-size: 0.85em; border: 1px solid var(--spark-gold); color: var(--spark-gold); font-weight: bold; }
         .user-suggestion { border-color: #2ecc71; color: #2ecc71; }
 
         .mode-switch { display: flex; gap: 0; margin-bottom: 15px; border-radius: 8px; overflow: hidden; border: 1px solid var(--spark-gold); }
         .mode-btn { flex: 1; padding: 10px; background: #111; color: var(--text-muted); border: none; cursor: pointer; font-weight: bold; font-size: 0.9em; transition: 0.3s; }
         .mode-btn.active { background: var(--spark-gold); color: #000; }
 
-        .tabs-container { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #333; padding-bottom: 0px; overflow-x: auto; scrollbar-width: none; }
+        .tabs-container { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #333; overflow-x: auto; scrollbar-width: none; }
         .tabs-container::-webkit-scrollbar { display: none; }
         .tab { padding: 10px 15px; background: #222; border-radius: 8px 8px 0 0; color: var(--text-muted); cursor: pointer; font-size: 0.9em; font-weight: bold; white-space: nowrap; border: 1px solid #333; border-bottom: none; transition: background 0.3s; }
         .tab.active { background: var(--text-main); color: #000; border-color: var(--text-main); }
         .tab.add-tab { background: transparent; color: var(--spark-gold); border: 1px dashed var(--spark-gold); border-bottom: none; }
 
-        .part-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
-        .song-part-select { flex-grow: 1; background-color: var(--input-bg); border: 1px solid #555; color: var(--text-main); font-size: 0.9em; outline: none; border-radius: 6px; padding: 6px; font-weight: bold; }
-        .btn-delete-part { background: rgba(192, 57, 43, 0.2); color: var(--spark-red); border: 1px solid var(--spark-red); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: bold; }
+        .part-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px; }
+        .song-part-select { flex-grow: 1; min-width: 0; background-color: var(--input-bg); border: 1px solid #555; color: var(--text-main); font-size: 0.9em; outline: none; border-radius: 6px; padding: 6px; font-weight: bold; }
+        .btn-delete-part { background: rgba(192,57,43,0.2); color: var(--spark-red); border: 1px solid var(--spark-red); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: bold; }
+        .btn-ab { background: #1a1a1a; color: var(--spark-gold); border: 1px solid var(--spark-gold); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; white-space: nowrap; }
+        .btn-ab.is-b { background: var(--spark-gold); color: #000; }
+        .btn-ab:disabled { opacity: 0.35; cursor: default; }
 
         /* --- CATENA EFFETTI --- */
         .chain-container { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; scroll-snap-type: x mandatory; }
         .chain-container::-webkit-scrollbar { height: 8px; }
         .chain-container::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
-        .pedal-slot { flex: 0 0 135px; background-color: var(--pedal-bg); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; align-items: center; border: 1px solid #444; scroll-snap-align: start; }
+        .pedal-slot { flex: 0 0 135px; background-color: var(--pedal-bg); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; align-items: center; border: 1px solid #444; scroll-snap-align: start; box-sizing: border-box; }
         .pedal-category { font-size: 0.7em; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; }
         .pedal-image { width: 100%; height: 110px; object-fit: contain; margin-bottom: 8px; border-radius: 6px; background-color: #111; padding: 5px; transition: all 0.3s ease; box-sizing: border-box; }
         .pedal-image.off { filter: grayscale(100%) brightness(0.4); opacity: 0.7; }
@@ -124,40 +135,96 @@
         .status-indicator { width: 14px; height: 14px; border-radius: 50%; background-color: #555; margin-bottom: 10px; cursor: pointer; border: 2px solid #111; transition: all 0.2s; }
         .status-indicator.on { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
         .status-indicator.off { background-color: #e74c3c; box-shadow: 0 0 10px #e74c3c; }
-        .status-indicator.empty { visibility: hidden; } 
-        
+        .status-indicator.empty { visibility: hidden; }
+
         .pedal-select { width: 100%; background-color: var(--input-bg); color: white; border: 1px solid #555; border-radius: 6px; font-size: 0.75em; padding: 6px; margin-bottom: 10px; outline: none; }
         .params-container { width: 100%; display: flex; flex-direction: column; gap: 5px; }
-        .param-row { display: flex; justify-content: space-between; align-items: center; background-color: #1a1a1a; padding: 3px 6px; border-radius: 4px; border: 1px solid #444; }
+        .param-row { background-color: #1a1a1a; padding: 3px 7px 2px; border-radius: 4px; border: 1px solid #444; }
+        .param-top { display: flex; justify-content: space-between; align-items: center; }
         .param-label { font-size: 0.7em; color: var(--spark-gold); font-weight: bold; }
-        .param-val { background-color: #333; color: white; border: 1px solid #555; border-radius: 4px; font-size: 0.75em; padding: 2px 4px; outline: none; cursor: pointer; text-align: center; font-weight: bold; }
+        .param-num { color: #fff; font-weight: bold; font-size: 0.75em; min-width: 1.4em; text-align: right; font-variant-numeric: tabular-nums; }
+        .param-range { width: 100%; margin: 2px 0 0; height: 18px; accent-color: var(--spark-gold); touch-action: pan-y; }
+
+        .warnings { margin-top: 4px; display: flex; flex-direction: column; gap: 5px; }
+        .warn-item { font-size: 0.8em; line-height: 1.4; padding: 7px 10px; border-radius: 6px; background: rgba(245,176,65,0.1); border-left: 3px solid #f5b041; color: #f5cf8f; }
+        .warn-item.info { background: rgba(93,173,226,0.1); border-left-color: #5dade2; color: #a9cce3; }
 
         @media (min-width: 768px) {
             .header-bar { flex-direction: row; }
             .header-controls { justify-content: flex-end; width: auto; }
-            .pedal-slot { flex: 1; min-width: 0; } 
+            .pedal-slot { flex: 1; min-width: 0; }
             .chain-container { overflow-x: visible; justify-content: space-between; }
         }
 
-        /* --- MODALITÀ LIVE E ACCORDION --- */
-        body.live-mode .delete-btn, body.live-mode .drag-handle, body.live-mode .search-box, body.live-mode .suggestion-item, body.live-mode .add-tab, body.live-mode .btn-delete-part, body.live-mode .btn-hide-live, body.live-mode .setlist-btn, body.live-mode .collapse-btn { display: none !important; }
-        body.live-mode .preset-card.mode-input .pedal-slot.cat-amp { display: none !important; }
-        body.live-mode .pedal-slot.is-empty { opacity: 0.15; pointer-events: none; }
-        body.live-mode .song-title-input { margin-left: 0 !important; width: 100% !important; text-align: center; font-size: 2em; border-bottom: none; pointer-events: none; }
-        body.live-mode .action-buttons-container { justify-content: center; margin-left: 0 !important; }
-        body.live-mode .pedal-select, body.live-mode .param-val, body.live-mode .song-part-select { pointer-events: none; border: none; background: transparent; appearance: none; -webkit-appearance: none; font-size: 1.1em; text-align: center; }
-        body.live-mode .technical-notes { font-size: 1.2em; pointer-events: none; border: 1px dashed var(--spark-gold); }
-        
-        .live-toggle-btn { background-color: #e67e22; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        body.live-mode .live-toggle-btn { background-color: #e74c3c; box-shadow: 0 0 15px #e74c3c; }
-
+        /* --- ACCORDION --- */
         .collapse-btn { position: absolute; top: 15px; right: 45px; background: none; border: none; color: var(--text-muted); font-size: 1.2em; cursor: pointer; transition: color 0.3s; }
         .collapse-btn:hover { color: white; }
-        body:not(.live-mode) .preset-card.collapsed .search-box, body:not(.live-mode) .preset-card.collapsed div[id^="results-"], body:not(.live-mode) .preset-card.collapsed .mode-switch, body:not(.live-mode) .preset-card.collapsed .tabs-container, body:not(.live-mode) .preset-card.collapsed .part-controls, body:not(.live-mode) .preset-card.collapsed .chain-container, body:not(.live-mode) .preset-card.collapsed .technical-notes { display: none !important; }
+        body:not(.live-mode) .preset-card.collapsed .search-box, body:not(.live-mode) .preset-card.collapsed div[id^="results-"], body:not(.live-mode) .preset-card.collapsed .mode-switch, body:not(.live-mode) .preset-card.collapsed .tabs-container, body:not(.live-mode) .preset-card.collapsed .part-controls, body:not(.live-mode) .preset-card.collapsed .chain-container, body:not(.live-mode) .preset-card.collapsed .technical-notes, body:not(.live-mode) .preset-card.collapsed .warnings, body:not(.live-mode) .preset-card.collapsed .tags-row { display: none !important; }
 
         .setlist-btn { position: absolute; top: 15px; right: 75px; background: none; border: none; font-size: 1.2em; cursor: pointer; transition: 0.3s; filter: grayscale(100%) opacity(0.4); }
         .setlist-btn.active { filter: grayscale(0%) opacity(1); }
-        body.live-mode.has-setlist .preset-card:not(.in-setlist) { display: none !important; }      
+
+        /* --- MODALITÀ LIVE (un brano alla volta, schermo grande) --- */
+        body.live-mode { padding-bottom: 230px; }
+        body.live-mode .header-bar, body.live-mode .toolbar, body.live-mode #banner, body.live-mode .delete-btn, body.live-mode .drag-handle, body.live-mode .search-box, body.live-mode .suggestion-item, body.live-mode .add-tab, body.live-mode .btn-delete-part, body.live-mode .setlist-btn, body.live-mode .collapse-btn, body.live-mode .ai-btn, body.live-mode .share-btn, body.live-mode .tags-row, body.live-mode .warnings, body.live-mode .btn-diff, body.live-mode .song-part-select, body.live-mode .action-buttons-container { display: none !important; }
+        body.live-mode .preset-card { display: none; }
+        body.live-mode .preset-card.live-current { display: block; padding: 14px; }
+        body.live-mode .pedal-slot.is-empty { opacity: 0.15; pointer-events: none; }
+        body.live-mode .song-title-input { margin-left: 0 !important; width: 100% !important; text-align: center; font-size: 2em; border-bottom: none; pointer-events: none; }
+        body.live-mode .tab { font-size: 1.2em; padding: 14px 22px; }
+        body.live-mode .mode-btn { font-size: 1.05em; padding: 14px; }
+        body.live-mode .btn-ab { font-size: 1.2em; padding: 10px 18px; }
+        body.live-mode .part-controls { justify-content: center; }
+        body.live-mode .pedal-select { pointer-events: none; border: none; background: transparent; appearance: none; -webkit-appearance: none; font-size: 1.1em; text-align: center; }
+        body.live-mode .param-range { pointer-events: none; }
+        body.live-mode .param-label { font-size: 0.95em; }
+        body.live-mode .param-num { font-size: 1.15em; }
+        body.live-mode .technical-notes { font-size: 1.2em; pointer-events: none; border: 1px dashed var(--spark-gold); }
+
+        #live-bar { position: fixed; left: 0; right: 0; bottom: 0; background: #0d0d0d; border-top: 2px solid var(--spark-gold); padding: 8px max(12px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); z-index: 900; display: none; }
+        .lb-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        #live-bar button { background: #2a2a2a; color: #fff; border: 1px solid #555; border-radius: 10px; font-size: 1.25em; padding: 9px 14px; min-width: 52px; cursor: pointer; }
+        #live-bar button:active { background: var(--spark-gold); color: #000; }
+        .lb-title, .lb-part { flex: 1; min-width: 0; text-align: center; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lb-title { color: var(--spark-gold); font-size: 1.1em; }
+        .lb-meta { margin-bottom: 0; font-size: 0.8em; }
+        .lb-meta button { font-size: 1.05em !important; padding: 7px 11px !important; min-width: 44px !important; }
+        .lb-timer { flex: 1; min-width: 0; }
+        .lb-timer.late { color: #e74c3c; font-weight: bold; }
+        #live-bar .lb-exit { background: var(--spark-red); font-size: 0.9em !important; }
+
+        /* --- FINESTRE, AVVISI, TOAST --- */
+        .sp-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1100; display: flex; align-items: flex-start; justify-content: center; padding: 15px; overflow-y: auto; box-sizing: border-box; }
+        .sp-modal { background: var(--bg-card); border: 1px solid var(--spark-gold); border-radius: 14px; width: 100%; max-width: 640px; padding: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.7); box-sizing: border-box; margin: auto 0; }
+        .sp-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .sp-head h2 { margin: 0; flex: 1; color: var(--spark-gold); font-size: 1.15em; }
+        .sp-x { background: none; border: none; color: var(--text-muted); font-size: 1.3em; cursor: pointer; }
+        .sp-note { font-size: 0.8em; color: var(--text-muted); line-height: 1.4; }
+        .sp-chip { background: #2a2a2a; border: 1px solid #555; border-radius: 6px; padding: 1px 7px; font-size: 0.9em; }
+        .sp-keyrow, .sp-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #2a2a2a; flex-wrap: wrap; }
+        .sp-actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        .sp-actions .btn { flex: 1; }
+        .sp-modal textarea, .sp-modal input[type=text], .sp-modal input[type=number] { background: #111; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 8px; font-size: 0.9em; box-sizing: border-box; font-family: inherit; }
+        .sp-modal textarea { width: 100%; min-height: 90px; resize: vertical; word-break: break-all; }
+        .sp-list { display: flex; flex-direction: column; }
+        .sp-song { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #2a2a2a; }
+        .sp-song .sp-t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .sp-song button { background: #2a2a2a; border: 1px solid #555; color: #fff; border-radius: 6px; padding: 4px 9px; cursor: pointer; }
+        .sp-song input[type=number] { width: 58px; }
+        .sp-total { margin-top: 12px; padding: 10px; border-radius: 8px; background: #181818; font-size: 0.9em; line-height: 1.5; }
+        .sp-total.over { border: 1px solid #e74c3c; color: #f1948a; }
+        .sp-total.ok { border: 1px solid #2ecc71; }
+        .sp-diff li { margin-bottom: 6px; font-size: 0.88em; line-height: 1.4; }
+        .sp-ai-out { margin-top: 12px; padding: 10px; background: #181818; border-left: 3px solid #8e44ad; border-radius: 6px; font-size: 0.88em; line-height: 1.5; white-space: pre-wrap; }
+
+        #banner { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+        .banner-item { background: #231f10; border: 1px solid var(--spark-gold); border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 0.88em; }
+        .banner-item span { flex: 1; min-width: 180px; }
+        .banner-item .btn { padding: 6px 12px; font-size: 0.85em; }
+
+        #toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: #2b2b2b; border: 1px solid var(--spark-gold); border-radius: 10px; padding: 10px 14px; z-index: 1200; display: none; align-items: center; gap: 12px; font-size: 0.88em; max-width: calc(100vw - 32px); box-shadow: 0 6px 24px rgba(0,0,0,0.6); }
+        #toast button { background: var(--spark-gold); color: #000; border: none; border-radius: 6px; padding: 4px 10px; font-weight: bold; cursor: pointer; }
+        body.live-mode #toast { bottom: 190px; }
     </style>
 </head>
 <body>
@@ -165,75 +232,280 @@
     <div class="header-bar">
         <h1>SPARK PRESET INTELLIGENCE</h1>
         <div class="header-controls">
-            <a href="labs.html" class="btn btn-secondary btn-hide-live" style="background-color: #8e44ad; text-decoration: none;">🧪 Apri Labs</a>
-            <button class="btn btn-secondary btn-hide-live" onclick="exportData()">💾 Esporta</button>
-            <label class="btn btn-secondary btn-hide-live" style="margin: 0;">📂 Importa<input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)"></label>
-            <button class="btn btn-hide-live" onclick="addSong()">+ Nuovo Brano</button>
-            <button class="live-toggle-btn" onclick="toggleLiveMode()" id="liveBtn">🎸 Modalità Live</button>
+            <button class="btn btn-secondary" id="undoBtn" onclick="undo()" title="Annulla (Ctrl+Z)" disabled>↶</button>
+            <button class="btn btn-secondary" id="redoBtn" onclick="redo()" title="Ripristina (Ctrl+Shift+Z)" disabled>↷</button>
+            <a href="labs.html" class="btn btn-secondary" style="background-color: #8e44ad; text-decoration: none;">🧪 Labs</a>
+            <button class="btn btn-secondary" onclick="openSetlist()">📋 Scaletta</button>
+            <button class="btn btn-secondary" onclick="openBackup()">💾 Backup</button>
+            <button class="btn btn-secondary" onclick="exportData()">⬇️ Esporta</button>
+            <label class="btn btn-secondary" style="margin: 0;">📂 Importa<input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)"></label>
+            <button class="btn btn-secondary" onclick="openImportCode()">🔗 Da codice</button>
+            <button class="btn btn-ai" onclick="openAI(null)">✨ Brano con AI</button>
+            <button class="btn" onclick="addSong()">+ Nuovo Brano</button>
+            <button class="btn" id="liveBtn" style="background:#e67e22;color:#fff" onclick="SparkLive.toggle()">🎸 Modalità Live</button>
         </div>
     </div>
 
+    <div id="banner"></div>
+
+    <div class="toolbar">
+        <input type="text" class="search-box" id="songSearch" placeholder="🔍 Cerca per titolo, tag, ampli o pedale…" oninput="setFilter(this.value)">
+        <div class="tag-filter" id="tagFilter"></div>
+    </div>
+
     <div id="preset-list"></div>
+    <div id="toast"></div>
 
     <script src="catalog.js"></script>
+    <script src="pedal_info.js"></script>
+    <script src="cloud_presets.js"></script>
+    <script src="validator.js"></script>
+    <script src="ai_engine.js"></script>
+    <script src="store.js"></script>
+    <script src="share.js"></script>
+    <script src="live.js"></script>
 
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
+            window.addEventListener('load', () => { try { navigator.serviceWorker.register('sw.js'); } catch (e) { /* non disponibile */ } });
         }
 
-        let personalLibrary = JSON.parse(localStorage.getItem('sparkPersonalLibrary')) || [];
-        
-        function migrateToModes(songList) {
-            return songList.map(s => {
-                if (s.parts && s.parts[0] && s.parts[0].modes) return s;
-                let oldParts = s.parts || [ { name: "Accompagnamento", chain: s.chain } ];
-                let newParts = oldParts.map(p => {
-                    return {
-                        name: p.name || "Accompagnamento",
-                        modes: {
-                            cuffie: JSON.parse(JSON.stringify(p.chain || defaultChain)),
-                            input: JSON.parse(JSON.stringify(p.chain || defaultChain))
-                        }
-                    };
+        const escHtml = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const clone = (o) => JSON.parse(JSON.stringify(o));
+
+        // archivio sicuro: se il browser blocca localStorage l'app resta usabile (solo per questa sessione)
+        const memStore = {};
+        const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return k in memStore ? memStore[k] : null; } };
+        const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { memStore[k] = String(v); } };
+        const lsJSON = (k, fallback) => { try { return JSON.parse(lsGet(k)) || fallback; } catch (e) { return fallback; } };
+
+        let personalLibrary = lsJSON('sparkPersonalLibrary', []);
+        let filterText = '', filterTag = '';
+
+        // ---------- normalizzazione e riparazione dei dati ----------
+        function fixSlots(chain) {
+            const base = clone(defaultChain);
+            const src = Array.isArray(chain) ? chain : base;
+            return base.map(b => {
+                const slot = src.find(x => x && x.category === b.category) || b;
+                const pedals = catalog[b.category];
+                const data = pedals.find(p => p.name === slot.name) || pedals[0];
+                const vals = (data.params || []).map((_, i) => {
+                    const n = Number(slot.paramValues && slot.paramValues[i]);
+                    return (Number.isInteger(n) && n >= 0 && n <= 10) ? String(n) : '5';
                 });
-                return {
-                    title: s.title, activePartIndex: s.activePartIndex || 0, activeMode: s.activeMode || 'cuffie', parts: newParts
-                };
+                const none = data.name === 'Nessun Pedale';
+                return { category: b.category, name: data.name, img: data.img, status: none ? 'off' : (slot.status === 'off' ? 'off' : 'on'), paramValues: vals };
             });
         }
 
-        let rawSongs = JSON.parse(localStorage.getItem('sparkPresetsV7')) || [];
-        let songs = migrateToModes(rawSongs);
+        function migrateToModes(songList) {
+            return songList.map(s => {
+                const oldParts = (s.parts && s.parts.length) ? s.parts : [{ name: 'Accompagnamento', chain: s.chain }];
+                const parts = oldParts.map(p => {
+                    const m = p.modes;
+                    const out = {
+                        name: p.name || 'Accompagnamento',
+                        modes: { cuffie: fixSlots(m ? (m.cuffie || m.backup || m.input) : p.chain), input: fixSlots(m ? (m.input || m.cuffie || m.backup) : p.chain) }
+                    };
+                    if (p.stash && p.stash.cuffie) { out.stash = { cuffie: fixSlots(p.stash.cuffie), input: fixSlots(p.stash.input || p.stash.cuffie) }; out.ab = p.ab === 'B' ? 'B' : 'A'; }
+                    return out;
+                });
+                const idx = Number.isInteger(s.activePartIndex) && s.activePartIndex < parts.length ? s.activePartIndex : 0;
+                return Object.assign({}, s, {
+                    title: s.title || 'Senza titolo', parts, activePartIndex: idx,
+                    activeMode: s.activeMode === 'input' ? 'input' : 'cuffie',
+                    tags: Array.isArray(s.tags) ? s.tags.map(String) : [],
+                    duration: Number(s.duration) > 0 ? Number(s.duration) : 4
+                });
+            });
+        }
 
-        function renderApp() {
+        const rawStored = lsJSON('sparkPresetsV7', []);
+        let songs = migrateToModes(rawStored);
+
+        // ---------- salvataggio e cronologia (annulla / ripristina) ----------
+        let hist = [], histIdx = -1, lastPush = 0;
+        const histKey = () => JSON.stringify(songs, (k, v) => (k === 'isCollapsed' ? undefined : v));
+
+        function recordHistory() {
+            const key = histKey(), full = JSON.stringify(songs);
+            if (histIdx >= 0 && hist[histIdx].key === key) { hist[histIdx].full = full; return; }
+            const now = Date.now();
+            if (histIdx > 0 && histIdx === hist.length - 1 && now - lastPush < 700) hist[histIdx] = { key, full };
+            else {
+                hist = hist.slice(0, histIdx + 1); hist.push({ key, full }); histIdx++;
+                if (hist.length > 60) { hist.shift(); histIdx--; }
+            }
+            lastPush = now; updateUndoButtons();
+        }
+        function updateUndoButtons() {
+            const u = document.getElementById('undoBtn'), r = document.getElementById('redoBtn');
+            if (u) u.disabled = histIdx <= 0;
+            if (r) r.disabled = histIdx >= hist.length - 1;
+        }
+        function restoreHistory(i) { histIdx = i; songs = migrateToModes(JSON.parse(hist[i].full)); lastPush = 0; renderApp({ noHistory: true }); updateUndoButtons(); }
+        function undo() { if (histIdx > 0) restoreHistory(histIdx - 1); }
+        function redo() { if (histIdx < hist.length - 1) restoreHistory(histIdx + 1); }
+        document.addEventListener('keydown', (e) => {
+            if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+            const t = e.target && e.target.tagName;
+            if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+            const k = e.key.toLowerCase();
+            if (k === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
+            else if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); redo(); }
+        });
+
+        function persist(opts) {
+            const json = JSON.stringify(songs);
+            lsSet('sparkPresetsV7', json);
+            SparkStore.onChange(json);
+            if (!(opts && opts.noHistory)) recordHistory();
+        }
+
+        // ---------- finestre, avvisi, toast ----------
+        let modalEl = null;
+        function openModal(title, bodyHTML) {
+            closeModal();
+            modalEl = document.createElement('div');
+            modalEl.className = 'sp-overlay';
+            modalEl.innerHTML = `<div class="sp-modal" role="dialog" aria-modal="true"><div class="sp-head"><h2>${escHtml(title)}</h2><button class="sp-x" aria-label="Chiudi">✖</button></div><div class="sp-body">${bodyHTML}</div></div>`;
+            modalEl.addEventListener('mousedown', (e) => { if (e.target === modalEl) closeModal(); });
+            modalEl.querySelector('.sp-x').onclick = closeModal;
+            document.body.appendChild(modalEl);
+            return modalEl.querySelector('.sp-body');
+        }
+        function closeModal() { if (modalEl) { const el = modalEl; modalEl = null; if (el.parentNode) el.parentNode.removeChild(el); } }
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalEl) closeModal(); });
+
+        let toastTimer = null;
+        function toast(msg, actionLabel, actionFn) {
+            const el = document.getElementById('toast');
+            el.innerHTML = `<span>${escHtml(msg)}</span>`;
+            if (actionLabel) { const b = document.createElement('button'); b.textContent = actionLabel; b.onclick = () => { el.style.display = 'none'; actionFn(); }; el.appendChild(b); }
+            el.style.display = 'flex';
+            clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.style.display = 'none'; }, actionLabel ? 7000 : 3500);
+        }
+
+        function showBanner(id, html, buttons) {
+            const box = document.getElementById('banner');
+            const old = document.getElementById('banner-' + id); if (old) old.remove();
+            const el = document.createElement('div'); el.className = 'banner-item'; el.id = 'banner-' + id;
+            el.innerHTML = `<span>${html}</span>`;
+            buttons.forEach(([label, fn, secondary]) => {
+                const b = document.createElement('button'); b.className = 'btn' + (secondary ? ' btn-secondary' : ''); b.textContent = label;
+                b.onclick = () => { el.remove(); fn(); }; el.appendChild(b);
+            });
+            box.appendChild(el);
+        }
+
+        async function copyText(text, okMsg) {
+            try { await navigator.clipboard.writeText(text); toast(okMsg || 'Copiato'); return true; }
+            catch (e) { toast('Copia non riuscita: seleziona il testo e copialo a mano'); return false; }
+        }
+
+        // salva un file: nelle pagine pubblicate passa dalla capability "downloads", altrove da un link
+        async function saveFile(filename, text) {
+            try {
+                if (window.claude && window.claude.use) { const d = await window.claude.use('downloads'); if (d) { await d.save({ filename, data: text }); return true; } }
+            } catch (e) { return false; }
+            const blob = new Blob([text], { type: 'application/json' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+            return true;
+        }
+
+        // ---------- helper sulla catena attiva ----------
+        function activePart(si) { return songs[si].parts[songs[si].activePartIndex]; }
+        function curChain(si) { return activePart(si).modes[songs[si].activeMode]; }
+        const BASE_DEFAULT = 5;
+
+        // ---------- ricerca e tag ----------
+        function songHaystack(s) {
+            const names = [];
+            s.parts.forEach(p => {
+                names.push(p.name);
+                [p.modes, p.stash].forEach(m => { if (m) ['cuffie', 'input'].forEach(k => m[k].forEach(x => { if (x.name !== 'Nessun Pedale') names.push(x.name); })); });
+            });
+            return [s.title, s.notes || '', (s.tags || []).join(' '), names.join(' ')].join(' ').toLowerCase();
+        }
+        function songMatches(s) {
+            if (filterTag && !(s.tags || []).includes(filterTag)) return false;
+            const q = filterText.trim().toLowerCase();
+            if (!q) return true;
+            const hay = songHaystack(s);
+            return q.split(/\s+/).every(w => hay.includes(w));
+        }
+        function setFilter(v) { filterText = v; renderApp({ noPersist: true }); }
+        function setTagFilter(t) { filterTag = filterTag === t ? '' : t; renderApp({ noPersist: true }); }
+        function renderTagFilter() {
+            const all = {}; songs.forEach(s => (s.tags || []).forEach(t => { all[t] = (all[t] || 0) + 1; }));
+            const keys = Object.keys(all).sort();
+            if (filterTag && !all[filterTag]) filterTag = '';
+            document.getElementById('tagFilter').innerHTML = keys.map(t => `<span class="tag-chip ${t === filterTag ? 'active' : ''}" data-tag="${escHtml(t)}">#${escHtml(t)} · ${all[t]}</span>`).join('');
+            document.querySelectorAll('#tagFilter .tag-chip').forEach(el => el.onclick = () => setTagFilter(el.dataset.tag));
+        }
+        function addTag(si, raw) {
+            const t = String(raw || '').trim().toLowerCase().replace(/^#/, '').slice(0, 24);
+            if (!t) return;
+            const s = songs[si]; s.tags = s.tags || [];
+            if (!s.tags.includes(t)) { s.tags.push(t); renderApp(); }
+        }
+        function removeTag(si, t) { songs[si].tags = (songs[si].tags || []).filter(x => x !== t); renderApp(); }
+        function tagKey(e, si) { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); const v = e.target.value; e.target.value = ''; addTag(si, v); } }
+
+        // ---------- avvisi di coerenza ----------
+        function warningsHTML(si) {
+            const w = SparkValidate.validateSong(songs[si]);
+            return w.slice(0, 5).map(x => `<div class="warn-item ${x.level === 'info' ? 'info' : ''}">${x.level === 'info' ? 'ℹ️' : '⚠️'} ${escHtml(x.text)}</div>`).join('');
+        }
+        function refreshWarnings(si) { const el = document.getElementById('warn-' + si); if (el) el.innerHTML = warningsHTML(si); }
+
+        // ---------- disegno dell'app ----------
+        function renderApp(opts) {
+            opts = opts || {};
             const container = document.getElementById('preset-list');
             container.innerHTML = '';
+            const live = SparkLive.isOn(), liveIdx = live ? SparkLive.currentIndex() : -1;
+            let shown = 0;
 
             songs.forEach((song, songIndex) => {
+                if (live ? songIndex !== liveIdx : !songMatches(song)) return;
+                shown++;
+                const part = song.parts[song.activePartIndex];
                 const card = document.createElement('div');
-                card.className = `preset-card ${song.isCollapsed ? 'collapsed' : ''} ${song.isSetlist ? 'in-setlist' : ''}`;
-                card.draggable = true;
-                card.setAttribute("ondragstart", `dragStart(event, ${songIndex})`);
-                card.setAttribute("ondragover", `dragOver(event)`);
-                card.setAttribute("ondrop", `drop(event, ${songIndex})`);
-                card.setAttribute("ondragenter", `dragEnter(event)`);
-                card.setAttribute("ondragleave", `dragLeave(event)`);
-                card.setAttribute("ondragend", `dragEnd(event)`);
+                card.className = `preset-card ${song.isCollapsed ? 'collapsed' : ''} ${song.isSetlist ? 'in-setlist' : ''} ${live ? 'live-current' : ''}`;
+                card.setAttribute('ondragstart', `dragStart(event, ${songIndex})`);
+                card.setAttribute('ondragover', 'dragOver(event)');
+                card.setAttribute('ondrop', `drop(event, ${songIndex})`);
+                card.setAttribute('ondragenter', 'dragEnter(event)');
+                card.setAttribute('ondragleave', 'dragLeave(event)');
+                card.setAttribute('ondragend', 'dragEnd(event)');
+
+                const partNames = ['Accompagnamento', 'Assolo', 'Intro / Riff', 'Clean / Arpeggio'];
+                if (!partNames.includes(part.name)) partNames.push(part.name);
+                const hasStash = !!part.stash;
 
                 card.innerHTML = `
                     <div class="drag-handle" title="Tieni premuto per trascinare">☰</div>
-                    <button class="setlist-btn btn-hide-live ${song.isSetlist ? 'active' : ''}" onclick="toggleSetlist(${songIndex})" title="Aggiungi alla Scaletta Live">⭐</button>
-                    <button class="collapse-btn btn-hide-live" onclick="toggleCollapse(${songIndex})">${song.isCollapsed ? '▶' : '▼'}</button>
-                    <button class="delete-btn btn-hide-live" onclick="deleteSong(${songIndex})">✖</button>
-                    
-                    <input type="text" class="song-title-input" style="margin-left: 35px; width: calc(100% - 130px);" value="${song.title}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
-                    
+                    <button class="setlist-btn ${song.isSetlist ? 'active' : ''}" onclick="toggleSetlist(${songIndex})" title="Aggiungi alla Scaletta Live">⭐</button>
+                    <button class="collapse-btn" onclick="toggleCollapse(${songIndex})">${song.isCollapsed ? '▶' : '▼'}</button>
+                    <button class="delete-btn" onclick="deleteSong(${songIndex})">✖</button>
+
+                    <input type="text" class="song-title-input" style="margin-left: 35px; width: calc(100% - 130px);" value="${escHtml(song.title)}" onchange="updateSongTitle(${songIndex}, this.value)" placeholder="Titolo del brano">
+
                     <div class="action-buttons-container">
                         <a href="https://open.spotify.com/search/${encodeURIComponent(song.title)}" target="_blank" class="spotify-btn" title="Cerca su Spotify">🎵 Spotify</a>
                         <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(song.title + ' backing track guitar')}" target="_blank" class="youtube-btn" title="Cerca Backing Track">▶️ YouTube</a>
+                        <button class="ai-btn" onclick="openAI(${songIndex})" title="Genera o perfeziona gli effetti con l'AI">✨ AI</button>
+                        <button class="share-btn" onclick="openShare(${songIndex})" title="Condividi come link o codice">🔗 Condividi</button>
                     </div>
-                    
+
+                    <div class="tags-row">
+                        ${(song.tags || []).map(t => `<span class="song-tag">#${escHtml(t)}<button onclick="removeTag(${songIndex}, this.dataset.t)" data-t="${escHtml(t)}" aria-label="Rimuovi tag">✖</button></span>`).join('')}
+                        <input type="text" class="tag-input" placeholder="+ tag" onkeydown="tagKey(event, ${songIndex})" onblur="const v = this.value; this.value = ''; if (v) setTimeout(() => addTag(${songIndex}, v), 0)">
+                    </div>
+
                     <input type="text" class="search-box" placeholder="🔍 Cerca suono (es. Pink Floyd, AC/DC)..." onkeyup="searchPreset(${songIndex}, this.value)">
                     <div id="results-${songIndex}"></div>
 
@@ -243,59 +515,59 @@
                     </div>
 
                     <div class="tabs-container">
-                        ${song.parts.map((p, pIdx) => `<div class="tab ${song.activePartIndex==pIdx?'active':''}" onclick="switchPart(${songIndex},${pIdx})">${p.name}</div>`).join('')}
+                        ${song.parts.map((p, pIdx) => `<div class="tab ${song.activePartIndex == pIdx ? 'active' : ''}" onclick="switchPart(${songIndex},${pIdx})">${escHtml(p.name)}</div>`).join('')}
                         <div class="tab add-tab" onclick="addPart(${songIndex})">+ Parte</div>
                     </div>
 
                     <div class="part-controls">
                         <select class="song-part-select" onchange="updatePartName(${songIndex}, this.value)">
-                            <option value="Accompagnamento" ${song.parts[song.activePartIndex].name === 'Accompagnamento' ? 'selected' : ''}>Accompagnamento</option>
-                            <option value="Assolo" ${song.parts[song.activePartIndex].name === 'Assolo' ? 'selected' : ''}>Assolo</option>
-                            <option value="Intro / Riff" ${song.parts[song.activePartIndex].name === 'Intro / Riff' ? 'selected' : ''}>Intro / Riff</option>
-                            <option value="Clean / Arpeggio" ${song.parts[song.activePartIndex].name === 'Clean / Arpeggio' ? 'selected' : ''}>Clean / Arpeggio</option>
+                            ${partNames.map(n => `<option value="${escHtml(n)}" ${part.name === n ? 'selected' : ''}>${escHtml(n)}</option>`).join('')}
                         </select>
+                        <button class="btn-ab ${part.ab === 'B' ? 'is-b' : ''}" onclick="toggleAB(${songIndex})" title="Versione A/B di questa parte: crea una variante e passa dall'una all'altra">A/B · ${part.ab === 'B' ? 'B' : 'A'}</button>
+                        <button class="btn-ab btn-diff" onclick="showDiff(${songIndex})" ${hasStash ? '' : 'disabled'} title="Differenze tra A e B">🔍</button>
                         ${song.parts.length > 1 ? `<button class="btn-delete-part" onclick="deletePart(${songIndex})">Elimina Parte</button>` : ''}
                     </div>
 
                     <div class="chain-container">${renderChain(song, songIndex)}</div>
-                    
-                    <textarea class="technical-notes" placeholder="📝 Note tecniche (es. Usa pickup al manico, attiva il fuzz nel ritornello...)" onchange="updateNotes(${songIndex}, this.value)">${song.notes || ''}</textarea>
-                `;                
+                    <div class="warnings" id="warn-${songIndex}">${warningsHTML(songIndex)}</div>
+
+                    <textarea class="technical-notes" placeholder="📝 Note tecniche (es. Usa pickup al manico, attiva il fuzz nel ritornello...)" onchange="updateNotes(${songIndex}, this.value)">${escHtml(song.notes || '')}</textarea>
+                `;
                 container.appendChild(card);
+                const handle = card.querySelector('.drag-handle');
+                handle.addEventListener('mousedown', () => { card.draggable = true; });
             });
-            localStorage.setItem('sparkPresetsV7', JSON.stringify(songs));
+
+            if (!shown) container.innerHTML = `<div class="empty-msg">${live ? 'Nessun brano nella scaletta.' : (songs.length ? 'Nessun brano corrisponde alla ricerca.' : 'Nessun brano. Premi "+ Nuovo Brano" o "✨ Brano con AI".')}</div>`;
+            renderTagFilter();
+            SparkLive.refresh();
+            if (!opts.noPersist) persist(opts);
+            updateUndoButtons();
         }
 
         function renderChain(song, songIndex) {
-            const activePart = song.parts[song.activePartIndex];
-            const currentChain = activePart.modes[song.activeMode];
-            
+            const currentChain = song.parts[song.activePartIndex].modes[song.activeMode];
+
             return currentChain.map((slot, slotIndex) => {
-                let optionsHTML = catalog[slot.category].map(pedal => 
-                    `<option value="${pedal.name}" ${pedal.name === slot.name ? 'selected' : ''}>${pedal.name}</option>`
+                const optionsHTML = catalog[slot.category].map(pedal =>
+                    `<option value="${escHtml(pedal.name)}" ${pedal.name === slot.name ? 'selected' : ''}>${escHtml(pedal.name)}</option>`
                 ).join('');
 
-                let isEmpty = (slot.name === "Nessun Pedale");
-                let dotClass = isEmpty ? "empty" : (slot.status === "on" ? "on" : "off");
-                let imgClass = slot.status === "on" ? "" : "off";
-                
-                // SISTEMAZIONE IMMAGINI E CATALOGO ESTERNO
-                let pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
-                let imageHTML = "";
-                if (isEmpty || !pedalData.img) {
-                    imageHTML = `<div class="pedal-empty-box">VUOTO</div>`;
-                } else {
-                    imageHTML = `<img src="${pedalData.img}" class="pedal-image ${imgClass}" alt="${slot.name}" onerror="this.style.opacity='0'">`;
-                }
+                const isEmpty = (slot.name === 'Nessun Pedale');
+                const dotClass = isEmpty ? 'empty' : (slot.status === 'on' ? 'on' : 'off');
+                const imgClass = slot.status === 'on' ? '' : 'off';
+
+                const pedalData = catalog[slot.category].find(p => p.name === slot.name) || catalog[slot.category][0];
+                let imageHTML;
+                if (isEmpty || !pedalData.img) imageHTML = `<div class="pedal-empty-box">VUOTO</div>`;
+                else imageHTML = `<img src="${pedalData.img}" class="pedal-image ${imgClass}" alt="${escHtml(slot.name)}" loading="lazy" onerror="this.style.opacity='0'">`;
 
                 let paramsHTML = '';
                 if (pedalData.params && pedalData.params.length > 0) {
                     paramsHTML = '<div class="params-container">';
                     pedalData.params.forEach((paramName, pIndex) => {
-                        let val = slot.paramValues && slot.paramValues[pIndex] !== undefined ? slot.paramValues[pIndex] : "5";
-                        let valOptions = "";
-                        for(let i=0; i<=10; i++) { valOptions += `<option value="${i}" ${val == i ? 'selected' : ''}>${i}</option>`; }
-                        paramsHTML += `<div class="param-row"><span class="param-label">${paramName}</span><select class="param-val" onchange="updateParamValue(${songIndex}, ${slotIndex}, ${pIndex}, this.value)">${valOptions}</select></div>`;
+                        const raw = slot.paramValues && slot.paramValues[pIndex] !== undefined ? slot.paramValues[pIndex] : '5';
+                        paramsHTML += `<div class="param-row"><div class="param-top"><span class="param-label">${escHtml(paramName)}</span><span class="param-num">${escHtml(raw)}</span></div><input type="range" class="param-range" min="0" max="10" step="1" value="${escHtml(raw)}" aria-label="${escHtml(paramName)}" oninput="onParam(${songIndex}, ${slotIndex}, ${pIndex}, this)" onchange="persist()"></div>`;
                     });
                     paramsHTML += '</div>';
                 }
@@ -304,24 +576,27 @@
             }).join('');
         }
 
-        // INTELLIGENZA E RICERCA (Ora ignora i suggerimenti interni se catalog.js non li ha, cerca solo nella memoria)
+        // ---------- ricerca suoni (libreria personale + preset cloud) ----------
+        function allLibrary() { return personalLibrary.concat(typeof cloudPresets !== 'undefined' ? cloudPresets : []); }
+
         function searchPreset(songIndex, query) {
             const resultsContainer = document.getElementById(`results-${songIndex}`);
-            if (query.length < 2) { resultsContainer.innerHTML = ""; return; }
-            const allSuggestions = personalLibrary;
-            const results = allSuggestions.filter(p => p.title.toLowerCase().includes(query.toLowerCase())).slice(0,4);
-            resultsContainer.innerHTML = results.map(p => `<div class="suggestion-item ${p.isUserCreated?'user-suggestion':''}" onclick="applyPreset(${songIndex}, '${p.title.replace(/'/g, "\\'")}')">${p.isUserCreated ? '✅ Memoria: ' : '🎸 Suggerito: '} ${p.title}</div>`).join('');
+            if (query.length < 2) { resultsContainer.innerHTML = ''; return; }
+            const q = query.toLowerCase();
+            const results = allLibrary().filter(p => p.title.toLowerCase().includes(q)).slice(0, 6);
+            resultsContainer.innerHTML = results.map(p => `<div class="suggestion-item ${p.isUserCreated ? 'user-suggestion' : ''}" onclick="applyPreset(${songIndex}, this.dataset.title)" data-title="${escHtml(p.title)}">${p.isUserCreated ? '✅ Memoria: ' : '🎸 Suggerito: '} ${escHtml(p.title)}</div>`).join('');
         }
 
         function applyPreset(songIndex, title) {
-            const p = personalLibrary.find(x => x.title === title);
+            const p = allLibrary().find(x => x.title === title);
+            if (!p) return;
             const currentPart = songs[songIndex].parts[songs[songIndex].activePartIndex];
             ['cuffie', 'input'].forEach(mode => {
                 currentPart.modes[mode].forEach(slot => {
                     let targetPedalName = p.chain[slot.category];
-                    if (mode === 'input' && slot.category === 'Amp') targetPedalName = "Nessun Pedale";
+                    if (mode === 'input' && slot.category === 'Amp') targetPedalName = 'Nessun Pedale';
                     const found = catalog[slot.category].find(c => c.name === targetPedalName) || catalog[slot.category][0];
-                    slot.name = found.name; slot.img = found.img; slot.status = slot.name === "Nessun Pedale" ? "off" : "on"; slot.paramValues = found.params.map(() => "5");
+                    slot.name = found.name; slot.img = found.img; slot.status = slot.name === 'Nessun Pedale' ? 'off' : 'on'; slot.paramValues = found.params.map(() => String(BASE_DEFAULT));
                 });
             });
             renderApp();
@@ -329,67 +604,340 @@
 
         function learn() {
             songs.forEach(s => {
-                const libName = s.title + " (Salvato)";
-                if(!personalLibrary.find(x => x.title === libName)) {
-                    let c = {}; s.parts[0].modes.cuffie.forEach(slot => c[slot.category] = slot.name);
-                    personalLibrary.push({title: libName, chain: c, isUserCreated: true});
+                const libName = s.title + ' (Salvato)';
+                if (!personalLibrary.find(x => x.title === libName)) {
+                    const c = {}; s.parts[0].modes.cuffie.forEach(slot => c[slot.category] = slot.name);
+                    personalLibrary.push({ title: libName, chain: c, isUserCreated: true });
                 }
             });
-            localStorage.setItem('sparkPersonalLibrary', JSON.stringify(personalLibrary));
+            lsSet('sparkPersonalLibrary', JSON.stringify(personalLibrary));
         }
 
-        function switchMode(songIndex, mode) { 
-            const song = songs[songIndex]; const activePart = song.parts[song.activePartIndex];
-            if (mode === 'input') {
-                if (activePart.modes.input.every(slot => slot.name === "Nessun Pedale")) {
-                    activePart.modes.input = JSON.parse(JSON.stringify(activePart.modes.cuffie));
-                    const ampSlot = activePart.modes.input.find(s => s.category === 'Amp');
-                    if (ampSlot) { ampSlot.name = "Nessun Pedale"; ampSlot.img = ""; ampSlot.status = "off"; }
+        // ---------- gusti dell'utente (per l'AI) ----------
+        function tasteProfile() {
+            const cats = ['Amp', 'Drive', 'Mod', 'Delay', 'Reverb'], counts = {}, acc = { reverb: [], delay: [], ampGain: [] };
+            cats.forEach(c => counts[c] = {});
+            let n = 0;
+            const val = (slot, label) => { const p = catalog[slot.category].find(x => x.name === slot.name); const i = p ? p.params.indexOf(label) : -1; const v = i >= 0 ? Number(slot.paramValues[i]) : NaN; return isFinite(v) ? v : null; };
+            songs.forEach(s => s.parts.forEach(p => {
+                const chain = p.modes.cuffie; n++;
+                chain.forEach(slot => {
+                    if (slot.name === 'Nessun Pedale' || slot.status === 'off') return;
+                    if (counts[slot.category]) counts[slot.category][slot.name] = (counts[slot.category][slot.name] || 0) + 1;
+                    if (slot.category === 'Reverb') { const v = val(slot, 'Level'); if (v !== null) acc.reverb.push(v); }
+                    if (slot.category === 'Delay') { const v = val(slot, 'Level'); if (v !== null) acc.delay.push(v); }
+                    if (slot.category === 'Amp') { const v = val(slot, 'Gain'); if (v !== null) acc.ampGain.push(v); }
+                });
+            }));
+            if (n < 4) return null; // servono almeno 4 parti per parlare di "gusti"
+            const mean = (a) => (a.length >= 3 ? a.reduce((x, y) => x + y, 0) / a.length : null);
+            const top = {}; cats.forEach(c => { top[c] = Object.entries(counts[c]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]); });
+            return { n, top, avg: { reverb: mean(acc.reverb), delay: mean(acc.delay), ampGain: mean(acc.ampGain) } };
+        }
+        SparkAI.setTasteProvider(tasteProfile);
+
+        // ---------- AI ----------
+        function modesFromSlots(slots) {
+            const cuffie = clone(slots), input = clone(slots);
+            const amp = input.find(s => s.category === 'Amp');
+            if (amp) { amp.name = 'Nessun Pedale'; amp.img = ''; amp.status = 'off'; amp.paramValues = []; }
+            return { cuffie, input };
+        }
+
+        function openAI(songIndex) {
+            const song = songIndex === null ? null : songs[songIndex];
+            const part = song ? song.parts[song.activePartIndex] : null;
+            SparkAI.openGenerator({
+                title: song ? song.title : '',
+                isNew: !song,
+                currentSlots: part ? part.modes[song.activeMode] : null,
+                currentPartName: part ? part.name : '',
+                onApply: (result, scope) => applyAIResult(songIndex, result, scope)
+            });
+        }
+
+        function mergeTags(existing, add) { const out = (existing || []).slice(); (add || []).forEach(t => { if (t && !out.includes(t)) out.push(t); }); return out.slice(0, 12); }
+
+        function applyAIResult(songIndex, result, scope) {
+            const newParts = result.parts.map(p => ({ name: p.name, modes: modesFromSlots(p.slots) }));
+            const noteBlock = (result.summary ? result.summary + '\n' : '') + result.parts.filter(p => p.notes).map(p => `• ${p.name}: ${p.notes}`).join('\n');
+            if (songIndex === null) {
+                songs.unshift({
+                    title: result.title || 'Nuovo Brano AI', activePartIndex: 0, activeMode: 'cuffie',
+                    notes: noteBlock ? '🤖 ' + noteBlock : '', tags: mergeTags([], result.tags), duration: 4, parts: newParts
+                });
+            } else {
+                const song = songs[songIndex];
+                if (scope === 'active-part') {
+                    const cur = song.parts[song.activePartIndex];
+                    cur.modes = newParts[0].modes;
+                } else if (scope === 'add') {
+                    song.parts.push(...newParts);
+                    song.activePartIndex = song.parts.length - newParts.length;
+                } else {
+                    song.parts = newParts; song.activePartIndex = 0;
                 }
+                if (noteBlock) song.notes = ((song.notes || '').trim() ? song.notes.trim() + '\n\n' : '') + '🤖 ' + noteBlock;
+                song.tags = mergeTags(song.tags, result.tags);
+                song.isCollapsed = false;
             }
-            song.activeMode = mode; renderApp(); 
+            renderApp();
+            toast('Preset applicato', 'Annulla', undo);
         }
 
-        function switchPart(songIndex, pIdx) { songs[songIndex].activePartIndex = pIdx; renderApp(); }
-        function updateSongTitle(sIdx, val) { songs[sIdx].title = val; renderApp(); }
-        function updatePartName(sIdx, val) { songs[sIdx].parts[songs[sIdx].activePartIndex].name = val; renderApp(); }
-        function addPart(sIdx) { songs[sIdx].parts.push({ name: "Nuova Parte", modes: { cuffie: JSON.parse(JSON.stringify(defaultChain)), input: JSON.parse(JSON.stringify(defaultChain)) } }); songs[sIdx].activePartIndex = songs[sIdx].parts.length - 1; renderApp(); }
-        function deletePart(sIdx) { if(confirm("Eliminare parte?")) { songs[sIdx].parts.splice(songs[sIdx].activePartIndex, 1); songs[sIdx].activePartIndex = 0; renderApp(); } }
-        function togglePedal(sIdx, slIdx) { const slot = songs[sIdx].parts[songs[sIdx].activePartIndex].modes[songs[sIdx].activeMode][slIdx]; if (slot.name !== "Nessun Pedale") { slot.status = slot.status === "on" ? "off" : "on"; renderApp(); } }
-        
-        function updatePedal(sIdx, slIdx, name) {
-            const slot = songs[sIdx].parts[songs[sIdx].activePartIndex].modes[songs[sIdx].activeMode][slIdx];
-            const data = catalog[slot.category].find(p => p.name === name);
-            slot.name = data.name; slot.img = data.img; slot.status = name === "Nessun Pedale" ? "off" : "on"; slot.paramValues = data.params.map(() => "5");
+        // ---------- varianti A/B ----------
+        function toggleAB(si) {
+            const part = activePart(si);
+            if (!part.stash) {
+                part.stash = clone(part.modes); part.ab = 'A';
+                toast('Creata la versione B (copia di A): ora modifichi B. Premi di nuovo A/B per tornare ad A.');
+            }
+            const tmp = part.modes; part.modes = part.stash; part.stash = tmp;
+            part.ab = part.ab === 'B' ? 'A' : 'B';
             renderApp();
         }
 
-        function updateParamValue(sIdx, slIdx, pIdx, val) { songs[sIdx].parts[songs[sIdx].activePartIndex].modes[songs[sIdx].activeMode][slIdx].paramValues[pIdx] = val; localStorage.setItem('sparkPresetsV7', JSON.stringify(songs)); }
-        function addSong() { songs.unshift({ title: "Nuovo Brano", activePartIndex: 0, activeMode: "cuffie", parts: [{ name: "Accompagnamento", modes: { cuffie: JSON.parse(JSON.stringify(defaultChain)), input: JSON.parse(JSON.stringify(defaultChain)) } }] }); renderApp(); }
-        function deleteSong(idx) { if(confirm("Eliminare brano?")) { songs.splice(idx, 1); renderApp(); } }
-        function exportData() { learn(); const blob = new Blob([JSON.stringify(songs, null, 2)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "spark_presets_pro.json"; a.click(); }
-        function importData(e) { const reader = new FileReader(); reader.onload = (ev) => { try { songs = migrateToModes(JSON.parse(ev.target.result)); learn(); renderApp(); } catch(err) { alert("Errore file"); } }; reader.readAsText(e.target.files[0]); }
-        function updateNotes(sIdx, val) { songs[sIdx].notes = val; localStorage.setItem('sparkPresetsV7', JSON.stringify(songs)); }
-        function toggleCollapse(sIdx) { songs[sIdx].isCollapsed = !songs[sIdx].isCollapsed; renderApp(); }
+        function diffChains(a, b) {
+            const out = [];
+            a.forEach((sa, i) => {
+                const sb = b[i];
+                if (sa.name !== sb.name) { out.push(`${sa.category}: ${sa.name} → ${sb.name}`); return; }
+                if (sa.name === 'Nessun Pedale') return;
+                const p = catalog[sa.category].find(x => x.name === sa.name);
+                (p ? p.params : []).forEach((l, k) => { const va = sa.paramValues[k] || '5', vb = sb.paramValues[k] || '5'; if (va !== vb) out.push(`${sa.category} · ${sa.name} · ${l}: ${va} → ${vb}`); });
+                if (sa.status !== sb.status) out.push(`${sa.category} · ${sa.name}: ${sa.status === 'on' ? 'acceso' : 'spento'} → ${sb.status === 'on' ? 'acceso' : 'spento'}`);
+            });
+            return out;
+        }
 
+        async function showDiff(si) {
+            const song = songs[si], part = activePart(si);
+            if (!part.stash) return;
+            const mode = song.activeMode;
+            const A = part.ab === 'B' ? part.stash[mode] : part.modes[mode];
+            const B = part.ab === 'B' ? part.modes[mode] : part.stash[mode];
+            const lines = diffChains(A, B);
+            const body = openModal(`🔍 «${part.name}»: differenze A → B`, `
+                ${lines.length ? `<ul class="sp-diff">${lines.map(l => `<li>${escHtml(l)}</li>`).join('')}</ul>` : '<p class="sp-note">Le due versioni sono identiche.</p>'}
+                <div class="sp-actions">
+                    <button class="btn btn-ai" id="sp-explain">🧠 Spiega con Claude</button>
+                    <button class="btn btn-secondary" id="sp-drop">Elimina l'altra versione</button>
+                </div>
+                <div id="sp-explain-out"></div>`);
+            body.querySelector('#sp-drop').onclick = () => { delete part.stash; part.ab = 'A'; closeModal(); renderApp(); toast('Versione eliminata', 'Annulla', undo); };
+            body.querySelector('#sp-explain').onclick = async () => {
+                const out = body.querySelector('#sp-explain-out'); out.innerHTML = '<div class="sp-ai-out">⏳ Sto confrontando…</div>';
+                try {
+                    const text = await SparkAI.askText(`Sei un esperto di suono di chitarra e dell'amplificatore Positive Grid Spark. Confronta in italiano, in 3-4 frasi per un chitarrista, il suono della versione A e della versione B della parte «${part.name}» del brano «${song.title}». Dì cosa cambia nel timbro e in quale momento conviene usare ciascuna.\n\nVersione A:\n${SparkAI.describeSlots(A)}\n\nVersione B:\n${SparkAI.describeSlots(B)}`);
+                    out.innerHTML = `<div class="sp-ai-out">${escHtml(text)}</div>`;
+                } catch (e) { out.innerHTML = `<div class="sp-ai-out">${escHtml(e.message || 'Claude non ha risposto.')}</div>`; }
+            };
+        }
+
+        // ---------- scaletta: ordine e durata ----------
+        function moveInSetlist(si, dir) {
+            const starred = songs.map((s, i) => (s.isSetlist ? i : -1)).filter(i => i >= 0);
+            const pos = starred.indexOf(si), other = starred[pos + dir];
+            if (other === undefined) return;
+            [songs[si], songs[other]] = [songs[other], songs[si]];
+            renderApp(); setTimeout(openSetlist, 0);
+        }
+        function setDuration(si, v) { songs[si].duration = Math.max(1, Math.min(60, Number(v) || 4)); persist(); setTimeout(openSetlist, 0); }
+
+        function openSetlist() {
+            const starred = songs.map((s, i) => i).filter(i => songs[i].isSetlist);
+            const list = starred.length ? starred : songs.map((s, i) => i);
+            const total = list.reduce((a, i) => a + (Number(songs[i].duration) || 4), 0);
+            const target = SparkLive.targetMin(), diff = target - total;
+            const body = openModal('📋 Scaletta della serata', `
+                <p class="sp-note">${starred.length ? 'Brani con la ⭐, nell\'ordine in cui li suonerai.' : 'Nessun brano con la ⭐: la scaletta usa tutti i brani. Premi ⭐ su un brano per scegliere solo quelli della serata.'}</p>
+                <div class="sp-list">${list.map((i, k) => `
+                    <div class="sp-song">
+                        <span class="sp-note">${k + 1}.</span><span class="sp-t">${escHtml(songs[i].title)}</span>
+                        <input type="number" min="1" max="60" value="${songs[i].duration || 4}" data-i="${i}" aria-label="Durata in minuti"><span class="sp-note">min</span>
+                        ${starred.length ? `<button data-up="${i}" aria-label="Sposta su">▲</button><button data-down="${i}" aria-label="Sposta giù">▼</button>` : ''}
+                    </div>`).join('') || '<p class="sp-note">Nessun brano.</p>'}</div>
+                <div class="sp-row"><span>Durata del concerto</span><span><input type="number" id="sp-target2" min="1" max="600" value="${target}" style="width:80px"> min</span></div>
+                <div class="sp-total ${diff < 0 ? 'over' : 'ok'}">Totale scaletta: <b>${total} min</b> · Concerto: <b>${target} min</b><br>${diff >= 0 ? `Ti restano ${diff} min di margine.` : `Sei sopra di ${-diff} min: accorcia o togli un brano.`}</div>
+                <div class="sp-actions"><button class="btn" id="sp-live">🎸 Avvia Live</button><button class="btn btn-secondary" id="sp-close">Chiudi</button></div>`);
+            body.querySelectorAll('input[data-i]').forEach(inp => inp.onchange = () => setDuration(Number(inp.dataset.i), inp.value));
+            body.querySelectorAll('[data-up]').forEach(b => b.onclick = () => moveInSetlist(Number(b.dataset.up), -1));
+            body.querySelectorAll('[data-down]').forEach(b => b.onclick = () => moveInSetlist(Number(b.dataset.down), 1));
+            body.querySelector('#sp-target2').onchange = (e) => { SparkLive.setTargetMin(e.target.value); setTimeout(openSetlist, 0); };
+            body.querySelector('#sp-live').onclick = () => { closeModal(); SparkLive.enter(); };
+            body.querySelector('#sp-close').onclick = closeModal;
+        }
+
+        // ---------- condivisione ----------
+        async function openShare(si) {
+            const song = songs[si];
+            const body = openModal(`🔗 Condividi «${song.title}»`, '<p class="sp-note">⏳ Preparo il codice…</p>');
+            try {
+                const { code, url } = await SparkShare.link(song);
+                body.innerHTML = `
+                    <p class="sp-note">Chi riceve il link (o il codice) può aggiungere questo brano al proprio editor. Il preset è dentro il link: nessun server.</p>
+                    <label class="sp-note" for="sp-link">Link</label>
+                    <textarea id="sp-link" readonly>${escHtml(url)}</textarea>
+                    <label class="sp-note" for="sp-code" style="display:block;margin-top:8px">Solo codice (da incollare in "🔗 Da codice")</label>
+                    <textarea id="sp-code" readonly style="min-height:60px">${escHtml(code)}</textarea>
+                    <div class="sp-actions"><button class="btn" id="sp-copy-link">Copia link</button><button class="btn btn-secondary" id="sp-copy-code">Copia codice</button></div>`;
+                body.querySelectorAll('textarea').forEach(t => t.onfocus = () => t.select());
+                body.querySelector('#sp-copy-link').onclick = () => copyText(url, 'Link copiato');
+                body.querySelector('#sp-copy-code').onclick = () => copyText(code, 'Codice copiato');
+            } catch (e) { body.innerHTML = `<p class="sp-note">${escHtml(e.message || 'Non riesco a creare il codice.')}</p>`; }
+        }
+
+        function openImportCode() {
+            const body = openModal('🔗 Importa da link o codice', `
+                <p class="sp-note">Incolla il link o il codice che ti hanno mandato.</p>
+                <textarea id="sp-in" placeholder="https://…#s=… oppure Z…"></textarea>
+                <div id="sp-in-err" class="sp-note" style="color:#f1948a;margin-top:6px"></div>
+                <div class="sp-actions"><button class="btn" id="sp-do-import">Importa</button></div>`);
+            body.querySelector('#sp-do-import').onclick = async () => {
+                try { const s = await SparkShare.decode(body.querySelector('#sp-in').value); songs.unshift(s); closeModal(); renderApp(); toast(`Aggiunto «${s.title}»`, 'Annulla', undo); }
+                catch (e) { body.querySelector('#sp-in-err').textContent = e.message || 'Codice non valido.'; }
+            };
+        }
+
+        async function checkSharedHash() {
+            if (!/^#s=/.test(location.hash)) return;
+            const code = location.hash;
+            try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignora */ }
+            try {
+                const s = await SparkShare.decode(code);
+                showBanner('share', `📥 Brano condiviso: <b>${escHtml(s.title)}</b> (${s.parts.length} ${s.parts.length === 1 ? 'parte' : 'parti'}).`, [
+                    ['Aggiungi', () => { songs.unshift(s); renderApp(); toast('Brano aggiunto', 'Annulla', undo); }],
+                    ['Ignora', () => {}, true]
+                ]);
+            } catch (e) { showBanner('share', 'Il link condiviso non è valido: ' + escHtml(e.message || ''), [['OK', () => {}, true]]); }
+        }
+
+        // ---------- backup ----------
+        const fmtDate = (t) => new Date(t).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+        async function downloadBackup() {
+            learn();
+            const ok = await saveFile('spark_presets_pro.json', JSON.stringify(songs, null, 2));
+            if (ok) { SparkStore.markDownloaded(); toast('Backup scaricato'); }
+        }
+
+        async function openBackup() {
+            const body = openModal('💾 Backup dei brani', '<p class="sp-note">⏳ Carico…</p>');
+            const st = await SparkStore.status(), snaps = await SparkStore.list();
+            body.innerHTML = `
+                <p class="sp-note">I brani vivono nel browser: se svuoti i dati del sito o cambi dispositivo li perdi. Qui hai tre protezioni.</p>
+                <div class="sp-row"><div><b>1. Scarica un file</b><br><span class="sp-note">${st.lastDownload ? 'Ultimo: ' + fmtDate(st.lastDownload) : 'Non ancora scaricato'}</span></div><button class="btn" id="bk-dl">⬇️ Scarica backup</button></div>
+                <div class="sp-row"><div><b>2. File collegato</b><br><span class="sp-note">${st.fileSupported ? (st.linkedName ? `Collegato a «${escHtml(st.linkedName)}»${st.fileStatus ? ' · ' + escHtml(st.fileStatus) : ''}` : 'Si aggiorna da solo a ogni modifica (anche dentro una cartella cloud).') : 'Non supportato da questo browser (serve Chrome o Edge su computer).'}</span></div>
+                    ${st.fileSupported ? (st.linkedName ? '<span><button class="btn btn-secondary" id="bk-reauth">Riattiva</button> <button class="btn btn-secondary" id="bk-unlink">Scollega</button></span>' : '<button class="btn" id="bk-link">Collega file</button>') : ''}</div>
+                <div style="margin-top:10px"><b>3. Copie automatiche nel browser</b><br><span class="sp-note">Le ultime ${snaps.length || 0} versioni, salvate ogni ~20 minuti di lavoro.</span>
+                    <div class="sp-list" id="bk-snaps">${snaps.map((s, i) => `<div class="sp-song"><span class="sp-t">${fmtDate(s.t)} · ${s.n} brani</span><button data-r="${i}">Ripristina</button></div>`).join('') || '<p class="sp-note">Ancora nessuna copia.</p>'}</div></div>`;
+            body.querySelector('#bk-dl').onclick = async () => { await downloadBackup(); openBackup(); };
+            const link = body.querySelector('#bk-link');
+            if (link) link.onclick = async () => { try { await SparkStore.linkFile(JSON.stringify(songs)); toast('File collegato'); } catch (e) { if (e && e.name !== 'AbortError') toast(e.message || 'Non riesco a collegare il file'); } openBackup(); };
+            const un = body.querySelector('#bk-unlink'); if (un) un.onclick = async () => { await SparkStore.unlinkFile(); openBackup(); };
+            const re = body.querySelector('#bk-reauth'); if (re) re.onclick = async () => { await SparkStore.writeFile(JSON.stringify(songs), true); openBackup(); };
+            body.querySelectorAll('[data-r]').forEach(b => b.onclick = () => {
+                if (b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = 'Conferma'; return; }
+                const snap = snaps[Number(b.dataset.r)];
+                songs = migrateToModes(JSON.parse(snap.data)); closeModal(); renderApp(); toast('Backup ripristinato', 'Annulla', undo);
+            });
+        }
+
+        async function checkBackupBanners() {
+            if (!rawStored.length) {
+                const snaps = await SparkStore.list();
+                if (snaps.length) {
+                    const s = snaps[0];
+                    showBanner('restore', `🗂️ Ho trovato una copia di sicurezza del ${fmtDate(s.t)} con <b>${s.n} brani</b>. Vuoi ripristinarla?`, [
+                        ['Ripristina', () => { songs = migrateToModes(JSON.parse(s.data)); renderApp(); toast('Copia ripristinata', 'Annulla', undo); }],
+                        ['No', () => {}, true]
+                    ]);
+                }
+                return;
+            }
+            const d = SparkStore.reminderDays(songs.length > 0);
+            if (d) showBanner('backup', `💾 Non scarichi un backup da <b>${d} giorni</b>.`, [
+                ['Scarica ora', downloadBackup],
+                ['Domani', () => SparkStore.snooze(), true]
+            ]);
+        }
+
+        // ---------- azioni sui brani ----------
+        function switchMode(songIndex, mode) {
+            const song = songs[songIndex]; const part = song.parts[song.activePartIndex];
+            if (mode === 'input' && part.modes.input.every(slot => slot.name === 'Nessun Pedale')) {
+                part.modes.input = clone(part.modes.cuffie);
+                const ampSlot = part.modes.input.find(s => s.category === 'Amp');
+                if (ampSlot) { ampSlot.name = 'Nessun Pedale'; ampSlot.img = ''; ampSlot.status = 'off'; ampSlot.paramValues = []; }
+            }
+            song.activeMode = mode; renderApp();
+        }
+        function switchPart(songIndex, pIdx) { songs[songIndex].activePartIndex = pIdx; renderApp(); }
+        function updateSongTitle(sIdx, val) { songs[sIdx].title = val; renderApp(); }
+        function updatePartName(sIdx, val) { activePart(sIdx).name = val; renderApp(); }
+        function newPart(name) { return { name: name || 'Nuova Parte', modes: { cuffie: clone(defaultChain), input: clone(defaultChain) } }; }
+        function addPart(sIdx) { songs[sIdx].parts.push(newPart()); songs[sIdx].activePartIndex = songs[sIdx].parts.length - 1; renderApp(); }
+        function deletePart(sIdx) { songs[sIdx].parts.splice(songs[sIdx].activePartIndex, 1); songs[sIdx].activePartIndex = 0; renderApp(); toast('Parte eliminata', 'Annulla', undo); }
+        function togglePedal(sIdx, slIdx) { const slot = curChain(sIdx)[slIdx]; if (slot.name !== 'Nessun Pedale') { slot.status = slot.status === 'on' ? 'off' : 'on'; renderApp(); } }
+
+        function updatePedal(sIdx, slIdx, name) {
+            const slot = curChain(sIdx)[slIdx];
+            const data = catalog[slot.category].find(p => p.name === name);
+            slot.name = data.name; slot.img = data.img; slot.status = name === 'Nessun Pedale' ? 'off' : 'on'; slot.paramValues = data.params.map(() => String(BASE_DEFAULT));
+            renderApp();
+        }
+
+        // manopole a cursore: aggiornano solo il valore mostrato, senza ridisegnare tutta la pagina
+        function onParam(sIdx, slIdx, pIdx, el) {
+            const slot = curChain(sIdx)[slIdx];
+            while (slot.paramValues.length <= pIdx) slot.paramValues.push(String(BASE_DEFAULT));
+            slot.paramValues[pIdx] = String(el.value);
+            const num = el.parentNode.querySelector('.param-num'); if (num) num.textContent = el.value;
+            refreshWarnings(sIdx);
+            persist();
+        }
+
+        function addSong() {
+            songs.unshift({ title: 'Nuovo Brano', activePartIndex: 0, activeMode: 'cuffie', tags: [], duration: 4, parts: [newPart('Accompagnamento')] });
+            renderApp();
+        }
+        function deleteSong(idx) { songs.splice(idx, 1); renderApp(); toast('Brano eliminato', 'Annulla', undo); }
+
+        function exportData() { downloadBackup(); }
+        function importData(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const data = JSON.parse(ev.target.result);
+                    if (!Array.isArray(data)) throw new Error('formato');
+                    songs = migrateToModes(data); learn(); renderApp(); toast(`Importati ${songs.length} brani`, 'Annulla', undo);
+                } catch (err) { toast('File non valido: serve un backup JSON dell\'app'); }
+                e.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+        function updateNotes(sIdx, val) { songs[sIdx].notes = val; persist(); }
+        function toggleCollapse(sIdx) { songs[sIdx].isCollapsed = !songs[sIdx].isCollapsed; renderApp(); }
+        function toggleSetlist(sIdx) { songs[sIdx].isSetlist = !songs[sIdx].isSetlist; renderApp(); }
+
+        // ---------- trascinamento (solo dalla maniglia ☰, così i cursori restano usabili) ----------
         let draggedIndex = null;
         function dragStart(e, index) { draggedIndex = index; e.dataTransfer.effectAllowed = 'move'; setTimeout(() => e.target.classList.add('dragging'), 0); }
         function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
         function dragEnter(e) { e.preventDefault(); if (e.currentTarget.classList.contains('preset-card')) e.currentTarget.classList.add('drag-over'); }
         function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
-        function drop(e, dropIndex) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); if (draggedIndex === null || draggedIndex === dropIndex) return; const itemToMove = songs.splice(draggedIndex, 1)[0]; songs.splice(dropIndex, 0, itemToMove); draggedIndex = null; renderApp(); }
-        function dragEnd(e) { e.target.classList.remove('dragging'); document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('drag-over')); }
+        function drop(e, dropIndex) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); if (draggedIndex === null || draggedIndex === dropIndex) return; const item = songs.splice(draggedIndex, 1)[0]; songs.splice(dropIndex, 0, item); draggedIndex = null; renderApp(); }
+        function dragEnd(e) { e.target.draggable = false; e.target.classList.remove('dragging'); document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('drag-over')); }
 
-        let isLive = false;
-        function toggleLiveMode() {
-            isLive = !isLive;
-            const hasStarredSongs = songs.some(s => s.isSetlist);
-            if (isLive) { document.body.classList.add('live-mode'); if (hasStarredSongs) document.body.classList.add('has-setlist'); document.getElementById('liveBtn').innerHTML = "❌ Esci da Live"; } 
-            else { document.body.classList.remove('live-mode'); document.body.classList.remove('has-setlist'); document.getElementById('liveBtn').innerHTML = "🎸 Modalità Live"; }
-        }
-        function toggleSetlist(sIdx) { songs[sIdx].isSetlist = !songs[sIdx].isSetlist; renderApp(); }
-
-        window.onload = function() { if(songs.length === 0) addSong(); else renderApp(); };
+        // ---------- avvio ----------
+        (function init() {
+            if (songs.length === 0) addSong(); else renderApp();
+            hist = []; histIdx = -1; recordHistory();
+            checkBackupBanners();
+            checkSharedHash();
+            SparkStore.saveSnapshot(JSON.stringify(songs), false);
+        })();
     </script>
 </body>
 </html>

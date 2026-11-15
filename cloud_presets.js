@@ -80,12 +80,12 @@ const cloudPresets = [
     { 
         title: "Jimi Hendrix - Purple Haze", 
         // Realtà: Fuzz Face + Orange AD30 + Chorus/Vibe
-        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"09 Fuzz Face", Amp:"25 Citrus 30", Mod:"02 Chorus", Delay:"Nessun Pedale", Reverb:"01 Room A"}
+        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"09 Fuzz Face", Amp:"J.H. Super 100", Mod:"02 Chorus", Delay:"Nessun Pedale", Reverb:"01 Room A"}
     },
     { 
         title: "Iron Maiden - Seventh Son", 
         // Realtà: TS9 + Marshall JTM45 (Overdriven JM45)
-        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"15 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
+        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"17 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
     },
     { 
         title: "Jethro Tull - High Gain Crunch", 
@@ -135,17 +135,17 @@ const cloudPresets = [
     { 
         title: "Guns N' Roses - Paradise City (Intro)", 
         // Realtà: Compressore + Marshall JTM45 (OverDrivenJM45) + Chorus
-        chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"15 JM45", Mod:"02 Chorus", Delay:"01 Digital", Reverb:"03 Hall Nat."}
+        chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"17 JM45", Mod:"02 Chorus", Delay:"01 Digital", Reverb:"03 Hall Nat."}
     },
     { 
         title: "Red Hot Chili Peppers - Under The Bridge", 
         // Realtà: Compressore + Marshall JTM45 clean/crunch + Flanger
-        chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"15 JM45", Mod:"03 Flanger", Delay:"Nessun Pedale", Reverb:"01 Room A"}
+        chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"Nessun Pedale", Amp:"17 JM45", Mod:"03 Flanger", Delay:"Nessun Pedale", Reverb:"01 Room A"}
     },
     { 
         title: "Santana - Black Magic Woman (Lead)", 
         // Realtà: Comp + Tube Screamer (Booster) + Marshall JTM45
-        chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"01 Booster", Amp:"15 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
+        chain: {Gate:"01 NoisGate", Comp:"05 Optical", Drive:"01 Booster", Amp:"17 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
     },
     { 
         title: "Joe Satriani - Satch Boogie", 
@@ -155,7 +155,7 @@ const cloudPresets = [
     { 
         title: "Guns N' Roses - Slash Appetite For Destruction (AFD)", 
         // Realtà: Tube Screamer (Booster) + Marshall JTM45 modificato
-        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"15 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
+        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"17 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
     },
     { 
         title: "Guns N' Roses - Don't Cry (Solo)", 
@@ -165,12 +165,12 @@ const cloudPresets = [
     { 
         title: "Slash - Signature Modern Lead", 
         // Realtà: Comp + Overdrive + Marshall JTM45 + Delay
-        chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"04 Over Drv", Amp:"15 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
+        chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"04 Over Drv", Amp:"17 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
     },
     { 
         title: "Led Zeppelin - Stairway to Heaven (Solo)", 
         // Realtà: Compressore + Tube Screamer + Orange AD30
-        chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"25 Citrus 30", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}
+        chain: {Gate:"01 NoisGate", Comp:"01 LA Comp", Drive:"01 Booster", Amp:"16 Plexiglas", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"03 Hall Nat."}
     },
     { 
         title: "Dire Straits - Sultans of Swing (Clean Twin)", 
@@ -180,12 +180,12 @@ const cloudPresets = [
     { 
         title: "Dire Straits - Sultans of Swing (Crunch Lux)", 
         // Realtà: Booster + Fender Deluxe Reverb in leggero crunch
-        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"06 Lux Verb", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"04 Plate Short"}
+        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"18 Lux Verb", Mod:"Nessun Pedale", Delay:"Nessun Pedale", Reverb:"04 Plate Short"}
     },
     { 
         title: "Guns N' Roses - Sweet Child O' Mine", 
         // Realtà: Tube Screamer (Booster) + Marshall JTM45 + Delay
-        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"15 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
+        chain: {Gate:"01 NoisGate", Comp:"Nessun Pedale", Drive:"01 Booster", Amp:"17 JM45", Mod:"Nessun Pedale", Delay:"01 Digital", Reverb:"03 Hall Nat."}
     },
     { 
         title: "Van Halen - Ain't Talkin' 'Bout Love", 
